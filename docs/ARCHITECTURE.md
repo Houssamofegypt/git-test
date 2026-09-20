@@ -182,6 +182,29 @@ if the rasm rung ever folds the wrong things together, this structure dissolves
 into noise, and a normalization bug announces itself as a failing claim instead
 of as a plausible-looking finding three papers later.
 
+## The explorer
+
+`make serve` starts a local read-only web UI. It obeys one rule, and the rule is the
+whole design in miniature: **the UI computes nothing.** Every rung, count and variant
+it displays is read from `quran.db` by a named endpoint. If the frontend did its own
+normalization — even "just" stripping diacritics for display — a number on the page
+could disagree with the same number in the claim ledger, and the disagreement would be
+invisible. So the browser renders JSON; it never derives.
+
+Two consequences look like limitations and are not. There is no arbitrary SQL over
+HTTP: `quranlab sql` exists for that, at a shell prompt, where it is obvious who is
+running it. And it binds to 127.0.0.1 only, because this is a research instrument, not
+a service. A test asserts that the set of methods declared on the API class is exactly
+the set of routed endpoints, so a method cannot become reachable by accident.
+
+The one thing the UI genuinely needs that the database cannot give it is a font.
+Quranic vocalization uses marks — U+06E1 sukun, U+08F0 open tanwīn, the U+08Dx
+recitation marks — that almost no system font covers; without one the upper rungs
+render as tofu and broken shaping, which makes the explorer useless for exactly the
+text it exists to show. So Amiri Quran is fetched through the same pinned, hashed
+mechanism as the corpus rather than from a CDN: the explorer works offline, and the
+font cannot change under us any more than the text can.
+
 ## What this deliberately does not do
 
 - **No interpretation, no tafsīr, no thematic tagging.** Those are annotations,
