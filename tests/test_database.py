@@ -51,11 +51,14 @@ def test_annotation_span_constraint_is_enforced(tmp_path):
     shutil.copy(DB_PATH, scratch)
     c = sqlite3.connect(scratch)
     c.execute("PRAGMA foreign_keys = ON")
+    layer = c.execute(
+        "SELECT COALESCE(MAX(id), 0) + 1 FROM annotation_layer").fetchone()[0]
     c.execute("INSERT INTO annotation_layer (id, slug, title, description, author,"
-              " method, created_at) VALUES (1,'t','T','test','t','manual','now')")
+              " method, created_at) VALUES (?,'t','T','test','t','manual','now')",
+              (layer,))
     with pytest.raises(sqlite3.IntegrityError):
         c.execute("INSERT INTO annotation (layer_id, word_start, word_end, key,"
-                  " created_at) VALUES (1, 100, 50, 'k', 'now')")
+                  " created_at) VALUES (?, 100, 50, 'k', 'now')", (layer,))
     c.close()
 
 
@@ -67,3 +70,24 @@ def test_every_edition_covers_every_ayah(conn):
             WHERE t.edition_id = e.id AND t.ayah_id = a.id)
     """).fetchone()[0]
     assert gaps == 0
+
+
+def test_interrupted_build_leaves_no_usable_database(tmp_path, monkeypatch):
+    """A half-written database opens fine and answers every query with zero rows.
+
+    Anything downstream then reports an empty corpus as a fact, so the build
+    writes to a temporary file and moves it into place only on success.
+    """
+    from quranlab import build as build_mod
+
+    target = tmp_path / "quran.db"
+    boom = RuntimeError("interrupted")
+
+    def explode(*_a, **_k):
+        raise boom
+
+    monkeypatch.setattr(build_mod, "load_spine", explode)
+    with pytest.raises(RuntimeError):
+        build_mod.build(target)
+
+    assert not target.exists(), "a partial build must not be left in place"

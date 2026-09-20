@@ -148,6 +148,7 @@ td.ar{font-size:19px;text-align:right}
   <button data-view="search">Search</button>
   <button data-view="roots">Roots</button>
   <button data-view="tree">Riwāyah tree</button>
+  <button data-view="asbab">Occasions</button>
   <button data-view="exceptions">Exceptions</button>
   <div class="navnote" id="navnote"></div>
 </nav>
@@ -196,8 +197,9 @@ async function viewLadder(){
         <div class="ar">${txt}</div></div>`;
     }
     html += `<div style="margin-top:12px"><button class="go" data-words="${a.ayah_id}">Morphology</button>
-      <button class="go" data-app="${a.ayah_id}" style="background:none;color:var(--accent)">Variants</button></div>
-      <div id="w${a.ayah_id}"></div></div>`;
+      <button class="go" data-app="${a.ayah_id}" style="background:none;color:var(--accent)">Variants</button>
+      <button class="go" data-sabab="${a.ayah_id}" style="background:none;color:var(--accent)">Occasion</button></div>
+      <div id="w${a.ayah_id}"></div><div id="sb${a.ayah_id}"></div></div>`;
   }
   return html;
 }
@@ -325,6 +327,59 @@ async function viewTree(){
   </div>`;
 }
 
+async function viewAsbab(){
+  const d = await api("asbab_index");
+  const t = d.totals, w = d.works[0];
+  if(!w) return `<div class="card"><p class="empty">No work of asbab al-nuzul ingested.</p></div>`;
+  const notCarried = d.coverage.filter(c=>!c.in_source).map(c=>c.surah);
+  const rng = ns => { const o=[]; let a=null,p=null;
+    for(const n of ns){ if(a===null){a=p=n;} else if(n===p+1){p=n;} else {o.push(a===p?a:a+"-"+p); a=p=n;} }
+    if(a!==null) o.push(a===p?a:a+"-"+p); return o.join(", "); };
+  return `<div class="card">
+    <div class="ar" style="font-size:24px;margin-bottom:6px">${esc(w.title)}</div>
+    <p class="meta" style="margin:0 0 14px">${esc(w.author)}${w.died_ah?` · d. ${w.died_ah} AH`:""}</p>
+    <div class="stats">
+      <div class="stat"><b>${num(t.reports)}</b><span>reports</span></div>
+      <div class="stat"><b>${num(t.ayahs)}</b><span>ayahs covered</span></div>
+      <div class="stat"><b>${(100*t.ayahs/6236).toFixed(1)}%</b><span>of the Quran</span></div>
+      <div class="stat"><b>${t.surahs}/114</b><span>surahs carried</span></div>
+      <div class="stat"><b>${num(t.excluded)}</b><span>entries excluded</span></div>
+    </div>
+    <p class="meta" style="margin:10px 0 0;max-width:80ch;line-height:1.7">
+      <b>Absence here means three different things.</b> An ayah with no report may have
+      none reported; or sit in a surah this source does not carry at all
+      (<b>${esc(rng(notCarried))}</b> &mdash; nothing consulted, not "none reported"); or sit in a
+      surah whose entries were rejected as a different author's work
+      (${num(t.excluded)} of ${num(t.entries)} entries under this slug are not al-Wahidi).
+      Nothing here adjudicates between competing reports.</p>
+  </div>
+  <div class="card">
+    <div class="sec" style="margin-top:0">Coverage by surah</div>
+    <table><thead><tr><th>surah</th><th>carried</th><th>entries</th><th>reports</th>
+      <th>excluded</th><th>ayahs with a report</th></tr></thead><tbody>
+    ${d.coverage.filter(c=>c.in_source||c.entries).map(c=>`<tr>
+      <td><a class="ref" href="#" data-asbabsurah="${c.surah}">${c.surah}</a>
+        <span class="meta">${esc(c.name)}</span></td>
+      <td>${c.in_source?'<span class="tag ok">yes</span>':'<span class="tag warn">no</span>'}</td>
+      <td class="meta">${c.entries}</td><td class="meta">${c.reports}</td>
+      <td class="meta">${c.excluded}</td><td class="meta">${c.ayahs}</td></tr>`).join("")}
+    </tbody></table>
+    <p class="meta" style="margin-top:10px">Surahs ${esc(rng(notCarried))} are omitted from this
+      table entirely: the source is silent about them.</p>
+  </div>
+  <div class="card">
+    <div class="sec" style="margin-top:0">All ${num(t.reports)} reports</div>
+    <table><thead><tr><th>anchor</th><th>stated range</th><th>ayahs</th><th>chains</th>
+      <th>quoting</th></tr></thead><tbody>
+    ${d.reports.map(r=>`<tr>
+      <td><a class="ref" href="#" data-ref="${esc(r.anchor)}">${esc(r.anchor)}</a></td>
+      <td class="meta">${esc(r.stated_ref)}</td>
+      <td class="meta">${r.ayahs_covered}</td>
+      <td class="meta">${r.chains||"—"}</td>
+      <td style="font-size:12.5px;color:var(--muted)">${esc((r.quoted_text||"").slice(0,90))}</td>
+    </tr>`).join("")}</tbody></table></div>`;
+}
+
 async function viewExceptions(){
   const d = await api("exceptions");
   return `<div class="card">
@@ -352,6 +407,7 @@ const HEADS = {
   search:["Search","Full-text search at a chosen rung. The rung is part of the query, not a hidden default."],
   roots:["Roots","Every root the morphology assigns, with its concordance."],
   tree:["Riwāyah tree",""],
+  asbab:["Occasions of revelation","Asbab al-nuzul: what a report says prompted a passage. Sparse, contested and spanning — an ayah may carry several reports and a report may cover several ayahs. The useful part is often the absence, and there are three kinds of it."],
   exceptions:["Spine exceptions",""],
 };
 
@@ -373,11 +429,12 @@ const BARS = {
       style="font-family:var(--arabic);font-size:17px" placeholder="filter roots">
     <button class="go" id="goq">Filter</button>
     ${state.root?`<button class="go" id="clrroot" style="background:none;color:var(--accent)">← all roots</button>`:""}</div>`,
-  tree: ()=>"", exceptions: ()=>"",
+  tree: ()=>"", exceptions: ()=>"", asbab: ()=>"",
 };
 
 const VIEWS = {ladder:viewLadder,apparatus:viewApparatus,skeleton:viewSkeleton,
-               search:viewSearch,roots:viewRoots,tree:viewTree,exceptions:viewExceptions};
+               search:viewSearch,roots:viewRoots,tree:viewTree,asbab:viewAsbab,
+               exceptions:viewExceptions};
 
 async function render(){
   const [h,l] = HEADS[VIEW];
@@ -423,6 +480,28 @@ function wire(){
       </tr>`).join("")}</tbody></table>`;
   });
 
+  on("[data-sabab]","click",async e=>{
+    const id=+e.currentTarget.dataset.sabab, box=$("#sb"+id);
+    if(box.dataset.open){ box.innerHTML=""; delete box.dataset.open; return; }
+    const d=await api("asbab",{ayah_id:id}); box.dataset.open="1";
+    if(!d.reports.length){
+      box.innerHTML=`<div class="sec">Occasion of revelation</div>` + (d.coverage && d.coverage.in_source
+        ? `<p class="empty">No occasion reported here by the works ingested.</p>`
+        : `<p class="empty">No data — this surah is not carried by any ingested work.
+             That is not "no occasion reported"; nothing has been consulted.</p>`);
+      return;
+    }
+    box.innerHTML=`<div class="sec">Occasion of revelation</div>` + d.reports.map(r=>`
+      <p class="meta" style="margin:0 0 6px"><span class="tag">${esc(r.work)}</span>
+        ${esc(r.stated_ref)} · ${r.ayahs_covered>1?r.ayahs_covered+" ayahs":"this ayah"}
+        ${r.chains?" · "+r.chains+" narration chain"+(r.chains>1?"s":""):" · no chain given"}</p>
+      <p style="font-size:14px;line-height:1.65;margin:0 0 8px">${esc(r.report)}</p>
+      ${r.damaged?`<p class="meta" style="color:var(--warn)">${r.damaged} characters lost in the
+        source's transcode; shown as delivered.</p>`:""}`).join("");
+  });
+  on("[data-asbabsurah]","click",async e=>{e.preventDefault();
+    state.ref="Q"+e.currentTarget.dataset.asbabsurah+":1"; VIEW="ladder"; render();});
+
   /* hovering a token lights up the same word on every tokenised rung */
   on("tok","mouseenter",e=>{const i=e.target.dataset.i;
     e.target.closest(".card").querySelectorAll(`tok[data-i="${i}"]`).forEach(t=>t.classList.add("on"));});
@@ -435,7 +514,8 @@ function wire(){
   $("#brandsub").textContent = META.build.digest.slice(0,12);
   $("#navnote").innerHTML =
     `${num(META.counts.words)} words<br>${num(META.counts.segments)} segments<br>
-     ${num(META.counts.roots)} roots<br>${num(META.counts.consonantal_variants)} variants<br><br>
+     ${num(META.counts.roots)} roots<br>${num(META.counts.consonantal_variants)} variants<br>
+     ${num(META.counts.sabab_reports)} sabab reports<br><br>
      read-only · localhost`;
   document.querySelectorAll("nav button").forEach(b=>
     b.onclick=()=>{VIEW=b.dataset.view; render();});

@@ -15,8 +15,14 @@ from quranlab.build import DB_PATH
 from quranlab.export_portable import DIST, LITE_DB
 
 CSV_DIR = DIST / "csv"
+def _stale() -> bool:
+    """True when dist/ predates the database it claims to export."""
+    return (not LITE_DB.exists()
+            or LITE_DB.stat().st_mtime < DB_PATH.stat().st_mtime)
+
+
 pytestmark = pytest.mark.skipif(
-    not LITE_DB.exists(), reason="run `make portable` first")
+    _stale(), reason="dist/ missing or older than the database — run `make portable`")
 
 
 @pytest.fixture(scope="module")

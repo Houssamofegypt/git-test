@@ -6,6 +6,15 @@
 
 PY ?= python3
 
+DB  := data/quran.db
+SRC := $(wildcard quranlab/*.py) quranlab/schema.sql sources.lock.json
+
+# The database is a real file target, not a phony one: `make check` invokes it
+# three times, and rebuilding a 165 MB database each time both wasted half a
+# minute per invocation and left every export stale the moment it was made.
+$(DB): $(SRC) | fetch
+	$(PY) -m quranlab build
+
 .PHONY: all fetch build verify claims test check clean distclean serve site portable stats help
 
 all: check
@@ -13,8 +22,7 @@ all: check
 fetch:                ## download pinned sources into data/raw
 	$(PY) -m quranlab fetch
 
-build: fetch          ## build data/quran.db
-	$(PY) -m quranlab build
+build: $(DB)          ## build data/quran.db
 
 verify: build         ## assert every data invariant
 	$(PY) -m quranlab verify

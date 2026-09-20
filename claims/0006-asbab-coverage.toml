@@ -1,0 +1,18 @@
+[claim]
+id        = "0006-asbab-coverage"
+statement = "From al-Wāḥidī, 322 distinct reports attach occasions of revelation to 402 ayahs — 6.4% of the Quran."
+level     = "n/a"
+author    = "quranlab"
+date      = "2026-09-20"
+note      = """A statement about this mirror of al-Wāḥidī, NOT about the genre and NOT about
+the Quran. The mirror carries only surahs 1-71 and 73-76; surahs 72 and 77-114 are absent
+entirely, and al-Wāḥidī certainly discusses ayahs in them (80, 93, 108, 111). So 6.4% is a
+floor on what one work reports, not a measure of how much of the Quran has a reported
+occasion. `sabab_coverage` holds the per-surah detail; any figure quoted from this table
+must be qualified by it. Falsified by ingesting a second work or a complete al-Wāḥidī —
+both of which should raise it."""
+query     = """
+SELECT (SELECT COUNT(*) FROM sabab_report),
+       (SELECT COUNT(DISTINCT ayah_id) FROM sabab_span)
+"""
+expect    = [322, 402]

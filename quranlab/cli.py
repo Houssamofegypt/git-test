@@ -144,6 +144,98 @@ def cmd_variants(args) -> int:
     return 0
 
 
+def _ranges(nums: list[int]) -> str:
+    """[78,79,80,93] -> '78-80, 93'."""
+    out: list[str] = []
+    start = prev = None
+    for n in nums:
+        if start is None:
+            start = prev = n
+        elif n == prev + 1:
+            prev = n
+        else:
+            out.append(str(start) if start == prev else f"{start}-{prev}")
+            start = prev = n
+    if start is not None:
+        out.append(str(start) if start == prev else f"{start}-{prev}")
+    return ", ".join(out)
+
+
+def cmd_asbab(args) -> int:
+    """Reported occasions of revelation.
+
+    The informative answer here is often an absence, and there are three
+    different ones. This prints them distinctly: no occasion reported, the surah
+    not carried by any ingested work, and entries present that are not sabab
+    reports. Collapsing those three is how "no occasion was reported for this
+    ayah" gets asserted on the strength of a truncated mirror.
+    """
+    conn = _conn()
+
+    if args.coverage:
+        print("  What each work covers. `not in this source` is not the same as"
+              " 'no occasion reported'.\n")
+        for w in conn.execute("SELECT id, slug, author, note FROM sabab_work"):
+            cov = conn.execute(
+                "SELECT COUNT(*) FILTER (WHERE in_source = 1) AS surahs,"
+                " SUM(entries) AS e, SUM(reports) AS r, SUM(excluded) AS x"
+                " FROM sabab_coverage WHERE work_id = ?", (w["id"],)).fetchone()
+            reports = conn.execute(
+                "SELECT COUNT(*) FROM sabab_report WHERE work_id = ?",
+                (w["id"],)).fetchone()[0]
+            ayahs = conn.execute(
+                "SELECT COUNT(DISTINCT s.ayah_id) FROM sabab_span s"
+                " JOIN sabab_report r ON r.id = s.report_id WHERE r.work_id = ?",
+                (w["id"],)).fetchone()[0]
+            print(f"  {w['slug']} — {w['author']}")
+            print(f"    surahs carried       {cov['surahs']}/114")
+            print(f"    source entries       {cov['e']}")
+            print(f"      genuine reports    {cov['r']}  →  {reports} after deduplication")
+            print(f"      excluded           {cov['x']}  (a different work under the same slug)")
+            print(f"    ayahs with a report  {ayahs}  ({100 * ayahs / 6236:.1f}% of the Quran)")
+            missing = [r[0] for r in conn.execute(
+                "SELECT surah FROM sabab_coverage WHERE work_id = ? AND in_source = 0"
+                " ORDER BY surah", (w["id"],))]
+            if missing:
+                print(f"    NOT in this source   surahs {_ranges(missing)}")
+            print()
+        return 0
+
+    for ayah_id in _ayah_ids(conn, parse_ref(args.ref)):
+        meta = conn.execute("SELECT * FROM v_ayah WHERE ayah_id = ?",
+                            (ayah_id,)).fetchone()
+        rows = conn.execute(
+            "SELECT v.* FROM v_sabab v JOIN sabab_span s ON s.report_id = v.report_id"
+            " WHERE s.ayah_id = ? ORDER BY v.work, v.report_id", (ayah_id,)).fetchall()
+        carried = conn.execute(
+            "SELECT COUNT(*) FROM sabab_coverage WHERE surah = ? AND in_source = 1",
+            (meta["surah"],)).fetchone()[0]
+
+        print(f"\n{meta['ref']}  ({meta['surah_name']}, {meta['revelation_place']})")
+        if not rows:
+            if carried:
+                print("  no occasion reported here by the works ingested")
+            else:
+                print("  NO DATA — surah not carried by any ingested work.")
+                print("  This is not 'no occasion reported'; nothing has been consulted.")
+            continue
+
+        for r in rows:
+            scope = (f"{r['ayahs_covered']} ayahs" if r["ayahs_covered"] > 1
+                     else "this ayah alone")
+            chains = f" · {r['chains']} narration chain{'s' if r['chains'] != 1 else ''}" \
+                     if r["chains"] else " · no chain given"
+            print(f"  [{r['work']}] {r['stated_ref']} — {scope}{chains}")
+            if r["quoted_text"]:
+                print(f"     quoting: {r['quoted_text'][:110]}")
+            body = " ".join(r["report"].split())
+            tail = "…" if len(body) > args.chars else ""
+            print(f"     {body[:args.chars]}{tail}")
+            if r["damaged"]:
+                print(f"     ⚠ {r['damaged']} characters lost in the source's"
+                      f" transcode; text shown as delivered")
+    return 0
+
 def cmd_stats(args) -> int:
     conn = _conn()
     meta = dict(conn.execute("SELECT key, value FROM build").fetchall())
@@ -163,6 +255,8 @@ def cmd_stats(args) -> int:
         ("variants", "SELECT COUNT(*) FROM variant"),
         ("  of which consonantal", "SELECT COUNT(*) FROM variant WHERE same_rasm = 0"),
         ("annotations", "SELECT COUNT(*) FROM annotation"),
+        ("sabab reports", "SELECT COUNT(*) FROM sabab_report"),
+        ("  ayahs covered", "SELECT COUNT(DISTINCT ayah_id) FROM sabab_span"),
         ("spine exceptions", "SELECT COUNT(*) FROM spine_exception"),
     ]:
         print(f"    {label:22} {conn.execute(sql).fetchone()[0]:>8,}")
@@ -223,6 +317,8 @@ def main(argv: list[str] | None = None) -> int:
               quranlab search الله --level rasm
               quranlab root رحم
               quranlab variants Q2:255
+              quranlab asbab Q2:158
+              quranlab asbab --coverage
               quranlab sql "SELECT text, word_count FROM root ORDER BY word_count DESC LIMIT 10"
               quranlab serve
         """),
@@ -272,6 +368,13 @@ def main(argv: list[str] | None = None) -> int:
     s.add_argument("--all", action="store_true",
                    help="include vocalization-only differences")
     s.set_defaults(func=cmd_variants)
+
+    s = sub.add_parser("asbab", help="reported occasions of revelation")
+    s.add_argument("ref", nargs="?", default="Q1:1")
+    s.add_argument("--coverage", action="store_true",
+                   help="what each work covers — and what it does not")
+    s.add_argument("--chars", type=int, default=420)
+    s.set_defaults(func=cmd_asbab)
 
     s = sub.add_parser("sql", help="run a read-only query")
     s.add_argument("query")

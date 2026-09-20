@@ -58,6 +58,19 @@ That result is in the claim ledger not because anyone needs it, but as a
 tripwire: if the rasm rung ever folds the wrong things together, a normalization
 bug announces itself as a failing claim instead of as a plausible finding.
 
+**Carries reported occasions of revelation, absences included.** Asbāb al-nuzūl is
+the first inhabitant of the annotation layer. 322 reports from al-Wāḥidī attach
+occasions to 402 ayahs, spans and all — and the schema keeps three kinds of absence
+apart, because an ayah with no report may have none reported, or sit in a surah the
+source never covers.
+
+```
+$ quranlab asbab Q93:1
+Q93:1  (Ad-Dhuhaa, meccan)
+  NO DATA — surah not carried by any ingested work.
+  This is not 'no occasion reported'; nothing has been consulted.
+```
+
 **Refuses to smooth over real disagreements.** Twelve ayahs where the edition
 and the morphology corpus disagree about word boundaries are recorded in
 `spine_exception`, and their count is a tested invariant.
@@ -88,6 +101,7 @@ quranlab/
   verify.py           40 assertions about the data
   claims.py           the claim ledger
   cli.py              show / words / search / root / variants / sql
+  asbab.py            asbāb al-nuzūl ingest: classify, deduplicate, record coverage
   serve.py            read-only JSON API for the explorer
   web/index.html      the explorer — vanilla, no build step, no CDN
 claims/*.toml         findings, each with the query that regenerates it
@@ -125,6 +139,7 @@ page cannot disagree with the same number in the claim ledger.
 | **Search** | full-text at a chosen rung; the rung is part of the query, not a hidden default |
 | **Roots** | every root with its concordance |
 | **Riwāyah tree** | the pairwise consonantal distance matrix — the tripwire, drawn |
+| **Occasions** | asbāb al-nuzūl, with per-surah coverage so absence stays legible |
 | **Exceptions** | the twelve ayahs we refused to smooth over |
 
 Two things the explorer makes visible that prose does not. In the Ladder, `raw` shows
@@ -141,6 +156,8 @@ quranlab show Q112 --level rasm
 quranlab words Q1:1                       # segment-level morphology
 quranlab search الله --level rasm
 quranlab root رحم                          # 339 words, 62 surahs, 9 lemmas
+quranlab asbab Q2:158                      # reported occasion of revelation
+quranlab asbab --coverage                  # what the sources cover, and what they don't
 quranlab variants Q2:255                   # consonantal differences only
 quranlab variants Q2:255 --all             # including vocalization
 quranlab stats
@@ -167,10 +184,14 @@ changes, or the claim was wrong, the build tells you.
 ## Scope
 
 This stores and queries text. It does not interpret it. Tafsīr, thematic tags,
-chronological orderings and model output are annotations — they live in L2 with
-an author and a method attached, because baking a scholarly position into the
-canonical store makes it look like a fact. The `annotation` table is empty on a
-fresh build; that is where your research goes.
+chronological orderings and model output are annotations — they live in L2 with an
+author and a method attached, because baking a scholarly position into the canonical
+store makes it look like a fact.
+
+Asbāb al-nuzūl is the worked example: reports are rows, nothing adjudicates between
+them, and there is deliberately no `authentic` or `grade` column — a test asserts
+none appears. Grading is a scholarly judgement and belongs in its own layer, with
+someone's name on it.
 
 See [`docs/SOURCES.md`](docs/SOURCES.md) for provenance and licence terms, and
 the "What this deliberately does not do" section of

@@ -64,3 +64,115 @@ files = [
   "ofl/amiriquran/AmiriQuran-Regular.ttf",
   "ofl/amiriquran/OFL.txt",
 ]
+
+
+[[source]]
+id       = "asbab-wahidi"
+kind     = "github-raw"
+repo     = "spa5k/tafsir_api"
+commit   = "22792639604f783a54138e07c83811654479b7a4"
+homepage = "https://github.com/spa5k/tafsir_api"
+license  = "Aggregated from altafsir.com; see upstream repository for terms"
+note     = """Asbāb al-Nuzūl of Abū al-Ḥasan ʿAlī ibn Aḥmad al-Wāḥidī (d. 468/1076), the
+founding work of the genre, in the English translation published by altafsir.com.
+
+This source is a partial and contaminated witness, and the ingest treats it as one:
+
+  * TRUNCATED. It carries surahs 1-71 and 73-76 only. Surahs 72, 77 and 78-114 are
+    absent entirely — not "no occasion reported", but no data. al-Wāḥidī certainly
+    discusses ayahs in those surahs (80, 93, 108, 111), so their absence here is a
+    gap in the mirror, not a statement about the text. `sabab_coverage` records
+    which surahs the source speaks about at all, so the three cases — no report,
+    no coverage, and entry-present-but-not-a-report — stay distinguishable.
+  * MIXED. Only 394 of 1,089 entries under this slug are al-Wāḥidī. The remaining
+    695 are a different, devotional work (Sufi commentary in the manner of Maybudī
+    or al-Qushayrī) that the aggregator has filed under the same name. They are
+    identified by the absence of al-Wāḥidī's citation form — an ayah quoted in
+    parentheses followed by a bracketed reference — and excluded, with the count
+    recorded per surah rather than silently dropped.
+  * LOSSY. The text carries 5,948 U+FFFD replacement characters across its 394
+    filings — 4,307 once range reports are deduplicated: transliterated names and
+    ellipses damaged in an earlier transcode ("Sa?id" for "Saʿīd"). Every report is
+    affected. The original bytes are gone and cannot be recovered from this mirror,
+    so the text is stored exactly as delivered and the per-report count is recorded.
+    Guessing "Saʿīd" from "Sa?id" would be fabrication.
+
+Because reports on a range are filed under every ayah in that range, 394 entries
+deduplicate to 322 distinct reports. Counting entries overstates by 22%."""
+files = [
+  "tafsir/en-asbab-al-nuzul-by-al-wahidi/1.json",
+  "tafsir/en-asbab-al-nuzul-by-al-wahidi/2.json",
+  "tafsir/en-asbab-al-nuzul-by-al-wahidi/3.json",
+  "tafsir/en-asbab-al-nuzul-by-al-wahidi/4.json",
+  "tafsir/en-asbab-al-nuzul-by-al-wahidi/5.json",
+  "tafsir/en-asbab-al-nuzul-by-al-wahidi/6.json",
+  "tafsir/en-asbab-al-nuzul-by-al-wahidi/7.json",
+  "tafsir/en-asbab-al-nuzul-by-al-wahidi/8.json",
+  "tafsir/en-asbab-al-nuzul-by-al-wahidi/9.json",
+  "tafsir/en-asbab-al-nuzul-by-al-wahidi/10.json",
+  "tafsir/en-asbab-al-nuzul-by-al-wahidi/11.json",
+  "tafsir/en-asbab-al-nuzul-by-al-wahidi/12.json",
+  "tafsir/en-asbab-al-nuzul-by-al-wahidi/13.json",
+  "tafsir/en-asbab-al-nuzul-by-al-wahidi/14.json",
+  "tafsir/en-asbab-al-nuzul-by-al-wahidi/15.json",
+  "tafsir/en-asbab-al-nuzul-by-al-wahidi/16.json",
+  "tafsir/en-asbab-al-nuzul-by-al-wahidi/17.json",
+  "tafsir/en-asbab-al-nuzul-by-al-wahidi/18.json",
+  "tafsir/en-asbab-al-nuzul-by-al-wahidi/19.json",
+  "tafsir/en-asbab-al-nuzul-by-al-wahidi/20.json",
+  "tafsir/en-asbab-al-nuzul-by-al-wahidi/21.json",
+  "tafsir/en-asbab-al-nuzul-by-al-wahidi/22.json",
+  "tafsir/en-asbab-al-nuzul-by-al-wahidi/23.json",
+  "tafsir/en-asbab-al-nuzul-by-al-wahidi/24.json",
+  "tafsir/en-asbab-al-nuzul-by-al-wahidi/25.json",
+  "tafsir/en-asbab-al-nuzul-by-al-wahidi/26.json",
+  "tafsir/en-asbab-al-nuzul-by-al-wahidi/27.json",
+  "tafsir/en-asbab-al-nuzul-by-al-wahidi/28.json",
+  "tafsir/en-asbab-al-nuzul-by-al-wahidi/29.json",
+  "tafsir/en-asbab-al-nuzul-by-al-wahidi/30.json",
+  "tafsir/en-asbab-al-nuzul-by-al-wahidi/31.json",
+  "tafsir/en-asbab-al-nuzul-by-al-wahidi/32.json",
+  "tafsir/en-asbab-al-nuzul-by-al-wahidi/33.json",
+  "tafsir/en-asbab-al-nuzul-by-al-wahidi/34.json",
+  "tafsir/en-asbab-al-nuzul-by-al-wahidi/35.json",
+  "tafsir/en-asbab-al-nuzul-by-al-wahidi/36.json",
+  "tafsir/en-asbab-al-nuzul-by-al-wahidi/37.json",
+  "tafsir/en-asbab-al-nuzul-by-al-wahidi/38.json",
+  "tafsir/en-asbab-al-nuzul-by-al-wahidi/39.json",
+  "tafsir/en-asbab-al-nuzul-by-al-wahidi/40.json",
+  "tafsir/en-asbab-al-nuzul-by-al-wahidi/41.json",
+  "tafsir/en-asbab-al-nuzul-by-al-wahidi/42.json",
+  "tafsir/en-asbab-al-nuzul-by-al-wahidi/43.json",
+  "tafsir/en-asbab-al-nuzul-by-al-wahidi/44.json",
+  "tafsir/en-asbab-al-nuzul-by-al-wahidi/45.json",
+  "tafsir/en-asbab-al-nuzul-by-al-wahidi/46.json",
+  "tafsir/en-asbab-al-nuzul-by-al-wahidi/47.json",
+  "tafsir/en-asbab-al-nuzul-by-al-wahidi/48.json",
+  "tafsir/en-asbab-al-nuzul-by-al-wahidi/49.json",
+  "tafsir/en-asbab-al-nuzul-by-al-wahidi/50.json",
+  "tafsir/en-asbab-al-nuzul-by-al-wahidi/51.json",
+  "tafsir/en-asbab-al-nuzul-by-al-wahidi/52.json",
+  "tafsir/en-asbab-al-nuzul-by-al-wahidi/53.json",
+  "tafsir/en-asbab-al-nuzul-by-al-wahidi/54.json",
+  "tafsir/en-asbab-al-nuzul-by-al-wahidi/55.json",
+  "tafsir/en-asbab-al-nuzul-by-al-wahidi/56.json",
+  "tafsir/en-asbab-al-nuzul-by-al-wahidi/57.json",
+  "tafsir/en-asbab-al-nuzul-by-al-wahidi/58.json",
+  "tafsir/en-asbab-al-nuzul-by-al-wahidi/59.json",
+  "tafsir/en-asbab-al-nuzul-by-al-wahidi/60.json",
+  "tafsir/en-asbab-al-nuzul-by-al-wahidi/61.json",
+  "tafsir/en-asbab-al-nuzul-by-al-wahidi/62.json",
+  "tafsir/en-asbab-al-nuzul-by-al-wahidi/63.json",
+  "tafsir/en-asbab-al-nuzul-by-al-wahidi/64.json",
+  "tafsir/en-asbab-al-nuzul-by-al-wahidi/65.json",
+  "tafsir/en-asbab-al-nuzul-by-al-wahidi/66.json",
+  "tafsir/en-asbab-al-nuzul-by-al-wahidi/67.json",
+  "tafsir/en-asbab-al-nuzul-by-al-wahidi/68.json",
+  "tafsir/en-asbab-al-nuzul-by-al-wahidi/69.json",
+  "tafsir/en-asbab-al-nuzul-by-al-wahidi/70.json",
+  "tafsir/en-asbab-al-nuzul-by-al-wahidi/71.json",
+  "tafsir/en-asbab-al-nuzul-by-al-wahidi/73.json",
+  "tafsir/en-asbab-al-nuzul-by-al-wahidi/74.json",
+  "tafsir/en-asbab-al-nuzul-by-al-wahidi/75.json",
+  "tafsir/en-asbab-al-nuzul-by-al-wahidi/76.json"
+]

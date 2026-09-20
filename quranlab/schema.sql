@@ -277,6 +277,84 @@ CREATE INDEX annotation_span_idx  ON annotation (word_start, word_end);
 CREATE INDEX annotation_layer_idx ON annotation (layer_id, key);
 
 -- ============================================================================
+-- Asbāb al-nuzūl — the occasions of revelation.
+--
+-- The genre has three properties that a naive schema destroys, and all three are
+-- the reason this lives in its own tables rather than as a column on `ayah`:
+--
+--   1. It is SPARSE. Most ayahs have no reported occasion, and that silence is
+--      meaningful. It must not be confused with a source simply not covering the
+--      surah, nor with an entry that exists but is not a sabab report. Three
+--      different absences; `sabab_coverage` keeps them apart.
+--   2. It is CONTESTED. Different works report different occasions for the same
+--      ayah, and sometimes one work reports several. Reports are rows. Nothing
+--      here adjudicates between them, and nothing should: the disagreement is
+--      the historical record, not noise to be resolved.
+--   3. It is SPANNING. A single report often concerns a run of ayahs (al-Wāḥidī
+--      on 74:11-24). The span is the report's own claim about its scope, so it
+--      is stored as stated, even where the source files it inconsistently.
+-- ============================================================================
+
+CREATE TABLE sabab_work (
+    id            INTEGER PRIMARY KEY,
+    slug          TEXT NOT NULL UNIQUE,
+    title         TEXT NOT NULL,
+    author        TEXT NOT NULL,
+    died_ah       INTEGER,
+    language      TEXT NOT NULL,      -- language of the text we hold
+    original_lang TEXT NOT NULL,      -- language it was composed in
+    source_id     TEXT REFERENCES source(id),
+    note          TEXT NOT NULL
+);
+
+CREATE TABLE sabab_report (
+    id           INTEGER PRIMARY KEY,
+    work_id      INTEGER NOT NULL REFERENCES sabab_work(id),
+    anchor_ayah  INTEGER NOT NULL REFERENCES ayah(id),  -- first ayah of the span
+    stated_ref   TEXT NOT NULL,       -- the work's own reference, e.g. '74:11-24'
+    quoted_text  TEXT,                -- the lemma the work quotes
+    report       TEXT NOT NULL,       -- the report, exactly as the source gives it
+    chains       INTEGER NOT NULL,    -- narration chains detected ('informed us')
+    damaged      INTEGER NOT NULL,    -- U+FFFD count; >0 means text is lossy
+    filed_under  INTEGER NOT NULL,    -- how many ayah files carried this report
+    span_matches INTEGER NOT NULL     -- 1 if filing agrees with the stated range
+);
+CREATE INDEX sabab_report_work_idx   ON sabab_report (work_id);
+CREATE INDEX sabab_report_anchor_idx ON sabab_report (anchor_ayah);
+
+-- Which ayahs a report concerns. Many-to-many: an ayah may carry several reports
+-- and a report may concern many ayahs.
+CREATE TABLE sabab_span (
+    report_id INTEGER NOT NULL REFERENCES sabab_report(id),
+    ayah_id   INTEGER NOT NULL REFERENCES ayah(id),
+    is_anchor INTEGER NOT NULL DEFAULT 0,
+    PRIMARY KEY (report_id, ayah_id)
+) WITHOUT ROWID;
+CREATE INDEX sabab_span_ayah_idx ON sabab_span (ayah_id);
+
+-- What each work covers at all. Without this, "no report for Q93:1" is
+-- indistinguishable from "this mirror stops at surah 76", and the second would
+-- get read as the first.
+CREATE TABLE sabab_coverage (
+    work_id   INTEGER NOT NULL REFERENCES sabab_work(id),
+    surah     INTEGER NOT NULL REFERENCES surah(number),
+    in_source INTEGER NOT NULL,   -- 0 = the source says nothing about this surah
+    entries   INTEGER NOT NULL,   -- entries the source carries
+    reports   INTEGER NOT NULL,   -- entries that are genuine sabab reports
+    excluded  INTEGER NOT NULL,   -- entries excluded as a different work
+    PRIMARY KEY (work_id, surah)
+) WITHOUT ROWID;
+
+CREATE VIEW v_sabab AS
+SELECT r.id AS report_id, w.slug AS work, w.author,
+       'Q' || a.surah || ':' || a.number AS anchor, r.stated_ref,
+       (SELECT COUNT(*) FROM sabab_span sp WHERE sp.report_id = r.id) AS ayahs_covered,
+       r.chains, r.damaged, r.quoted_text, r.report
+FROM sabab_report r
+JOIN sabab_work w ON w.id = r.work_id
+JOIN ayah a ON a.id = r.anchor_ayah;
+
+-- ============================================================================
 -- Convenience views. Research queries should be short enough to paste into a
 -- footnote; these carry the joins so they can be.
 -- ============================================================================

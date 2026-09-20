@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import difflib
 import hashlib
+import os
 import json
 import sqlite3
 import sys
@@ -17,7 +18,7 @@ import unicodedata
 from datetime import datetime, timezone
 from pathlib import Path
 
-from . import __version__, normalize
+from . import __version__, asbab, normalize
 from .fetch import LOCK_PATH, ROOT, read_json, read_source
 
 DB_PATH = ROOT / "data" / "quran.db"
@@ -423,7 +424,12 @@ def content_digest(conn: sqlite3.Connection) -> str:
 
 
 def build(db_path: Path = DB_PATH) -> Path:
-    conn = _connect(db_path)
+    # Build into a temporary file and move it into place only on success. An
+    # interrupted build otherwise leaves a schema-only database behind — which
+    # opens fine, answers every query with zero rows, and looks valid to anything
+    # that does not count. Every later step then reports an empty corpus as fact.
+    tmp_path = db_path.with_name(db_path.name + ".building")
+    conn = _connect(tmp_path)
     try:
         load_sources(conn)
         index = load_spine(conn)
@@ -432,6 +438,7 @@ def build(db_path: Path = DB_PATH) -> Path:
         align_spine(conn)
         build_lexicon(conn)
         build_variants(conn)
+        asbab.load(conn, log)
         build_fts(conn)
 
         digest = content_digest(conn)
@@ -446,11 +453,18 @@ def build(db_path: Path = DB_PATH) -> Path:
         conn.commit()
         conn.execute("VACUUM")
         conn.commit()
-        log(f"content digest: {digest}")
-        log(f"database: {db_path.relative_to(ROOT)} "
-            f"({db_path.stat().st_size / 1e6:.1f} MB)")
     finally:
         conn.close()
+
+    for suffix in ("", "-wal", "-shm"):
+        Path(str(db_path) + suffix).unlink(missing_ok=True)
+    for suffix in ("-wal", "-shm"):
+        Path(str(tmp_path) + suffix).unlink(missing_ok=True)
+    os.replace(tmp_path, db_path)
+
+    log(f"content digest: {digest}")
+    log(f"database: {db_path.relative_to(ROOT)} "
+        f"({db_path.stat().st_size / 1e6:.1f} MB)")
     return db_path
 
 

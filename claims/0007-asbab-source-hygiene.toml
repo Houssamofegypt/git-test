@@ -1,0 +1,25 @@
+[claim]
+id        = "0007-asbab-source-hygiene"
+statement = "Of 1,089 entries published under the al-Wāḥidī slug, only 394 are al-Wāḥidī; those 394 filings deduplicate to 322 reports."
+level     = "n/a"
+author    = "quranlab"
+date      = "2026-09-20"
+note      = """Two independent corrections, both of which inflate counts if skipped.
+
+The 695 excluded entries are a different, devotional work that the aggregator files under
+al-Wāḥidī's name; they are identified by the absence of his citation form (an ayah quoted
+in parentheses, then a bracketed reference). Ingesting the slug wholesale would treble the
+apparent size of the corpus with text from another author.
+
+The 394→322 collapse is because a report on a range is filed under every ayah in it — the
+report on 74:11-24 appears fourteen times. Counting entries overstates by 22%.
+
+This claim is a tripwire on the classifier and the dedup rule, not a finding. If either
+changes, or the mirror does, it fails before the numbers reach anything downstream."""
+query     = """
+SELECT SUM(entries), SUM(reports), SUM(excluded),
+       (SELECT SUM(filed_under) FROM sabab_report),
+       (SELECT COUNT(*) FROM sabab_report)
+FROM sabab_coverage
+"""
+expect    = [1089, 394, 695, 394, 322]

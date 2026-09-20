@@ -80,7 +80,8 @@ class Api:
                 "SELECT (SELECT COUNT(*) FROM word) AS words,"
                 " (SELECT COUNT(*) FROM segment) AS segments,"
                 " (SELECT COUNT(*) FROM root) AS roots,"
-                " (SELECT COUNT(*) FROM variant WHERE same_rasm=0) AS consonantal_variants"
+                " (SELECT COUNT(*) FROM variant WHERE same_rasm=0) AS consonantal_variants,"
+                " (SELECT COUNT(*) FROM sabab_report) AS sabab_reports"
             ).fetchone()),
         }
 
@@ -179,6 +180,49 @@ class Api:
             })
         return {"skeleton": skeleton, "input": raw, "readings": readings}
 
+    def asbab(self, q) -> dict:
+        """Reported occasions for an ayah, with the coverage status alongside.
+
+        The status ships with every answer because an empty list means three
+        different things, and only `sabab_coverage` distinguishes them.
+        """
+        ayah_id = int(q.get("ayah_id", ["1"])[0])
+        surah = self.conn.execute(
+            "SELECT surah FROM ayah WHERE id = ?", (ayah_id,)).fetchone()["surah"]
+        cov = self.conn.execute(
+            "SELECT in_source, entries, reports, excluded FROM sabab_coverage"
+            " WHERE surah = ?", (surah,)).fetchone()
+        return {
+            "coverage": dict(cov) if cov else None,
+            "reports": [dict(r) for r in self.conn.execute(
+                "SELECT v.* FROM v_sabab v JOIN sabab_span s ON s.report_id = v.report_id"
+                " WHERE s.ayah_id = ? ORDER BY v.work, v.report_id", (ayah_id,))],
+        }
+
+    def asbab_index(self, _q) -> dict:
+        """Every ayah that carries a report, plus per-surah coverage."""
+        return {
+            "works": [dict(r) for r in self.conn.execute(
+                "SELECT slug, title, author, died_ah, note FROM sabab_work")],
+            "coverage": [dict(r) for r in self.conn.execute(
+                "SELECT c.surah, s.name_translit AS name, c.in_source, c.entries,"
+                " c.reports, c.excluded,"
+                " (SELECT COUNT(DISTINCT sp.ayah_id) FROM sabab_span sp"
+                "   JOIN ayah a ON a.id = sp.ayah_id WHERE a.surah = c.surah) AS ayahs"
+                " FROM sabab_coverage c JOIN surah s ON s.number = c.surah"
+                " ORDER BY c.surah")],
+            "reports": [dict(r) for r in self.conn.execute(
+                "SELECT report_id, anchor, stated_ref, ayahs_covered, chains,"
+                " damaged, quoted_text FROM v_sabab ORDER BY report_id")],
+            "totals": dict(self.conn.execute(
+                "SELECT (SELECT COUNT(*) FROM sabab_report) AS reports,"
+                " (SELECT COUNT(DISTINCT ayah_id) FROM sabab_span) AS ayahs,"
+                " (SELECT SUM(entries) FROM sabab_coverage) AS entries,"
+                " (SELECT SUM(excluded) FROM sabab_coverage) AS excluded,"
+                " (SELECT COUNT(*) FROM sabab_coverage WHERE in_source=1) AS surahs"
+            ).fetchone()),
+        }
+
     def ambiguous(self, q) -> dict:
         """The most underdetermined skeletons in the corpus."""
         limit = min(int(q.get("limit", ["40"])[0]), 200)
@@ -264,7 +308,7 @@ class Api:
 
 
 ROUTES = ("meta", "ladder", "words", "apparatus", "skeleton", "ambiguous",
-          "search", "roots", "root", "exceptions", "tree")
+          "search", "roots", "root", "exceptions", "tree", "asbab", "asbab_index")
 
 
 def make_handler(api: Api):

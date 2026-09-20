@@ -180,6 +180,25 @@ def export(db_path: Path = DB_PATH) -> Path:
         conn.execute("SELECT id, repo, commit_sha, sha256, bytes, license"
                      " FROM source ORDER BY id"))
 
+    written["csv/asbab_reports.csv"] = _csv(csvdir / "asbab_reports.csv",
+        ["report_id", "work", "anchor_ref", "stated_ref", "ayahs_covered",
+         "narration_chains", "damaged_chars", "quoted_text", "report"],
+        ([r["report_id"], r["work"], r["anchor"], r["stated_ref"], r["ayahs_covered"],
+          r["chains"], r["damaged"], r["quoted_text"], r["report"]]
+         for r in conn.execute("SELECT * FROM v_sabab ORDER BY report_id")))
+
+    written["csv/asbab_spans.csv"] = _csv(csvdir / "asbab_spans.csv",
+        ["report_id", "ref", "ayah_id", "is_anchor"],
+        conn.execute("SELECT s.report_id, v.ref, s.ayah_id, s.is_anchor"
+                     " FROM sabab_span s JOIN v_ayah v ON v.ayah_id = s.ayah_id"
+                     " ORDER BY s.report_id, s.ayah_id"))
+
+    written["csv/asbab_coverage.csv"] = _csv(csvdir / "asbab_coverage.csv",
+        ["work", "surah", "in_source", "entries", "reports", "excluded"],
+        conn.execute("SELECT w.slug, c.surah, c.in_source, c.entries, c.reports,"
+                     " c.excluded FROM sabab_coverage c"
+                     " JOIN sabab_work w ON w.id = c.work_id ORDER BY c.surah"))
+
     written["quranlab-lite.db"] = _build_lite(conn, LITE_DB)
     written["README.md"] = _write_readme(conn, DIST / "README.md", noncanonical)
     conn.close()
@@ -235,6 +254,14 @@ def _build_lite(src: sqlite3.Connection, out: Path) -> int:
       CREATE TABLE source(id TEXT PRIMARY KEY, repo TEXT, commit_sha TEXT,
         sha256 TEXT, bytes INT, license TEXT);
       CREATE TABLE build(key TEXT PRIMARY KEY, value TEXT);
+      CREATE TABLE sabab_work(id INTEGER PRIMARY KEY, slug TEXT, title TEXT,
+        author TEXT, died_ah INT, language TEXT, original_lang TEXT, note TEXT);
+      CREATE TABLE sabab_report(id INTEGER PRIMARY KEY, work_id INT, anchor_ayah INT,
+        stated_ref TEXT, quoted_text TEXT, report TEXT, chains INT, damaged INT);
+      CREATE TABLE sabab_span(report_id INT, ayah_id INT, is_anchor INT,
+        PRIMARY KEY(report_id, ayah_id));
+      CREATE TABLE sabab_coverage(work_id INT, surah INT, in_source INT,
+        entries INT, reports INT, excluded INT, PRIMARY KEY(work_id, surah));
     """)
     vocalic = dict(src.execute(
         "SELECT ayah_id, COUNT(*) FROM variant WHERE same_rasm=1 GROUP BY ayah_id"))
@@ -271,6 +298,17 @@ def _build_lite(src: sqlite3.Connection, out: Path) -> int:
     dst.executemany("INSERT INTO source VALUES (?,?,?,?,?,?)",
         src.execute("SELECT id,repo,commit_sha,sha256,bytes,license FROM source"))
     dst.executemany("INSERT INTO build VALUES (?,?)", src.execute("SELECT key,value FROM build"))
+    dst.executemany("INSERT INTO sabab_work VALUES (?,?,?,?,?,?,?,?)",
+        src.execute("SELECT id,slug,title,author,died_ah,language,original_lang,note"
+                    " FROM sabab_work"))
+    dst.executemany("INSERT INTO sabab_report VALUES (?,?,?,?,?,?,?,?)",
+        src.execute("SELECT id,work_id,anchor_ayah,stated_ref,quoted_text,report,"
+                    "chains,damaged FROM sabab_report"))
+    dst.executemany("INSERT INTO sabab_span VALUES (?,?,?)",
+        src.execute("SELECT report_id,ayah_id,is_anchor FROM sabab_span"))
+    dst.executemany("INSERT INTO sabab_coverage VALUES (?,?,?,?,?,?)",
+        src.execute("SELECT work_id,surah,in_source,entries,reports,excluded"
+                    " FROM sabab_coverage"))
     # No secondary indexes: the largest table is 130k rows, so a full scan is
     # milliseconds, and Arabic text indexes would roughly double the file.
     dst.commit()
@@ -302,7 +340,10 @@ any counting question.** Three of them will silently give you a wrong number.
 | `csv/lemmas.csv` | 4,763 | lemmas with frequency |
 | `csv/variants.csv` | 19,070 | **consonantal** differences between editions |
 | `csv/spine_exceptions.csv` | 12 | ayahs where sources disagree on word boundaries |
-| `csv/sources.csv` | 16 | provenance: repo, pinned commit, sha256, licence |
+| `csv/asbab_reports.csv` | 322 | reported occasions of revelation (asbāb al-nuzūl) |
+| `csv/asbab_spans.csv` | 402 | which ayahs each report concerns |
+| `csv/asbab_coverage.csv` | 114 | **what the source covers — read before counting** |
+| `csv/sources.csv` | 18 | provenance: repo, pinned commit, sha256, licence |
 | `quranlab-lite.db` | — | everything above **except `edition_text`**, as SQLite, if you can run Python |
 
 Join on `ayah_id` (global, 1–6236), `word_id` (1–77,429) or the `ref` strings
@@ -359,6 +400,28 @@ Arabic Corpus's segmentation. Other segmentations give other numbers, and 12 aya
 **6. `revelation_place` is a traditional classification**, disputed for several
 surahs. It is a source-supplied label, not a property of the text.
 
+**7. An ayah with no asbāb row means one of three different things.** Check
+`asbab_coverage` before saying anything about absence:
+
+- `in_source = 1` and no span row → no occasion was reported for that ayah.
+- `in_source = 0` → the surah is **not carried at all** (72 and 77-114 are missing
+  from this mirror). Nothing has been consulted. Saying "no occasion was reported
+  for Q93:1" on this data would be false — al-Wāḥidī does discuss Sūrat al-Ḍuḥā.
+- `excluded > 0` → entries exist for that surah but are a different author's work,
+  filed under al-Wāḥidī's name upstream, and were rejected.
+
+Only 402 ayahs (6.4%) carry a report here, and that 6.4% is a floor on one partial
+work, not a measure of the genre or of the Quran.
+
+**8. Asbāb reports span ayahs, and are not deduplicated by ayah.** One report
+covers 74:11-24. Join through `asbab_spans.csv`; counting `asbab_reports.csv` rows
+per ayah will undercount, and counting upstream entries overcounts by 22%.
+
+**9. The asbāb text is damaged.** 4,307 characters were lost in an earlier
+transcode — every report is affected ("Sa?id" for "Saʿīd"). It is stored as
+delivered. Do not repair it by guessing, and do not quote a mangled name as if it
+were the source's spelling.
+
 ## Loading it
 
 JavaScript (a chat's analysis tool):
@@ -387,6 +450,7 @@ pd.read_sql("SELECT text, word_count FROM root ORDER BY word_count DESC LIMIT 10
 - Where the riwāyāt differ consonantally, and whether the difference survives undotting
 - Collocation and co-occurrence over `words.csv`
 - Morphological queries — voice, mood, person — via `segments.features`
+- Which ayahs carry a reported occasion of revelation, and what it says
 
 ## Questions it will answer badly
 
@@ -394,6 +458,11 @@ pd.read_sql("SELECT text, word_count FROM root ORDER BY word_count DESC LIMIT 10
 - Chronological ordering. Not included; the scholarly reconstructions disagree.
 - Phrase search over vocalized text — see pitfall 1.
 - "How many words are in the Quran" — see pitfall 5.
+- "Which ayahs have no occasion of revelation" — see pitfall 7. This bundle cannot
+  answer it; it carries one partial work covering 75 of 114 surahs.
+- Authenticity of a report. No grading is recorded, deliberately: `sabab_report`
+  has no `authentic` or `grade` column, because that is an editorial judgement and
+  would enter the store looking like a fact.
 
 ## Provenance and licence
 
@@ -402,6 +471,10 @@ Glorious Quran Printing Complex, distributed for free non-commercial use on
 condition that the text is not modified and the notice is preserved. **The text in
 this bundle is unmodified**; the normalization rungs are stored as additional
 columns alongside the original, never in place of it.
+
+Asbāb al-nuzūl is al-Wāḥidī (d. 468 AH) in the English translation published by
+altafsir.com, via the spa5k/tafsir_api mirror — partial and contaminated; see
+pitfalls 7-9.
 
 Morphology derives from the Quranic Arabic Corpus (GNU GPL / CC BY-SA 3.0,
 corpus.quran.com), © Kais Dukes, via a fork with documented corrections — so it is

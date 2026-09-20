@@ -205,11 +205,71 @@ text it exists to show. So Amiri Quran is fetched through the same pinned, hashe
 mechanism as the corpus rather than from a CDN: the explorer works offline, and the
 font cannot change under us any more than the text can.
 
+## The first annotation layer: asbāb al-nuzūl
+
+Occasions of revelation are the first real inhabitant of L2, and a good stress
+test of it. The genre has three properties that a naive schema destroys:
+
+- **Sparse.** Most ayahs have no reported occasion, and that silence is data.
+- **Contested.** Works disagree, and one work may carry several reports. Reports
+  are rows; nothing adjudicates between them, because the disagreement *is* the
+  historical record.
+- **Spanning.** A report often concerns a run of ayahs (al-Wāḥidī on 74:11-24), so
+  the span is the report's own claim about its scope.
+
+### Three kinds of absence
+
+The load-bearing idea is that `sabab_coverage` records what a work *speaks about*,
+separately from what it reports. Without it, an ayah with no report is ambiguous
+between three very different statements:
+
+| | |
+|---|---|
+| covered, no report | no occasion was reported for this ayah |
+| **not covered** | this mirror stops at surah 76; nothing has been consulted |
+| entries excluded | entries exist but are a different author's work |
+
+Collapsing those is how "no occasion was reported for Q93:1" gets asserted on the
+strength of a truncated file listing. al-Wāḥidī does discuss Sūrat al-Ḍuḥā; this
+mirror simply lacks it. `quranlab asbab Q93:1` says so in those words.
+
+### What the source cost
+
+The only reachable machine-readable witness is al-Wāḥidī in English translation via
+an aggregator, and it is partial and contaminated. Handling it honestly took three
+corrections, each of which would otherwise have inflated the corpus:
+
+- **695 of 1,089 entries are not al-Wāḥidī** — a different, devotional work filed
+  under his name upstream. They are separated by his citation form (the ayah quoted
+  in parentheses, then a bracketed reference) and the rejected count is recorded per
+  surah rather than silently dropped.
+- **394 filings are 322 reports.** A report on a range is filed under every ayah in
+  it, so counting entries overstates by 22%.
+- **The text is damaged.** 4,307 characters were lost in an earlier transcode
+  ("Sa?id" for "Saʿīd"), affecting every report. It is stored exactly as delivered
+  and the per-report count recorded. Reconstructing "Saʿīd" would be fabrication.
+
+The result is 322 reports over 402 ayahs — 6.4% of the Quran, which is a floor on
+one partial work, not a measure of the genre.
+
+### What is deliberately not modelled
+
+There is no `authentic`, `grade` or `preferred` column on `sabab_report`, and a
+test asserts none appears. Grading reports is a scholarly judgement with a long
+literature; a column would make one position look like a property of the data. It
+belongs in a further annotation layer, with an author attached.
+
+Competing reports are modelled and currently unexercised: this one work gives at
+most one entry per ayah, though 63 of its entries carry multiple narration chains
+(the `chains` column). Ingesting a second work — al-Suyūṭī's *Lubāb al-Nuqūl* is
+the obvious one — needs no schema change, which was the point.
+
 ## What this deliberately does not do
 
 - **No interpretation, no tafsīr, no thematic tagging.** Those are annotations,
-  and they belong in L2 where they carry an author and a method. Baking them
-  into the canonical store would make a scholarly position look like a fact.
+  and they belong in L2 where they carry an author and a method — as asbāb
+  al-nuzūl now does. Baking them into the canonical store would make a scholarly
+  position look like a fact.
 - **No chronological ordering of surahs.** Nöldeke and the Egyptian standard
   edition disagree, and both are reconstructions. When it is needed it comes in
   as an annotation layer with a citation, not as a column on `surah`.

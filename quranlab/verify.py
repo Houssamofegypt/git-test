@@ -27,6 +27,13 @@ EXPECTED_SEGMENTS = 130030
 #: drifting — in either direction — is a build failure rather than a shrug.
 KNOWN_SPINE_EXCEPTIONS = 12
 
+#: Asbāb reports surviving classification and deduplication from the al-Wāḥidī
+#: mirror, and the ayahs they cover. Pinned so that a change in the source, the
+#: classifier or the dedup rule is a build failure rather than a quiet shift in
+#: every coverage figure downstream.
+EXPECTED_SABAB_REPORTS = 322
+EXPECTED_SABAB_AYAHS = 402
+
 Check = tuple[str, bool, str]
 
 
@@ -171,6 +178,56 @@ def checks(conn: sqlite3.Connection) -> list[Check]:
 
     tok = _q(conn, "SELECT COUNT(*) FROM ayah_text WHERE token_count < 1")
     check("every ayah has tokens", tok == 0, f"{tok} empty")
+
+    # --- asbab al-nuzul ----------------------------------------------------
+    n_reports = _q(conn, "SELECT COUNT(*) FROM sabab_report")
+    check(f"{EXPECTED_SABAB_REPORTS} sabab reports", n_reports == EXPECTED_SABAB_REPORTS,
+          f"found {n_reports}")
+
+    covered = _q(conn, "SELECT COUNT(DISTINCT ayah_id) FROM sabab_span")
+    check(f"sabab covers {EXPECTED_SABAB_AYAHS} ayahs", covered == EXPECTED_SABAB_AYAHS,
+          f"{covered} ayahs ({100 * covered / 6236:.1f}% of the Quran)")
+
+    spanless = _q(conn, """
+        SELECT COUNT(*) FROM sabab_report r
+        WHERE NOT EXISTS (SELECT 1 FROM sabab_span s WHERE s.report_id = r.id)
+    """)
+    check("every report covers at least one ayah", spanless == 0, f"{spanless} spanless")
+
+    anchorless = _q(conn, """
+        SELECT COUNT(*) FROM sabab_report r WHERE NOT EXISTS (
+          SELECT 1 FROM sabab_span s
+          WHERE s.report_id = r.id AND s.ayah_id = r.anchor_ayah AND s.is_anchor = 1)
+    """)
+    check("every report's anchor is in its span", anchorless == 0, f"{anchorless} bad")
+
+    # The whole point of sabab_coverage: absence of data must never be readable
+    # as absence of a reported occasion.
+    outside = _q(conn, """
+        SELECT COUNT(*) FROM sabab_span s JOIN ayah a ON a.id = s.ayah_id
+        JOIN sabab_report r ON r.id = s.report_id
+        WHERE NOT EXISTS (SELECT 1 FROM sabab_coverage c
+                          WHERE c.work_id = r.work_id AND c.surah = a.surah
+                            AND c.in_source = 1)
+    """)
+    check("no report lands outside declared coverage", outside == 0, f"{outside} strays")
+
+    all_surahs = _q(conn, "SELECT COUNT(*) FROM sabab_coverage")
+    check("coverage declared for all 114 surahs", all_surahs == 114, f"{all_surahs}")
+
+    tally = conn.execute(
+        "SELECT SUM(entries), SUM(reports), SUM(excluded) FROM sabab_coverage").fetchone()
+    check("coverage tallies are internally consistent",
+          tally[0] == tally[1] + tally[2],
+          f"{tally[0]} entries = {tally[1]} reports + {tally[2]} excluded")
+
+    dedup = _q(conn, "SELECT SUM(filed_under) FROM sabab_report")
+    check("report count reconciles with source entries", dedup == tally[1],
+          f"{dedup} filings collapse to {n_reports} reports")
+
+    ann = _q(conn, "SELECT COUNT(*) FROM annotation WHERE key = 'sabab'")
+    check("every report is exposed as an annotation", ann == n_reports,
+          f"{ann} annotations for {n_reports} reports")
 
     # --- referential integrity --------------------------------------------
     violations = conn.execute("PRAGMA foreign_key_check").fetchall()
