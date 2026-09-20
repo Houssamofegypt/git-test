@@ -1,0 +1,19 @@
+[claim]
+id        = "0004-undotted-ambiguity"
+statement = "1,350 undotted word skeletons in the reference edition correspond to more than one dotted reading."
+level     = "archigraphemic"
+author    = "quranlab"
+date      = "2026-09-20"
+note      = """This is the measurable form of a claim usually made only impressionistically:
+that a bare consonantal skeleton underdetermines the reading. The skeleton ٮحرى
+alone covers تجري, تجزى, تجزي, نجزي, يجري, يجزى, يجزي and يخزي. The figure is an
+approximation from below — it merges only what our position-sensitive dot model
+merges, and assumes the Mashriqī final-form conventions documented in
+quranlab/normalize.py. Sensitive to the ف/ق merge; re-derive before quoting."""
+query     = """
+SELECT COUNT(*) FROM (
+  SELECT archigraphemic FROM word
+  GROUP BY archigraphemic HAVING COUNT(DISTINCT rasm) > 1
+)
+"""
+expect    = 1350

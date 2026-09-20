@@ -1,0 +1,20 @@
+[claim]
+id        = "0003-riwayah-tree"
+statement = "Of the nine riwāyāt ingested, Shuʿba is consonantally closest to Ḥafṣ — as the transmission tree predicts, since both transmit from ʿĀṣim."
+level     = "rasm"
+author    = "quranlab"
+date      = "2026-09-20"
+note      = """A validation claim, not a discovery. The relationship is well known; the
+point is that the pipeline recovers it from the text alone. Run pairwise rather
+than against the reference and every riwāyah's nearest neighbour is its sibling
+from the same qāriʾ: Warsh↔Qālūn (Nāfiʿ, 26 ayahs differ), Bazzī↔Qunbul
+(Ibn Kathīr, 5), Dūrī↔Sūsī (Abū ʿAmr, 109), Ḥafṣ↔Shuʿba (ʿĀṣim, 71). Four for
+four. If the rasm rung were folding the wrong things together, this structure
+would dissolve into noise — so a failure here is a normalization bug before it
+is a textual finding."""
+query     = """
+SELECT e.slug FROM variant v JOIN edition e ON e.id = v.edition_id
+WHERE v.same_rasm = 0 AND e.orthography = 'uthmani'
+GROUP BY e.slug ORDER BY COUNT(*) ASC LIMIT 1
+"""
+expect    = "shuba"

@@ -1,0 +1,13 @@
+[claim]
+id        = "0005-spine-exceptions"
+statement = "The reference edition and the morphology corpus disagree about word boundaries in exactly 12 of 6,236 ayahs."
+level     = "plain"
+author    = "quranlab"
+date      = "2026-09-20"
+note      = """These are real editorial disagreements, not encoding noise: whether بَعْدَ مَا,
+لَوْ مَا and مَا لِيَ are one word or two, and whether إِلْ يَاسِينَ is one word containing a
+space. Recorded rather than resolved. The count is a regression guard — if it
+moves in either direction, the tokenizer changed and every word-indexed
+annotation needs rechecking."""
+query     = "SELECT COUNT(*) FROM spine_exception"
+expect    = 12

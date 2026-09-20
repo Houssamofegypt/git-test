@@ -1,0 +1,10 @@
+# The raw layer and the database are build artifacts, reproducible from
+# sources.lock.json. They are also ~190 MB and carry upstream licence terms,
+# so they are fetched, not vendored. See docs/SOURCES.md.
+data/
+
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+*.egg-info/
