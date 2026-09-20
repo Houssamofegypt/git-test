@@ -11,7 +11,7 @@ Database content digest `b131e5e0a8014739`. Every figure below regenerates from
 
 ## Summary
 
-Twenty hypotheses were tested. **Nine survive** multiple-comparison control
+Twenty-two hypotheses were tested. **Nine survive** multiple-comparison control
 (Benjamini–Hochberg, q < 0.05); eleven do not, including several of the
 best-known proposals.
 
@@ -231,6 +231,37 @@ encode or summarise what the surah says.
 
 ---
 
+## The best methodological lesson in the study
+
+A traditional line of interpretation reads the 14 letters as composing phrases —
+*naṣṣ ḥakīm qāṭiʿ lahu sirr*, "a wise text has a decisive secret," and others.
+As stated those readings are unfalsifiable, but they have a testable shadow: if
+the letters were chosen to be composable, words spellable in them alone should
+be unusually numerous.
+
+They are numerous. The 14 letters spell **1,504 distinct Quranic word-forms**,
+covering **29.5% of all word occurrences** — including long, fully-formed words
+like <span dir="rtl">المحسنين</span>, <span dir="rtl">المرسلين</span> and
+<span dir="rtl">المسلمين</span>.
+
+And it means nothing:
+
+| null | p (word types) | p (occurrences) |
+|---|---|---|
+| uniform random 14-letter subsets | **0.010** | **0.006** |
+| subsets matched on total corpus frequency | 0.624 | 0.477 |
+
+Against a uniform null this is a discovery at p = 0.006. Against a null that
+holds the letters' *commonness* constant it is nothing — the real set composes
+slightly **fewer** words than expected (1,504 against 1,598).
+
+The productivity is entirely a consequence of finding §4: these are common
+letters. Any set of fourteen letters this frequent composes about this many
+words. The lesson generalises to most numerical claims about the muqaṭṭaʿāt:
+the result is in the null, not in the data.
+
+---
+
 ## What does not survive
 
 Reported because negative results are results, and several of these are
@@ -340,12 +371,16 @@ codicological question, not a statistical one.
 particular word classes? I did not decompose it.
 
 **4. The enrichment mechanism — now partly closed, and the answer is negative.**
-The effect is real, stable across split halves, and weakly predictive, but it is
-*not* located in the surah's distinctive vocabulary (p = 0.99), not in its
-function words, and not in its common words. It is diffuse. *What would settle
-it:* a positive account of what distribution the letters are actually tracking —
-possibly verse-length or morphological-template structure, neither of which I
-tested.
+The effect is real, stable across split halves, and weakly predictive. It is
+*not* in the surah's distinctive vocabulary (p = 0.99), not in its function
+words, not in its common words. And it correlates with **no structural feature
+tested** — mean verse length, mean word length, segments per word, surah size,
+opening length, or revelation period, all p > 0.17.
+
+So the enrichment is a real, stable, unexplained residual. That is the most
+interesting loose end in the study. *What would settle it:* a candidate property
+I have not thought of. This is where an outside suggestion would be worth more
+than more computation from me.
 
 ## What I would not pursue
 
