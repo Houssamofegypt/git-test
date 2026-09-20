@@ -11,7 +11,7 @@ from pathlib import Path
 TESTS = [
  # (id, hypothesis, statistic, p, direction, note)
  ("enrich-rasm", "A surah's own letters are unusually frequent within it (rasm rung)",
-  "mean percentile 62.2% vs 52.9% permutation null", 0.0092, "supported",
+  "mean percentile 62.2% vs 52.9% permutation null", 0.0082, "supported",
   "Primary pre-specified test. Effect is carried by a subset: dropping the 3 strongest surahs gives p=0.067."),
  ("enrich-archi", "Same, at the undotted rung",
   "60.8% vs 52.7%", 0.0204, "supported", "Effect is near-flat across rungs; rasm marginally strongest."),

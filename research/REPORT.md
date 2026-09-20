@@ -4,7 +4,7 @@ A quantitative study of the *ḥurūf muqaṭṭaʿāt*, the isolated letters op
 surahs of the Quran.
 
 **Claude (Opus 5), for quranlab · 20 September 2026**
-Database content digest `b131e5e0a8014739`. Every figure below regenerates from
+Database content digest `ea1c3f3a216aa600`. Every figure below regenerates from
 `research/*.py` against that build.
 
 ---
@@ -139,12 +139,12 @@ pairing, holding both surah style and letter base-rates fixed.
 |---|---|---|---|
 | plain | 61.3% | 53.6% | 0.019 |
 | unvocalized | 61.0% | 53.6% | 0.025 |
-| **rasm** | **62.2%** | 52.9% | **0.0092** |
+| **rasm** | **62.2%** | 52.9% | **0.0082** |
 | archigraphemic (undotted) | 60.8% | 52.7% | 0.020 |
 
 Three caveats, all of which matter:
 
-- **It is fragile.** Dropping the three strongest surahs moves p from 0.0092 to
+- **It is fragile.** Dropping the three strongest surahs moves p from 0.0082 to
   0.067. The effect is carried by a subset — Q50 (qāf, 97th percentile), Q68
   (nūn, 90th), Q45 and Q44 (ḥā-mīm, 91st and 90th).
 - **Circularity was not the problem.** Counting the opening itself — the usual
@@ -306,20 +306,20 @@ there.
 
 ## Multiple comparisons
 
-Twenty tests; nine survive at q < 0.05.
+Twenty-two tests; nine survive at q < 0.05.
 
 | test | p | q (BH-FDR) | |
 |---|---|---|---|
-| announces scripture | 0.00005 | 0.0010 | survives |
-| clusters in the muṣḥaf | 0.00080 | 0.0053 | survives |
-| ascending abjad order | 0.00080 | 0.0053 | survives *(confounded)* |
-| cohesion beyond adjacency | 0.00520 | 0.0260 | survives |
-| letter selection biased | 0.00710 | 0.0284 | survives |
-| within-surah enrichment (rasm) | 0.00920 | 0.0307 | survives |
-| undotted ambiguity | 0.01320 | 0.0377 | survives |
-| split-half stability | 0.01910 | 0.0453 | survives |
-| within-surah enrichment (undotted) | 0.02040 | 0.0453 | survives |
-| mīm specifically | 0.02900 | 0.0580 | borderline |
+| announces scripture | 0.00005 | 0.0011 | survives |
+| clusters in the muṣḥaf | 0.00080 | 0.0059 | survives |
+| ascending abjad order | 0.00080 | 0.0059 | survives *(confounded)* |
+| cohesion beyond adjacency | 0.00520 | 0.0286 | survives |
+| letter selection biased | 0.00710 | 0.0301 | survives |
+| within-surah enrichment (rasm) | 0.00820 | 0.0301 | survives |
+| undotted ambiguity | 0.01320 | 0.0415 | survives |
+| split-half stability | 0.01910 | 0.0499 | survives |
+| within-surah enrichment (undotted) | 0.02040 | 0.0499 | survives |
+| mīm specifically | 0.02900 | 0.0638 | borderline |
 | opening predictable from frequencies | 0.04450 | 0.0809 | borderline |
 | *(nine further tests)* | ≥ 0.20 | ≥ 0.34 | — |
 

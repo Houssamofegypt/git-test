@@ -7,7 +7,13 @@
 PY ?= python3
 
 DB  := data/quran.db
-SRC := $(wildcard quranlab/*.py) quranlab/schema.sql sources.lock.json
+# Everything the build READS. fields/*.toml belongs here because fields.load()
+# resolves them into the database at build time: leaving them out meant editing
+# a field definition did not trigger a rebuild, and the database went quietly
+# stale against its own inputs. claims/*.toml are deliberately absent — they are
+# run against the finished database, not consumed by the build.
+SRC := $(wildcard quranlab/*.py) quranlab/schema.sql sources.lock.json \
+       $(wildcard fields/*.toml)
 
 # The database is a real file target, not a phony one: `make check` invokes it
 # three times, and rebuilding a 165 MB database each time both wasted half a
