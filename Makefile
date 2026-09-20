@@ -6,7 +6,7 @@
 
 PY ?= python3
 
-.PHONY: all fetch build verify claims test check clean distclean serve site stats help
+.PHONY: all fetch build verify claims test check clean distclean serve site portable stats help
 
 all: check
 
@@ -35,12 +35,15 @@ site: build           ## export the static showcase into site/
 	$(PY) -m quranlab.export_site
 	cp quranlab/site/tour.html site/index.html
 
+portable: build       ## export the uploadable bundle into dist/
+	$(PY) -m quranlab.export_portable
+
 stats: build          ## summarize the database
 	$(PY) -m quranlab stats
 
 clean:                ## remove the database and the static export
 	rm -f data/quran.db data/quran.db-wal data/quran.db-shm
-	rm -rf site
+	rm -rf site dist
 
 distclean: clean      ## also remove fetched sources
 	rm -rf data/raw

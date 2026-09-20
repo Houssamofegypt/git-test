@@ -3,8 +3,9 @@
 # so they are fetched, not vendored. See docs/SOURCES.md.
 data/
 
-# The static showcase is an export of data/, reproduced by `make site`.
+# Exports of data/, reproduced by `make site` and `make portable`.
 /site/
+/dist/
 
 __pycache__/
 *.py[cod]
