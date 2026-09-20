@@ -1,0 +1,574 @@
+<title>Reading Below the Dots</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&family=Amiri+Quran&display=swap">
+<style>
+:root{
+  --paper:#f5f4f1; --raised:#fbfaf8; --ink:#17171c; --muted:#6d6a63; --faint:#9a968e;
+  --line:#dedbd3; --line-2:#c8c4ba;
+  --rubric:#a8392b; --rubric-soft:#f2e3df;
+  --indigo:#35506f; --indigo-soft:#e3e8ee;
+  --sage:#4d6b3f; --sage-soft:#e6ebe0;
+  --serif:"Spectral",Iowan Old Style,Georgia,serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --arabic:"Amiri Quran","Amiri","Scheherazade New","Noto Naskh Arabic",serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#121216; --raised:#191920; --ink:#e9e7e1; --muted:#98948b; --faint:#6f6b64;
+  --line:#2a2a31; --line-2:#3c3c45;
+  --rubric:#d4705a; --rubric-soft:#301c18;
+  --indigo:#8fb0d6; --indigo-soft:#1a222e;
+  --sage:#9cba86; --sage-soft:#1c2418;
+}}
+:root[data-theme="dark"]{
+  --paper:#121216; --raised:#191920; --ink:#e9e7e1; --muted:#98948b; --faint:#6f6b64;
+  --line:#2a2a31; --line-2:#3c3c45;
+  --rubric:#d4705a; --rubric-soft:#301c18;
+  --indigo:#8fb0d6; --indigo-soft:#1a222e;
+  --sage:#9cba86; --sage-soft:#1c2418;
+}
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);
+  font-size:17px;line-height:1.65;-webkit-font-smoothing:antialiased}
+.page{max-width:1080px;margin:0 auto;padding-inline:20px;padding-block:0 96px}
+.col{max-width:64ch}
+h1,h2,h3{text-wrap:balance;font-weight:600;line-height:1.2}
+p{margin:0 0 1em}
+a{color:var(--indigo)}
+em{font-style:italic}
+code,.mono{font-family:var(--mono);font-size:.86em}
+.ar{font-family:var(--arabic);direction:rtl;text-align:right;line-height:2.05}
+
+/* nav */
+nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--paper);
+  border-bottom:1px solid var(--line);margin-bottom:0}
+.navin{max-width:1080px;margin:0 auto;padding:0 20px;display:flex;gap:2px;
+  overflow-x:auto;scrollbar-width:none}
+.navin::-webkit-scrollbar{display:none}
+.navin a{font-family:var(--mono);font-size:11.5px;letter-spacing:.04em;text-transform:uppercase;
+  color:var(--muted);text-decoration:none;padding:13px 11px;white-space:nowrap;
+  border-bottom:2px solid transparent}
+.navin a:hover{color:var(--ink)}
+
+/* masthead */
+header{padding:60px 0 40px;border-bottom:1px solid var(--line-2)}
+.kicker{font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--rubric);margin-bottom:18px}
+h1{font-size:clamp(34px,6.2vw,58px);letter-spacing:-.015em;margin:0 0 18px}
+.standfirst{font-size:20px;line-height:1.5;color:var(--muted);max-width:56ch;margin:0}
+.facts{display:flex;flex-wrap:wrap;gap:0;margin-top:38px;border-top:1px solid var(--line)}
+.fact{flex:1 1 130px;padding:14px 16px 14px 0;border-right:1px solid var(--line)}
+.fact:last-child{border-right:0}
+.fact b{display:block;font-size:24px;font-variant-numeric:tabular-nums;line-height:1.1}
+.fact span{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--faint);display:block;margin-top:5px}
+
+section{padding-top:56px}
+h2{font-size:clamp(23px,3.4vw,30px);margin:0 0 6px;letter-spacing:-.01em}
+.sectag{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--faint);margin-bottom:10px}
+.lead{font-size:19px;color:var(--muted);margin-bottom:24px;max-width:58ch}
+
+/* figures */
+figure{margin:28px 0 0;border:1px solid var(--line-2);border-radius:3px;background:var(--raised)}
+figcaption{display:flex;justify-content:space-between;align-items:baseline;gap:14px;
+  flex-wrap:wrap;padding:12px 18px;border-bottom:1px solid var(--line);
+  font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--muted)}
+figcaption b{color:var(--rubric);font-weight:600}
+.fbody{padding:18px}
+.controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+input,select{font-family:var(--mono);font-size:13px;padding:7px 10px;border:1px solid var(--line-2);
+  border-radius:3px;background:var(--paper);color:var(--ink)}
+input:focus-visible,select:focus-visible,button:focus-visible,.navin a:focus-visible
+  {outline:2px solid var(--indigo);outline-offset:2px}
+button{font-family:var(--mono);font-size:12px;letter-spacing:.04em;padding:8px 14px;
+  border:1px solid var(--ink);border-radius:3px;background:var(--ink);color:var(--paper);cursor:pointer}
+button.ghost{background:none;color:var(--ink)}
+button:hover{opacity:.85}
+.hint{font-family:var(--mono);font-size:11px;color:var(--faint)}
+
+/* the ladder */
+.rung{display:grid;grid-template-columns:150px 1fr;gap:16px;padding:12px 0;border-top:1px solid var(--line)}
+.rung:first-child{border-top:0}
+.rlabel{font-family:var(--mono);font-size:11px;color:var(--faint);padding-top:10px;line-height:1.5}
+.rlabel b{display:block;color:var(--ink);font-size:12px;letter-spacing:.03em}
+.rung .ar{font-size:27px;line-height:2.2}
+.floor .ar{color:var(--indigo)}
+.v{color:var(--rubric)}
+.ar .v{font-weight:400}
+.app{color:var(--faint)}
+.legend{display:flex;gap:18px;flex-wrap:wrap;font-family:var(--mono);font-size:11px;
+  color:var(--muted);margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+.sw{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:6px;vertical-align:baseline}
+
+/* tables */
+table{width:100%;border-collapse:collapse;font-size:14px}
+.scroll{overflow-x:auto}
+th{text-align:left;font-family:var(--mono);font-size:10px;letter-spacing:.07em;text-transform:uppercase;
+  color:var(--faint);font-weight:500;padding:0 12px 7px 0;border-bottom:1px solid var(--line-2)}
+td{padding:8px 12px 8px 0;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+td.ar{font-size:22px;text-align:right}
+.chip{display:inline-block;font-family:var(--mono);font-size:10px;padding:2px 7px;border-radius:2px;
+  background:var(--indigo-soft);color:var(--indigo);white-space:nowrap}
+.chip.same{background:var(--sage-soft);color:var(--sage)}
+.chip.orth{background:var(--rubric-soft);color:var(--rubric)}
+.subh{font-family:var(--mono);font-size:11px;letter-spacing:.07em;text-transform:uppercase;
+  color:var(--ink);margin:22px 0 4px;font-weight:600}
+.subh:first-child{margin-top:0}
+.note{font-size:14px;color:var(--muted);margin:0 0 10px;max-width:70ch}
+.empty{color:var(--faint);font-style:italic;font-size:14px}
+
+/* matrix */
+.mx{border-collapse:separate;border-spacing:3px;font-family:var(--mono);font-size:11px;width:auto}
+.mx th{border:0;padding:3px;text-align:center;color:var(--muted);font-size:10px}
+.mx th.rw{text-align:right;padding-right:9px;white-space:nowrap}
+.mx td{border:0;padding:0}
+.mx td div{padding:8px 6px;border-radius:2px;min-width:56px;text-align:center;
+  font-variant-numeric:tabular-nums}
+.mx td.self div{background:var(--line);color:var(--faint)}
+.mx td.pair div{outline:1.5px solid var(--rubric);font-weight:600}
+
+/* defects + claims */
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(248px,1fr));gap:1px;
+  background:var(--line);border:1px solid var(--line);margin-top:26px}
+.cell{background:var(--raised);padding:18px}
+.cell h3{font-size:16px;margin:0 0 7px}
+.cell .n{font-family:var(--mono);font-size:11px;color:var(--rubric);letter-spacing:.06em;
+  display:block;margin-bottom:9px}
+.cell p{font-size:14.5px;color:var(--muted);margin:0}
+.claim{border-top:1px solid var(--line);padding:15px 0;display:grid;
+  grid-template-columns:auto 1fr;gap:16px;align-items:start}
+.claim:first-child{border-top:0}
+.claim .ok{font-family:var(--mono);font-size:10px;color:var(--sage);background:var(--sage-soft);
+  padding:3px 8px;border-radius:2px;white-space:nowrap;margin-top:3px}
+.claim p{margin:0 0 6px;font-size:15.5px}
+.claim code{display:block;color:var(--muted);font-size:11.5px;white-space:pre-wrap;
+  background:var(--paper);border:1px solid var(--line);padding:8px 10px;border-radius:2px;
+  margin-top:7px;overflow-x:auto}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips button{background:var(--paper);color:var(--ink);border-color:var(--line-2);
+  font-family:var(--arabic);font-size:17px;padding:5px 11px;direction:rtl}
+.chips button b{font-family:var(--mono);font-size:10px;color:var(--rubric);margin-right:7px}
+pre.sh{font-family:var(--mono);font-size:13px;background:var(--raised);border:1px solid var(--line-2);
+  border-radius:3px;padding:16px 18px;overflow-x:auto;line-height:1.7;margin:0}
+pre.sh .c{color:var(--faint)}
+footer{margin-top:72px;padding-top:22px;border-top:1px solid var(--line-2);
+  font-family:var(--mono);font-size:11.5px;color:var(--faint);line-height:1.8}
+@media(max-width:700px){
+  body{font-size:16px}
+  .rung{grid-template-columns:1fr;gap:3px}
+  .rlabel{padding-top:0}
+  .claim{grid-template-columns:1fr}
+}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<nav><div class="navin">
+  <a href="#problem">The problem</a>
+  <a href="#ladder">The ladder</a>
+  <a href="#apparatus">Apparatus</a>
+  <a href="#skeleton">Skeletons</a>
+  <a href="#tripwire">Tripwire</a>
+  <a href="#defects">What was wrong</a>
+  <a href="#ledger">Claim ledger</a>
+  <a href="#exceptions">Exceptions</a>
+  <a href="#run">Run it</a>
+</div></nav>
+
+<div class="page">
+<header>
+  <div class="kicker">Quranlab · research infrastructure</div>
+  <h1>Reading Below the Dots</h1>
+  <p class="standfirst">Ten Arabic editions across eight riwāyāt, 130,030 morphological
+  segments, and a normalization ladder whose bottom rung is the undotted consonantal
+  skeleton — the layer manuscript research actually operates at.</p>
+  <div class="facts" id="facts"></div>
+</header>
+
+<section id="problem"><div class="col">
+  <div class="sectag">01 — Why this shape</div>
+  <h2>The text is not the hard part</h2>
+  <p class="lead">It is 800 KB. Storing it is not a problem, and anyone who frames the task
+  as “import the text into a database” builds something that works for a week and then
+  quietly starts lying.</p>
+  <p>The actual problem: <em>every interesting question about the Quran is a question about
+  spans of text, and every scholarly disagreement is a disagreement about which text, which
+  segmentation, or which normalization.</em> Word frequency depends on where words begin.
+  Root frequency depends on a morphological analysis someone had to make. “Is this phrase
+  unique?” depends on whether you compared vocalized text, consonantal text, or a bare
+  skeleton. Get one wrong, once, in a helper function — and every number downstream is
+  wrong in a way that never surfaces as an error.</p>
+  <p>So the infrastructure has one job: make the text immutable, make addressing stable,
+  and make every derived fact reproducible and attributable. Raw sources are pinned to a
+  commit and a SHA-256. The database is a build artifact that reproduces to an identical
+  content digest. All annotation is stand-off — nothing ever writes into the text. And
+  normalization is a ladder, not a destination.</p>
+</div></section>
+
+<section id="ladder">
+  <div class="col">
+    <div class="sectag">02 — The ladder</div>
+    <h2>Six rungs, all stored</h2>
+    <p class="lead">A query declares which rung it ran on. Nothing is destroyed, because
+    the rung above is always still there.</p>
+    <p>The tinting below is not decoration. In the manuscript tradition the consonantal
+    skeleton was written in ink and the vowel points were added later, in red, by a
+    different hand. The page colours them the same way — and which character belongs to
+    which class is read from the build, not decided in the browser.</p>
+  </div>
+  <figure>
+    <figcaption><span><b>Figure 1</b> · the normalization ladder</span>
+      <span id="f1meta"></span></figcaption>
+    <div class="fbody">
+      <div class="controls">
+        <input id="ref" value="2:2" size="9" aria-label="Ayah reference">
+        <button id="go">Show</button>
+        <button class="ghost" id="morph">Morphology</button>
+        <span class="hint">try 1:1 · 2:2 · 2:255 · 96:1 · 112:1</span>
+      </div>
+      <div id="rungs"></div>
+      <div class="legend">
+        <span><i class="sw" style="background:var(--ink)"></i>consonantal skeleton</span>
+        <span><i class="sw" style="background:var(--rubric)"></i>vocalization — added layer</span>
+        <span><i class="sw" style="background:var(--faint)"></i>tajwīd &amp; waqf apparatus</span>
+      </div>
+      <div id="morphbox"></div>
+    </div>
+  </figure>
+</section>
+
+<section id="apparatus">
+  <div class="col">
+    <div class="sectag">03 — Critical apparatus</div>
+    <h2>Readings, not spellings</h2>
+    <p class="lead">Editions are rows, not columns. That is what lets eight riwāyāt sit
+    side by side and their differences become a queryable table.</p>
+    <p>The split that matters is <em>reading versus orthography</em>. <code>imlaei-simple</code>
+    and <code>indopak</code> transmit the same Ḥafṣ reading in a different spelling
+    convention; filing them next to Warsh under one heading is how orthography gets
+    published as textual variance. They get their own bucket.</p>
+  </div>
+  <figure>
+    <figcaption><span><b>Figure 2</b> · differences from Ḥafṣ</span>
+      <span id="f2meta"></span></figcaption>
+    <div class="fbody">
+      <div class="controls">
+        <input id="aref" value="12:109" size="9" aria-label="Ayah reference">
+        <button id="ago">Show</button>
+        <span class="hint">12:109 and 2:140 carry real variants · 2:255 carries none</span>
+      </div>
+      <div id="app"></div>
+    </div>
+  </figure>
+</section>
+
+<section id="skeleton">
+  <div class="col">
+    <div class="sectag">04 — Undotted skeletons</div>
+    <h2>What a bare codex underdetermines</h2>
+    <p class="lead">In a bare Ḥijāzī codex, <span class="ar" style="font-size:19px">بنت</span>,
+    <span class="ar" style="font-size:19px">ينبت</span>, <span class="ar" style="font-size:19px">ثبت</span>
+    and <span class="ar" style="font-size:19px">تنبت</span> share one skeleton.</p>
+    <p>Any question of the form “could this reading have been misread as that one?” is a
+    question about archigraphemic identity. No off-the-shelf Arabic normalizer computes it,
+    so quranlab does — position-sensitively, because final nūn and final yāʾ are distinct
+    shapes while their medial forms are not. <b id="ambn">1,350</b> word skeletons in the
+    reference edition admit more than one dotted reading.</p>
+  </div>
+  <figure>
+    <figcaption><span><b>Figure 3</b> · skeleton clusters</span>
+      <span id="f3meta"></span></figcaption>
+    <div class="fbody">
+      <div class="chips" id="chips"></div>
+      <div id="skel" style="margin-top:18px"></div>
+    </div>
+  </figure>
+</section>
+
+<section id="tripwire">
+  <div class="col">
+    <div class="sectag">05 — Validation</div>
+    <h2>A result nobody needs</h2>
+    <p class="lead">Pairwise consonantal distance across the riwāyāt recovers the
+    transmission tree. Every riwāyah’s nearest neighbour is its sibling from the same
+    qāriʾ. Four for four.</p>
+    <p>This has been known for a millennium. It is here as a <em>tripwire</em>: if the
+    rasm rung ever folds the wrong things together, this structure dissolves into noise —
+    and a normalization bug announces itself as a failing claim instead of as a
+    plausible-looking finding three papers later.</p>
+  </div>
+  <figure>
+    <figcaption><span><b>Figure 4</b> · ayahs differing in consonantal skeleton</span>
+      <span>outlined = nearest neighbour</span></figcaption>
+    <div class="fbody"><div class="scroll"><table class="mx" id="mx"></table></div>
+      <div id="pairs" style="margin-top:16px"></div></div>
+  </figure>
+</section>
+
+<section id="defects"><div class="col">
+  <div class="sectag">06 — Findings</div>
+  <h2>Four things that were silently wrong</h2>
+  <p class="lead">None of these raised an error. All four would have produced
+  publishable-looking numbers.</p>
+</div>
+  <div class="grid">
+    <div class="cell"><span class="n">1,741 of 6,236 ayahs</span>
+      <h3>The typographic space</h3>
+      <p>The KFGQPC text separates a tanwīn from its silent alif with a real U+0020 — a
+      rendering device, not a word boundary. Naïve tokenization put 28% of ayahs at the
+      wrong word count, and every one still looked fine on screen. Visible in Figure 1:
+      compare <code>raw</code> to <code>plain</code> at 2:2.</p></div>
+    <div class="cell"><span class="n">13,370 characters</span>
+      <h3>Invisible contaminants</h3>
+      <p>U+200F right-to-left marks scattered through the editions so they render correctly
+      when pasted into a left-to-right document. Two strings look identical, compare
+      unequal, and nothing on screen explains why.</p></div>
+    <div class="cell"><span class="n">~6,000 phantom variants</span>
+      <h3>Yeh barree</h3>
+      <p>Warsh and Qālūn spell final yāʾ as U+06D2 — typography, not a consonantal choice.
+      Unfolded it manufactured thousands of fake differences between riwāyāt. Folding it
+      cut Warsh’s consonantal variance from 6,486 to 3,090.</p></div>
+    <div class="cell"><span class="n">f(f(x)) ≠ f(x)</span>
+      <h3>Non-idempotent normalization</h3>
+      <p>Deleting a combining mark can leave its neighbours out of canonical order, so
+      whether two texts compared equal depended on how many times each had been
+      normalized. Every rung now re-applies NFC after filtering.</p></div>
+  </div>
+</section>
+
+<section id="ledger"><div class="col">
+  <div class="sectag">07 — The claim ledger</div>
+  <h2>A finding is a sentence plus its query</h2>
+  <p class="lead">Claims live in <code>claims/*.toml</code> and are re-run on every build.
+  A claim that stops reproducing fails CI — because the sources moved, the normalization
+  changed, or the claim was wrong.</p>
+  <p>This is the piece that makes the repository <em>research</em> infrastructure rather
+  than a nicely-shaped copy of the text.</p>
+  <div id="claims" style="margin-top:8px"></div>
+</div></section>
+
+<section id="exceptions"><div class="col">
+  <div class="sectag">08 — Refusals</div>
+  <h2>Twelve disagreements, kept</h2>
+  <p class="lead">Where the reference edition and the morphology corpus genuinely disagree
+  about where words begin, the ayah is recorded rather than smoothed over. A silent
+  1-in-500 misalignment is how a corpus starts lying.</p>
+</div>
+  <figure>
+    <figcaption><span><b>Figure 5</b> · spine exceptions</span>
+      <span>count is a tested invariant</span></figcaption>
+    <div class="fbody"><div class="scroll" id="exc"></div></div>
+  </figure>
+</section>
+
+<section id="run"><div class="col">
+  <div class="sectag">09 — Running it</div>
+  <h2>This page is the showcase, not the instrument</h2>
+  <p class="lead">Everything above is a static export. The working tool queries the
+  database directly and does things this page cannot.</p>
+  <pre class="sh"><span class="c"># the whole pipeline: fetch pinned sources, build, verify, re-run every claim</span>
+git clone https://github.com/Houssamofegypt/git-test
+cd git-test &amp;&amp; make
+
+<span class="c"># the local explorer — full database, projected search, every edition</span>
+make serve</pre>
+  <p style="margin-top:20px">Two things the static build deliberately cannot do. Search
+  here matches your query <em>literally</em> against a stored rung; the local build
+  projects it onto that rung first, so <code>الله</code> at <code>rasm</code> also finds
+  <span class="ar" style="font-size:17px">ٱللَّه</span>. And the 249,402 vocalization-only
+  variants are summarised as counts rather than shipped — the consonantal ones, which
+  distinguish readings, are all here.</p>
+  <p>The <code>annotation</code> table is empty on a fresh build. That is deliberate: it
+  is where research goes, and baking a scholarly position into the canonical store would
+  make it look like a fact.</p>
+</div></section>
+
+<footer id="foot"></footer>
+</div>
+
+<script>
+const $=(s,r=document)=>r.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const num=n=>Number(n).toLocaleString("en-US");
+const J=async p=>(await fetch("data/"+p)).json();
+
+let META,AYAHS,VAR,SKEL,idx={},VOWEL,APP;
+const RUNG={raw:"exactly the bytes upstream gave us",nfc:"canonical combining order",
+ plain:"minus apparatus, invisible controls, tatweel",unvocalized:"minus vowel marks",
+ rasm:"dotted consonantal skeleton",archigraphemic:"the undotted skeleton"};
+
+/* Tint by the exported character classes — the page never decides class membership. */
+function tint(s){
+  let out="",run="",cls="";
+  for(const ch of s){
+    const c = VOWEL.has(ch)?"v" : APP.has(ch)?"app" : "";
+    if(c!==cls){ if(run) out += cls?`<span class="${cls}">${esc(run)}</span>`:esc(run); run=""; cls=c; }
+    run+=ch;
+  }
+  return out + (run ? (cls?`<span class="${cls}">${esc(run)}</span>`:esc(run)) : "");
+}
+const key=(s,a)=>s+":"+a;
+function lookup(ref){
+  const m=String(ref).trim().replace(/^[Qq]/,"").split(":");
+  return idx[key(+m[0],+m[1]||1)];
+}
+
+/* ---- Figure 1 ---- */
+function drawLadder(ref){
+  const r=lookup(ref);
+  const box=$("#rungs");
+  if(!r){ box.innerHTML='<p class="empty">No such ayah.</p>'; $("#f1meta").textContent=""; return; }
+  const C=AYAHS.columns;
+  $("#f1meta").textContent=`${r[C.indexOf("surah")]}:${r[C.indexOf("number")]} · juz ${r[C.indexOf("juz")]} · page ${r[C.indexOf("page")]}`;
+  box.innerHTML=META.levels.map(lv=>`<div class="rung${lv==="archigraphemic"?" floor":""}">
+    <div class="rlabel"><b>${lv}</b>${RUNG[lv]}</div>
+    <div class="ar">${tint(r[C.indexOf(lv)])}</div></div>`).join("");
+  $("#morphbox").innerHTML="";
+}
+let WORDS=null;
+async function drawMorph(){
+  const ref=$("#ref").value.trim().replace(/^[Qq]/,"").split(":");
+  const s=+ref[0], a=+ref[1]||1, box=$("#morphbox");
+  if(box.dataset.open===s+":"+a){ box.innerHTML=""; box.dataset.open=""; return; }
+  box.innerHTML='<p class="empty" style="margin-top:14px">loading morphology…</p>';
+  WORDS ||= await J("words.json");
+  const rows=WORDS.rows.filter(w=>w[0]===s&&w[1]===a);
+  box.dataset.open=s+":"+a;
+  box.innerHTML=`<div class="subh" style="margin-top:24px">Word by word — ${s}:${a}</div>
+   <div class="scroll"><table><tbody>${rows.map(w=>`<tr>
+    <td class="mono" style="color:var(--faint);width:44px">w${w[2]}</td>
+    <td class="ar" style="width:150px">${tint(w[3])}</td>
+    <td class="mono" style="font-size:11.5px;color:var(--muted)">
+      ${w[4]?"√"+esc(w[4]):"—"} · ${esc(w[5]||"")} · ${esc(w[6]||"")}<br>
+      ${w[7].map(sg=>`<span class="ar" style="font-size:15px">${tint(sg[0])}</span> ${esc(sg[1])}`).join("<br>")}
+    </td></tr>`).join("")}</tbody></table></div>`;
+}
+
+/* ---- Figure 2 ---- */
+function drawApp(ref){
+  const r=lookup(ref), box=$("#app");
+  if(!r){ box.innerHTML='<p class="empty">No such ayah.</p>'; return; }
+  const C=AYAHS.columns, s=r[C.indexOf("surah")], a=r[C.indexOf("number")];
+  const id=META.surahs.find(x=>x.number===s).ayah_start + a - 1;
+  const V=VAR.columns, rows=VAR.consonantal.filter(x=>x[V.indexOf("ayah_id")]===id);
+  const reading=rows.filter(x=>!x[V.indexOf("is_orthographic")]);
+  const orth=rows.filter(x=>x[V.indexOf("is_orthographic")]);
+  const voc=VAR.vocalic_counts[String(id)]||0;
+  $("#f2meta").textContent=`${s}:${a} · ${reading.length} consonantal · ${num(voc)} vocalic`;
+  const T=list=>list.length?`<div class="scroll"><table><thead><tr><th>edition</th><th>pos</th>
+      <th>Ḥafṣ</th><th>variant</th><th></th></tr></thead><tbody>`
+    +list.map(x=>`<tr><td><span class="chip${x[V.indexOf("is_orthographic")]?" orth":""}">${esc(x[V.indexOf("slug")])}</span></td>
+      <td class="mono" style="color:var(--faint)">w${x[V.indexOf("ref_position")]}</td>
+      <td class="ar">${tint(x[V.indexOf("ref_text")])}</td>
+      <td class="ar">${tint(x[V.indexOf("var_text")])}</td>
+      <td>${x[V.indexOf("same_archi")]?'<span class="chip same">same undotted</span>':""}</td></tr>`).join("")
+    +`</tbody></table></div>`:'<p class="empty">none</p>';
+  box.innerHTML=`<div class="subh">Variant readings — different riwāyah, different skeleton</div>
+    <p class="note">A different qāriʾ transmits a different consonantal text.</p>${T(reading)}
+    <div class="subh">Orthography — same Ḥafṣ reading, different spelling</div>
+    <p class="note">Not variant readings. Kept separate so they are never counted as evidence of one.</p>${T(orth)}
+    <div class="subh">Vocalization only</div>
+    <p class="note">${num(voc)} differences that leave the skeleton untouched. Counts only here — the local build has the rows.</p>`;
+}
+
+/* ---- Figure 3 ---- */
+function drawSkel(i){
+  const c=SKEL.clusters[i];
+  $("#f3meta").textContent=`${c.readings.length} readings · cluster ${i+1} of ${num(SKEL.clusters.length)}`;
+  $("#skel").innerHTML=`<div class="ar" style="font-size:34px;color:var(--indigo);margin-bottom:14px">${esc(c.skeleton)}</div>
+   <div class="scroll"><table><thead><tr><th>reading</th><th>words</th><th>occurrences</th></tr></thead><tbody>
+   ${c.readings.map(r=>`<tr><td class="ar" style="width:130px">${esc(r.rasm)}</td>
+     <td class="mono" style="font-variant-numeric:tabular-nums">${r.count}</td>
+     <td>${r.examples.map(e=>`<span class="mono" style="color:var(--faint)">${esc(e[0])}</span>
+        <span class="ar" style="font-size:18px">${tint(e[1])}</span>
+        ${e[2]?`<span class="mono" style="color:var(--muted)">√${esc(e[2])}</span>`:""}`).join("<br>")}</td>
+   </tr>`).join("")}</tbody></table></div>`;
+  document.querySelectorAll("#chips button").forEach((b,j)=>
+    b.style.borderColor = j===i ? "var(--rubric)" : "var(--line-2)");
+}
+
+/* ---- Figure 4 ---- */
+function drawTree(){
+  const t=META.tree, max=Math.max(...t.matrix.flat()), near=[];
+  t.editions.forEach((e,i)=>{
+    let j=-1; t.matrix[i].forEach((v,k)=>{ if(k!==i && (j<0||v<t.matrix[i][j])) j=k; });
+    near[i]=j;
+  });
+  $("#mx").innerHTML=`<thead><tr><th class="rw"></th>${t.editions.map(e=>`<th>${esc(e.replace("uthmani-",""))}</th>`).join("")}</tr></thead>
+   <tbody>${t.matrix.map((row,i)=>`<tr><th class="rw">${esc(t.editions[i])}</th>
+     ${row.map((v,j)=>{
+       if(i===j) return '<td class="self"><div>—</div></td>';
+       const a=1-(v/max);
+       return `<td class="${near[i]===j?"pair":""}"><div style="background:color-mix(in srgb,var(--indigo-soft) ${Math.round(a*100)}%,transparent)">${num(v)}</div></td>`;
+     }).join("")}</tr>`).join("")}</tbody>`;
+  const seen=new Set();
+  t.editions.forEach((e,i)=>{ const p=[e,t.editions[near[i]]].sort().join(" ↔ "); seen.add(p); });
+  $("#pairs").innerHTML=[...seen].map(p=>`<span class="chip same" style="margin-right:7px">${esc(p)}</span>`).join("")
+    +`<p class="note" style="margin-top:12px">Nāfiʿ, Ibn Kathīr, Abū ʿAmr, ʿĀṣim — each pair transmits from one qāriʾ.</p>`;
+}
+
+const CLAIMS=[
+ ["0001-corpus-scale","The canonical spine is 114 surahs, 6,236 ayahs, 77,429 words and 130,030 morphological segments.",
+  "SELECT (SELECT COUNT(*) FROM surah), (SELECT COUNT(*) FROM ayah),\n       (SELECT COUNT(*) FROM word), (SELECT COUNT(*) FROM segment)"],
+ ["0002-root-rhm","The root ر-ح-م yields 339 words across 62 surahs, under 9 distinct lemmas.",
+  "SELECT word_count, surah_count, lemma_count FROM root WHERE text = 'رحم'"],
+ ["0003-riwayah-tree","Of the nine riwāyāt ingested, Shuʿba is consonantally closest to Ḥafṣ — as the transmission tree predicts, since both transmit from ʿĀṣim.",
+  "SELECT e.slug FROM variant v JOIN edition e ON e.id = v.edition_id\nWHERE v.same_rasm = 0 AND e.orthography = 'uthmani'\nGROUP BY e.slug ORDER BY COUNT(*) ASC LIMIT 1"],
+ ["0004-undotted-ambiguity","1,350 undotted word skeletons correspond to more than one dotted reading.",
+  "SELECT COUNT(*) FROM (\n  SELECT archigraphemic FROM word\n  GROUP BY archigraphemic HAVING COUNT(DISTINCT rasm) > 1)"],
+ ["0005-spine-exceptions","The reference edition and the morphology corpus disagree about word boundaries in exactly 12 of 6,236 ayahs.",
+  "SELECT COUNT(*) FROM spine_exception"]];
+
+(async()=>{
+  [META,AYAHS,VAR,SKEL]=await Promise.all(
+    [J("meta.json"),J("ayahs.json"),J("variants.json"),J("skeletons.json")]);
+  VOWEL=new Set(META.charclasses.vowel+META.charclasses.orthographic);
+  APP=new Set(META.charclasses.apparatus);
+  const C=AYAHS.columns, si=C.indexOf("surah"), ni=C.indexOf("number");
+  AYAHS.rows.forEach(r=>idx[key(r[si],r[ni])]=r);
+
+  const c=META.counts;
+  $("#facts").innerHTML=[["6,236","ayahs"],[num(c.words),"words"],[num(c.segments),"segments"],
+    [num(c.roots),"roots"],["8","riwāyāt"],[num(c.consonantal),"consonantal variants"]]
+    .map(([a,b])=>`<div class="fact"><b>${a}</b><span>${b}</span></div>`).join("");
+  $("#ambn").textContent=num(SKEL.clusters.length);
+
+  drawLadder("2:2"); drawApp("12:109"); drawTree();
+  $("#chips").innerHTML=SKEL.clusters.slice(0,24).map((x,i)=>
+    `<button data-i="${i}"><b>${x.readings.length}</b>${esc(x.skeleton)}</button>`).join("");
+  document.querySelectorAll("#chips button").forEach(b=>
+    b.onclick=()=>drawSkel(+b.dataset.i));
+  drawSkel(0);
+
+  $("#claims").innerHTML=CLAIMS.map(([id,st,q])=>`<div class="claim">
+    <span class="ok">reproduces</span>
+    <div><p>${esc(st)}</p><span class="mono" style="color:var(--faint);font-size:11px">${esc(id)}</span>
+    <code>${esc(q)}</code></div></div>`).join("");
+
+  $("#exc").innerHTML=`<table><thead><tr><th>ref</th><th>edition tokenizes</th><th>corpus spine</th></tr></thead><tbody>
+   ${META.exceptions.map(e=>{
+      const t=e.detail.text,cp=e.detail.corpus; let d=0;
+      while(d<t.length&&t[d]===cp[d]) d++;
+      const lo=Math.max(0,d-1), hi=d+3, sep=' <span style="color:var(--faint)">|</span> ';
+      return `<tr><td><span class="mono" style="color:var(--indigo)">${esc(e.ref)}</span>
+        <div class="mono" style="font-size:10.5px;color:var(--faint)">${e.text_tokens} vs ${e.corpus_words}</div></td>
+        <td class="ar">${t.slice(lo,hi).map(tint).join(sep)}</td>
+        <td class="ar">${cp.slice(lo,hi).map(tint).join(sep)}</td></tr>`;
+   }).join("")}</tbody></table>`;
+
+  const src=META.sources.map(s=>`${s.repo}@${s.commit_sha.slice(0,8)}`).join(" · ");
+  $("#foot").innerHTML=`content digest ${esc(META.build.digest.slice(0,24))}…<br>
+    built ${esc(META.build.built_at)}<br>sources: ${esc(src)}<br>
+    Quranic text © Tanzil.net and the King Fahd Glorious Quran Printing Complex ·
+    morphology from the Quranic Arabic Corpus (CC BY-SA / GPL) ·
+    Amiri Quran by Khaled Hosny (OFL 1.1)`;
+
+  $("#go").onclick=()=>drawLadder($("#ref").value);
+  $("#ref").onkeydown=e=>e.key==="Enter"&&drawLadder($("#ref").value);
+  $("#morph").onclick=drawMorph;
+  $("#ago").onclick=()=>drawApp($("#aref").value);
+  $("#aref").onkeydown=e=>e.key==="Enter"&&drawApp($("#aref").value);
+})();
+</script>

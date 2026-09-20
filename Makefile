@@ -6,7 +6,7 @@
 
 PY ?= python3
 
-.PHONY: all fetch build verify claims test check clean distclean serve stats help
+.PHONY: all fetch build verify claims test check clean distclean serve site stats help
 
 all: check
 
@@ -31,11 +31,16 @@ check: verify claims test  ## the full gate
 serve: build          ## local read-only web explorer
 	$(PY) -m quranlab serve
 
+site: build           ## export the static showcase into site/
+	$(PY) -m quranlab.export_site
+	cp quranlab/site/tour.html site/index.html
+
 stats: build          ## summarize the database
 	$(PY) -m quranlab stats
 
-clean:                ## remove the database, keep the raw sources
+clean:                ## remove the database and the static export
 	rm -f data/quran.db data/quran.db-wal data/quran.db-shm
+	rm -rf site
 
 distclean: clean      ## also remove fetched sources
 	rm -rf data/raw
