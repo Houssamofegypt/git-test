@@ -1,0 +1,29 @@
+name: check
+
+# The claim ledger only means something if something re-runs it. This is that
+# something: every push rebuilds the database from the pinned sources and fails
+# if any data invariant breaks or any recorded claim stops reproducing.
+on:
+  push:
+  pull_request:
+  schedule:
+    # Weekly, to catch upstream moving under a pinned commit.
+    - cron: "0 6 * * 1"
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Cache the raw layer
+        uses: actions/cache@v4
+        with:
+          path: data/raw
+          # Keyed on the lock file: a re-lock invalidates the cache, which is
+          # exactly when we want a fresh download.
+          key: raw-${{ hashFiles('sources.lock.json') }}
+      - run: pip install pytest
+      - run: make check

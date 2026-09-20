@@ -1,0 +1,13 @@
+[claim]
+id        = "0002-root-rhm"
+statement = "The root ر-ح-م yields 339 words across 62 surahs, under 9 distinct lemmas."
+level     = "n/a"
+author    = "quranlab"
+date      = "2026-09-20"
+note      = """Counts words, not occurrences of a string: ٱلرَّحْمَٰن and رَحْمَة both count once
+each per occurrence, and رَحْمَٰن inside a genitive construct still counts. The number
+depends on the corpus's root assignments, which the upstream fork revises relative
+to corpus v0.4 — see sources.toml. Falsified by a different root assignment, not by
+a different search string."""
+query     = "SELECT word_count, surah_count, lemma_count FROM root WHERE text = 'رحم'"
+expect    = [339, 62, 9]

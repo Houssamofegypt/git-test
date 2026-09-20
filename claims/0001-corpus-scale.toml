@@ -1,0 +1,16 @@
+[claim]
+id        = "0001-corpus-scale"
+statement = "The canonical spine is 114 surahs, 6,236 ayahs, 77,429 words and 130,030 morphological segments."
+level     = "n/a"
+author    = "quranlab"
+date      = "2026-09-20"
+note      = """Kufan verse numbering. The word and segment totals are the Quranic Arabic
+Corpus v0.4 figures; other tokenizations give other numbers, which is why the
+claim names the spine rather than saying `the Quran has 77,429 words`."""
+query     = """
+SELECT (SELECT COUNT(*) FROM surah),
+       (SELECT COUNT(*) FROM ayah),
+       (SELECT COUNT(*) FROM word),
+       (SELECT COUNT(*) FROM segment)
+"""
+expect    = [114, 6236, 77429, 130030]

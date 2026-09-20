@@ -1,0 +1,48 @@
+# Declared upstream sources. Human-authored; never edited by tooling.
+# `python -m quranlab fetch` resolves these to data/raw/ and writes sources.lock.json
+# (pinned commit + sha256 of every byte we ingest).
+#
+# Rule: every source is pinned to an immutable commit. No floating branches, ever.
+# A source that cannot be pinned cannot be ingested.
+
+[[source]]
+id       = "quran-api"
+kind     = "github-raw"
+repo     = "fawazahmed0/quran-api"
+commit   = "47ca096b0976443ba2eab2e45cdf0fb4096a2610"
+homepage = "https://github.com/fawazahmed0/quran-api"
+license  = "Unlicense (public domain dedication); underlying texts from Tanzil.net and the King Fahd Glorious Quran Printing Complex"
+note     = """Aggregator. Arabic editions originate from Tanzil.net and qurancomplex.gov.sa.
+We treat it as a *mirror of record*, not an authority: every Arabic edition it supplies is
+cross-checked against every other at the archigraphemic level during `verify` (see docs/ARCHITECTURE.md
+section 'Trust but diff')."""
+files = [
+  "info.json",
+  "editions/ara-quranuthmanihaf.json",
+  "editions/ara-quransimple.json",
+  "editions/ara-quranwarsh.json",
+  "editions/ara-quranqaloon.json",
+  "editions/ara-qurandoori.json",
+  "editions/ara-quransoosi.json",
+  "editions/ara-quranshouba.json",
+  "editions/ara-quranbazzi.json",
+  "editions/ara-quranqumbul.json",
+  "editions/ara-quranindopak.json",
+  "editions/eng-abdullahyusufal.json",
+]
+
+[[source]]
+id       = "quran-morphology"
+kind     = "github-raw"
+repo     = "mustafa0x/quran-morphology"
+commit   = "8f38b39016824284f9ed16ae15069ff9102c4acf"
+homepage = "https://github.com/mustafa0x/quran-morphology"
+license  = "Derived from the Quranic Arabic Corpus v0.4 (GNU GPL / CC BY-SA 3.0, corpus.quran.com)"
+note     = """Segment-level morphology: 130,030 segments over 77,429 words, with ROOT and LEM.
+Arabic-script re-rendering of Dukes' Buckwalter release, with documented corrections
+(see the upstream README `Changes` section). Corrections mean this is NOT byte-identical to
+corpus v0.4; that divergence is deliberate and recorded here."""
+files = [
+  "quran-morphology.txt",
+  "morphology-terms-ar.json",
+]
