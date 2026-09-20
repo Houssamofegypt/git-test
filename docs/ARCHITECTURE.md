@@ -230,3 +230,29 @@ font cannot change under us any more than the text can.
 - **A finding**: write a claim. If it cannot be expressed as a query against
   this database, that is worth knowing early — it usually means the layer it
   needs does not exist yet.
+
+## The static showcase
+
+`make site` exports a hostable subset into `site/` — the same material the local
+explorer serves, as flat JSON a browser can fetch without a database. It is for
+*showing* the work, not doing it.
+
+The rule survives the trip. Nothing in `export_site.py` is computed that the
+database has not already derived: every field is read from a column or is a
+`COUNT`/`GROUP BY` over stored columns. The normalization rungs are copied, never
+recomputed. The skeleton clusters are materialized in Python rather than left for
+the browser to derive. Even the character classes that let the page tint
+vocalization in the rubricator's red are exported from `normalize.py`, so the page
+never decides which character is a vowel mark.
+
+Two things the static build honestly cannot do, and says so on the page:
+
+- **Search** projects the query onto a rung before matching, which is a call into
+  `normalize.py`. The static page can only match literally against a stored rung,
+  so it points at the local build instead of pretending.
+- **Vocalization-only variants** are 249,402 rows. Only their per-ayah counts are
+  exported. The consonantal variants — the ones that distinguish readings — are
+  all there.
+
+That asymmetry is the point of having both: the export is a faithful projection of
+the store, and where it cannot be faithful it declines rather than approximates.
