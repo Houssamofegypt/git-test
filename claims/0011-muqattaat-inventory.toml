@@ -1,0 +1,19 @@
+[claim]
+id        = "0011-muqattaat-inventory"
+statement = "29 surahs open with disconnected letters, in 14 distinct combinations drawing on 14 distinct letters — exactly half the 28-letter alphabet."
+level     = "rasm"
+author    = "quranlab"
+date      = "2026-09-20"
+note      = """Detected from the morphology's INL tag, not from verse shape. A heuristic
+based on shape — surah-initial verses containing no lexical words — finds only 19, missing
+every surah where the letters open a verse that then continues in words (Q50, "Qāf. By the
+glorious Quran"). The 10 it misses are Q10-15, Q27, Q38, Q42, Q50, Q68.
+
+The 14/28 figure is exact but should not be over-read: it is a post-hoc observation about a
+set of 14, and 14 is not a surprising size for a set drawn from 28."""
+query     = """
+SELECT COUNT(DISTINCT a.surah) FROM segment sg
+JOIN word w ON w.id = sg.word_id JOIN ayah a ON a.id = w.ayah_id
+WHERE ',' || REPLACE(sg.features,'|',',') || ',' LIKE '%,INL,%'
+"""
+expect    = 29

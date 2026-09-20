@@ -1,0 +1,29 @@
+[claim]
+id        = "0012-muqattaat-announce-scripture"
+statement = "24 of the 29 surahs opening with disconnected letters name scripture within their first three verses, against 16 of the other 85."
+level     = "n/a"
+author    = "quranlab"
+date      = "2026-09-20"
+note      = """83% against 19%. The strongest result in the muqaṭṭaʿāt study
+(research/REPORT.md) and robust to the obvious objection: these surahs are 4.3× longer than
+average, but length-matched controls mention scripture only 38% of the time, and a
+permutation within the 58 longest non-muqaṭṭaʿāt surahs gives observed 24 against a null
+mean of 7.0, p = 0.00005.
+
+The root set — كتب، قرأ، نزل، ايي — was fixed before the exceptions were examined and is
+deliberately not widened. Doing so would give 27/29, because Q19 announces dhikr, Q42 uses
+waḥy at its third verse, and Q68 swears by the Pen; but choosing roots after seeing which
+cases fail is how an effect gets manufactured. Only Q29 and Q30 genuinely open on another
+subject.
+
+This claim asserts arithmetic about the text, not an interpretation of the letters."""
+query     = """
+WITH m AS (SELECT DISTINCT a.surah AS s FROM segment sg
+           JOIN word w ON w.id = sg.word_id JOIN ayah a ON a.id = w.ayah_id
+           WHERE ',' || REPLACE(sg.features,'|',',') || ',' LIKE '%,INL,%'),
+     b AS (SELECT DISTINCT a.surah AS s FROM word w JOIN ayah a ON a.id = w.ayah_id
+           WHERE a.number <= 3 AND w.root IN ('كتب','قرأ','نزل','ايي'))
+SELECT (SELECT COUNT(*) FROM m WHERE s IN (SELECT s FROM b)),
+       (SELECT COUNT(*) FROM b WHERE s NOT IN (SELECT s FROM m))
+"""
+expect    = [24, 16]

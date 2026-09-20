@@ -1,0 +1,137 @@
+[
+ {
+  "id": "enrich-rasm",
+  "hypothesis": "A surah's own letters are unusually frequent within it (rasm rung)",
+  "stat": "mean percentile 62.2% vs 52.9% permutation null",
+  "p": 0.0092,
+  "q": 0.027600000000000003,
+  "verdict": "supported",
+  "note": "Primary pre-specified test. Effect is carried by a subset: dropping the 3 strongest surahs gives p=0.067."
+ },
+ {
+  "id": "enrich-archi",
+  "hypothesis": "Same, at the undotted rung",
+  "stat": "60.8% vs 52.7%",
+  "p": 0.0204,
+  "q": 0.04371428571428572,
+  "verdict": "supported",
+  "note": "Effect is near-flat across rungs; rasm marginally strongest."
+ },
+ {
+  "id": "book",
+  "hypothesis": "Muqatta'at surahs announce scripture in their opening verses",
+  "stat": "24/29 (83%) vs 7/29 expected among length-matched controls",
+  "p": 5e-05,
+  "q": 0.00075,
+  "verdict": "strongly supported",
+  "note": "Survives length matching. Pre-specified root set; a broader set would raise it to 29/29 but that is post-hoc."
+ },
+ {
+  "id": "cluster",
+  "hypothesis": "Muqatta'at surahs cluster in mushaf order",
+  "stat": "10 runs vs 16.6 expected under a length-matched null",
+  "p": 0.0008,
+  "q": 0.006,
+  "verdict": "strongly supported",
+  "note": "Survives controlling for the mushaf's rough length ordering."
+ },
+ {
+  "id": "cohesion-far",
+  "hypothesis": "Surahs sharing an opening are lexically alike, beyond adjacency",
+  "stat": "cosine 0.738 vs 0.659 for non-adjacent pairs",
+  "p": 0.0052,
+  "q": 0.026,
+  "verdict": "supported",
+  "note": "Restricted to pairs >3 surahs apart, so adjacency cannot explain it. n=16 same-opening pairs."
+ },
+ {
+  "id": "ambiguity",
+  "hypothesis": "Muqatta'at surahs are more ambiguous when undotted",
+  "stat": "27.3% vs 26.3% predicted from word length",
+  "p": 0.0132,
+  "q": 0.033,
+  "verdict": "weakly supported",
+  "note": "Raw effect p=0.0001 shrinks to p=0.013 once word length is controlled. Interpretation unclear."
+ },
+ {
+  "id": "mim",
+  "hypothesis": "Mim specifically is enriched in the 17 surahs whose opening contains it",
+  "stat": "64.0% vs 49.9%",
+  "p": 0.029,
+  "q": 0.054375,
+  "verdict": "weak",
+  "note": "One of 6 letters tested; does not survive correction within that sub-family."
+ },
+ {
+  "id": "hawamim",
+  "hypothesis": "The seven consecutive ha-mim surahs are unusually cohesive",
+  "stat": "cosine 0.680, rank 27 of 108 consecutive 7-surah windows",
+  "p": 0.2407,
+  "q": 0.3409090909090909,
+  "verdict": "NOT supported",
+  "note": "An earlier run gave p=0.003 against a null of random non-adjacent surahs. That null was wrong."
+ },
+ {
+  "id": "nesting",
+  "hypothesis": "The 14 openings nest (prefix/subset structure) beyond chance",
+  "stat": "4 prefix relations vs 2.25 expected",
+  "p": 0.2031,
+  "q": 0.3385,
+  "verdict": "NOT supported",
+  "note": "Pattern is visible but within chance."
+ },
+ {
+  "id": "rhyme",
+  "hypothesis": "A surah's opening letters match its dominant rhyme letter",
+  "stat": "1/29 vs 1.6 expected",
+  "p": 0.8961,
+  "q": 0.8961,
+  "verdict": "NOT supported",
+  "note": "Clean refutation. 18/29 of these surahs rhyme in nun regardless."
+ },
+ {
+  "id": "phonetic",
+  "hypothesis": "The 14 letters systematically cover the points of articulation",
+  "stat": "9 of 12 places vs 9.2 for a random 14 letters",
+  "p": 0.7657,
+  "q": 0.8835,
+  "verdict": "NOT supported",
+  "note": "Interdentals, labiodentals and laterals are entirely absent."
+ },
+ {
+  "id": "local",
+  "hypothesis": "The letters are denser near the start of their surah",
+  "stat": "density 0.2103 (ayahs 2-11) vs 0.2098 (rest)",
+  "p": 0.8594,
+  "q": 0.8961,
+  "verdict": "NOT supported",
+  "note": "Argues against an attention-getter or phonetic-prelude reading."
+ },
+ {
+  "id": "letter-choice",
+  "hypothesis": "The 14 letters are a biased sample of the alphabet",
+  "stat": "mean frequency rank 10.9 vs 15.5 expected",
+  "p": 0.0071,
+  "q": 0.026625000000000003,
+  "verdict": "supported",
+  "note": "They skew toward COMMON letters: 10 of the alphabet's 14 commonest are used. But ta (rank 28) and sad (24) are included."
+ },
+ {
+  "id": "abjad19",
+  "hypothesis": "Own-letter counts are divisible by 19 more often than chance",
+  "stat": "3/29 vs 1.5 expected",
+  "p": 0.25,
+  "q": 0.3409090909090909,
+  "verdict": "NOT supported",
+  "note": "Approximate; the 19-based literature is not supported here."
+ },
+ {
+  "id": "riwayat",
+  "hypothesis": "Muqatta'at surahs are more textually stable across riwayat",
+  "stat": "105 vs 151 consonantal variants per 1000 words",
+  "p": 0.2983,
+  "q": 0.372875,
+  "verdict": "NOT supported",
+  "note": "No detectable difference."
+ }
+]

@@ -1,0 +1,21 @@
+[claim]
+id        = "0013-muqattaat-clustering"
+statement = "The 29 surahs with disconnected letters form only 10 consecutive runs in muṣḥaf order, where 21.9 would be expected if they were scattered at random."
+level     = "n/a"
+author    = "quranlab"
+date      = "2026-09-20"
+note      = """The runs are 2-3, 7, 10-15, 19-20, 26-32, 36, 38, 40-46, 50, 68.
+
+The muṣḥaf is roughly ordered by descending length and these surahs are long, so a
+random-scatter null is too permissive. Rebuilt to draw length-matched surahs, the null
+still expects 16.6 runs: p = 0.0008. See research/REPORT.md §2.
+
+The query counts runs directly and asserts only the observed figure; the null is in the
+research scripts, since a permutation test is not expressible in SQL."""
+query     = """
+WITH m AS (SELECT DISTINCT a.surah AS s FROM segment sg
+           JOIN word w ON w.id = sg.word_id JOIN ayah a ON a.id = w.ayah_id
+           WHERE ',' || REPLACE(sg.features,'|',',') || ',' LIKE '%,INL,%')
+SELECT COUNT(*) FROM m WHERE s - 1 NOT IN (SELECT s FROM m)
+"""
+expect    = 10
