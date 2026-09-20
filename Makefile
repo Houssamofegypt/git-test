@@ -6,7 +6,7 @@
 
 PY ?= python3
 
-.PHONY: all fetch build verify claims test check clean distclean stats help
+.PHONY: all fetch build verify claims test check clean distclean serve stats help
 
 all: check
 
@@ -27,6 +27,9 @@ test:                 ## run the test suite
 
 check: verify claims test  ## the full gate
 	@echo "\nall green"
+
+serve: build          ## local read-only web explorer
+	$(PY) -m quranlab serve
 
 stats: build          ## summarize the database
 	$(PY) -m quranlab stats

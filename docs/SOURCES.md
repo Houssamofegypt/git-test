@@ -11,6 +11,7 @@ nothing reaches the builder unchecked.
 |---|---|---|
 | [`fawazahmed0/quran-api`](https://github.com/fawazahmed0/quran-api) | `47ca096b` | 10 Arabic editions, 1 English translation, verse metadata |
 | [`mustafa0x/quran-morphology`](https://github.com/mustafa0x/quran-morphology) | `8f38b390` | 130,030 morphological segments over 77,429 words |
+| [`google/fonts`](https://github.com/google/fonts/tree/main/ofl/amiriquran) | `f2bd09ba` | Amiri Quran — the explorer's typeface |
 
 ### Editions
 
@@ -64,6 +65,8 @@ matches it.
   3.0, [corpus.quran.com](https://corpus.quran.com)), © Kais Dukes.
 - **Aggregator**: Unlicense (public-domain dedication). This covers the
   aggregation, not the underlying texts.
+- **Amiri Quran**: SIL Open Font License 1.1, © Khaled Hosny. `OFL.txt` is fetched
+  alongside the font and lives in the raw layer with it.
 - **This repository's code**: see the repository licence.
 
 Because of these terms, `data/` is **not committed**. The repository carries the

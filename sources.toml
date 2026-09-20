@@ -46,3 +46,21 @@ files = [
   "quran-morphology.txt",
   "morphology-terms-ar.json",
 ]
+
+[[source]]
+id       = "fonts"
+kind     = "github-raw"
+repo     = "google/fonts"
+commit   = "f2bd09badbc763d8757951d52deec29da27e85fb"
+homepage = "https://github.com/google/fonts/tree/main/ofl/amiriquran"
+license  = "SIL Open Font License 1.1 (OFL.txt fetched alongside)"
+note     = """Amiri Quran, by Khaled Hosny. Needed because Quranic vocalization uses
+marks (U+06E1 sukun, U+08F0 open tanwin, the U+08Dx recitation marks) that almost no
+system font covers: without it the upper rungs of the ladder render as tofu and broken
+shaping, which makes the explorer useless for the vocalized text it exists to show.
+Fetched through the same pinned, hashed mechanism as the corpus rather than a CDN, so
+the UI still works offline and the font cannot change under us."""
+files = [
+  "ofl/amiriquran/AmiriQuran-Regular.ttf",
+  "ofl/amiriquran/OFL.txt",
+]

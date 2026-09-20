@@ -11,6 +11,7 @@ from . import claims as claims_mod
 from . import normalize, verify
 from .build import DB_PATH, build
 from .fetch import fetch_all
+from .serve import serve
 from .refs import RefError, parse as parse_ref
 
 RLM = "‏"  # keeps a right-to-left line from being mangled in a LTR terminal
@@ -186,6 +187,11 @@ def cmd_sql(args) -> int:
     return 0
 
 
+def cmd_serve(args) -> int:
+    serve(port=args.port, open_browser=not args.no_browser)
+    return 0
+
+
 def cmd_fetch(args) -> int:
     fetch_all(relock=args.relock, force=args.force)
     return 0
@@ -218,6 +224,7 @@ def main(argv: list[str] | None = None) -> int:
               quranlab root رحم
               quranlab variants Q2:255
               quranlab sql "SELECT text, word_count FROM root ORDER BY word_count DESC LIMIT 10"
+              quranlab serve
         """),
     )
     sub = p.add_subparsers(dest="command", required=True)
@@ -231,6 +238,11 @@ def main(argv: list[str] | None = None) -> int:
     sub.add_parser("verify", help="check data invariants").set_defaults(func=cmd_verify)
     sub.add_parser("claims", help="re-run the claim ledger").set_defaults(func=cmd_claims)
     sub.add_parser("stats", help="summarize the database").set_defaults(func=cmd_stats)
+
+    s = sub.add_parser("serve", help="local read-only web explorer")
+    s.add_argument("--port", type=int, default=8765)
+    s.add_argument("--no-browser", action="store_true")
+    s.set_defaults(func=cmd_serve)
 
     s = sub.add_parser("show", help="print ayah text")
     s.add_argument("ref", help="e.g. Q2:255, Q2:255-257, Q112")

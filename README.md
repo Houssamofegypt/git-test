@@ -88,6 +88,8 @@ quranlab/
   verify.py           40 assertions about the data
   claims.py           the claim ledger
   cli.py              show / words / search / root / variants / sql
+  serve.py            read-only JSON API for the explorer
+  web/index.html      the explorer — vanilla, no build step, no CDN
 claims/*.toml         findings, each with the query that regenerates it
 docs/ARCHITECTURE.md  the design argument
 docs/SOURCES.md       provenance and licensing
@@ -104,6 +106,32 @@ L3  claims/         findings, each with the query that regenerates it
 
 `data/` is not committed: it is reproducible from the lock file, and the upstream
 texts carry licence terms. `make fetch` reconstitutes it.
+
+## Explore it
+
+```bash
+make serve          # http://127.0.0.1:8765 — read-only, localhost only
+```
+
+Seven views over the same database. The rule the UI obeys: **it computes nothing.**
+Every rung, count and variant on screen is read from `quran.db`, so a number on the
+page cannot disagree with the same number in the claim ledger.
+
+| view | what it is for |
+|---|---|
+| **Ladder** | one ayah at all six rungs at once — watch the apparatus, then the vowels, then the dots come off |
+| **Apparatus** | differences from the reference, split into variant readings and mere orthography |
+| **Skeleton** | which dotted readings collapse into one undotted form, and where they occur |
+| **Search** | full-text at a chosen rung; the rung is part of the query, not a hidden default |
+| **Roots** | every root with its concordance |
+| **Riwāyah tree** | the pairwise consonantal distance matrix — the tripwire, drawn |
+| **Exceptions** | the twelve ayahs we refused to smooth over |
+
+Two things the explorer makes visible that prose does not. In the Ladder, `raw` shows
+`هُدࣰ ى` with the typographic space still in it and `plain` shows `هُدࣰى` healed — the
+1,741-ayah tokenization bug, on screen. In the Apparatus, Q12:109 lists the classic
+variants `نُوحِي` / `يُوحَىٰ` and `تَعْقِلُونَ` / `يَعْقِلُونَ`, every one tagged *same undotted*:
+the textbook relationship between the qirāʾāt and the rasm, derived rather than asserted.
 
 ## Using it
 

@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>quranlab explorer</title>
+<style>
+/* Amiri Quran, fetched into the pinned raw layer by `quranlab fetch` and served
+   from there. Not a CDN link: the explorer has to work offline, and a font that
+   can change under us is the same problem as a text that can. */
+@font-face{
+  font-family:"Amiri Quran Local";
+  src:url("/font.ttf") format("truetype");
+  font-display:swap;
+}
+:root{
+  --bg:#fbfaf7; --panel:#fff; --ink:#1a1916; --muted:#6b6862; --faint:#94908a;
+  --line:#e4e0d8; --line-strong:#cfcabf;
+  --accent:#8a6d3b; --accent-soft:#f0e7d6;
+  --warn:#9c4221; --warn-soft:#fbe8e2;
+  --ok:#3f6212; --ok-soft:#eaf0dc;
+  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+  --arabic:"Amiri Quran Local","Amiri Quran","Amiri","Scheherazade New",
+           "KFGQPC Uthman Taha Naskh","Noto Naskh Arabic","Traditional Arabic",serif;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#15140f; --panel:#1c1b16; --ink:#eae6dd; --muted:#a09b90; --faint:#78736a;
+    --line:#2e2c25; --line-strong:#423f36;
+    --accent:#c9a961; --accent-soft:#2b2518;
+    --warn:#e08363; --warn-soft:#331d16;
+    --ok:#a3bd6a; --ok-soft:#21260f;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#15140f; --panel:#1c1b16; --ink:#eae6dd; --muted:#a09b90; --faint:#78736a;
+  --line:#2e2c25; --line-strong:#423f36;
+  --accent:#c9a961; --accent-soft:#2b2518;
+  --warn:#e08363; --warn-soft:#331d16;
+  --ok:#a3bd6a; --ok-soft:#21260f;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;}
+a{color:var(--accent)}
+.wrap{display:flex;min-height:100vh}
+
+/* ---- sidebar ---- */
+nav{width:210px;flex:0 0 210px;border-right:1px solid var(--line);
+  background:var(--panel);padding:20px 0;position:sticky;top:0;height:100vh;
+  overflow:auto;display:flex;flex-direction:column}
+.brand{padding:0 20px 18px;border-bottom:1px solid var(--line);margin-bottom:14px}
+.brand h1{margin:0;font-size:16px;letter-spacing:.02em}
+.brand p{margin:4px 0 0;font-size:11px;color:var(--faint);font-family:var(--mono)}
+nav button{display:block;width:100%;text-align:left;padding:9px 20px;background:none;
+  border:0;border-left:2px solid transparent;color:var(--muted);cursor:pointer;
+  font-size:13px;font-family:inherit}
+nav button:hover{color:var(--ink);background:var(--accent-soft)}
+nav button[aria-current="true"]{color:var(--ink);border-left-color:var(--accent);
+  background:var(--accent-soft);font-weight:600}
+.navnote{margin-top:auto;padding:16px 20px 0;border-top:1px solid var(--line);
+  font-size:11px;color:var(--faint);font-family:var(--mono);line-height:1.7}
+
+/* ---- main ---- */
+main{flex:1;min-width:0;padding:26px 30px 70px;max-width:1100px}
+h2{margin:0 0 4px;font-size:19px;font-weight:600}
+.lede{margin:0 0 20px;color:var(--muted);font-size:13px;max-width:70ch}
+.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:18px}
+input,select{font:inherit;padding:7px 10px;border:1px solid var(--line-strong);
+  border-radius:5px;background:var(--panel);color:var(--ink)}
+input:focus,select:focus{outline:2px solid var(--accent);outline-offset:-1px}
+button.go{font:inherit;padding:7px 14px;border:1px solid var(--accent);border-radius:5px;
+  background:var(--accent);color:var(--bg);cursor:pointer;font-weight:600}
+button.go:hover{filter:brightness(1.1)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:8px;
+  padding:16px 18px;margin-bottom:14px}
+.err{background:var(--warn-soft);border-color:var(--warn);color:var(--warn)}
+.ref{font-family:var(--mono);font-size:12px;color:var(--accent);font-weight:600}
+.meta{font-family:var(--mono);font-size:11px;color:var(--faint)}
+.ar{font-family:var(--arabic);direction:rtl;text-align:right;line-height:2.1}
+.big{font-size:26px}
+
+/* ---- ladder ---- */
+.rung{display:grid;grid-template-columns:132px 1fr;gap:14px;padding:11px 0;
+  border-top:1px solid var(--line)}
+.rung:first-child{border-top:0}
+.rung-label{font-family:var(--mono);font-size:11px;color:var(--muted);padding-top:9px}
+.rung-label b{display:block;color:var(--ink);font-size:12px;font-weight:600}
+.rung .ar{font-size:21px}
+.rung.floor .ar{color:var(--accent)}
+tok{display:inline-block;padding:0 2px;border-radius:3px;cursor:pointer}
+tok:hover,tok.on{background:var(--accent-soft);outline:1px solid var(--accent)}
+
+/* ---- tables ---- */
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;font-family:var(--mono);font-size:10.5px;text-transform:uppercase;
+  letter-spacing:.06em;color:var(--faint);font-weight:600;padding:6px 10px 6px 0;
+  border-bottom:1px solid var(--line-strong)}
+td{padding:7px 10px 7px 0;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+td.ar{font-size:19px;text-align:right}
+.tag{display:inline-block;font-family:var(--mono);font-size:10px;padding:2px 6px;
+  border-radius:3px;background:var(--accent-soft);color:var(--accent);font-weight:600}
+.tag.warn{background:var(--warn-soft);color:var(--warn)}
+.tag.ok{background:var(--ok-soft);color:var(--ok)}
+.sec{font-family:var(--mono);font-size:11px;text-transform:uppercase;
+  letter-spacing:.06em;color:var(--muted);margin:22px 0 8px;font-weight:600}
+.empty{color:var(--faint);font-style:italic;padding:8px 0}
+
+/* ---- matrix ---- */
+.mx{border-collapse:separate;border-spacing:2px;font-family:var(--mono);font-size:11px}
+.mx th{border:0;padding:4px;text-align:center;writing-mode:vertical-rl;height:74px}
+.mx th.row{writing-mode:horizontal-tb;text-align:right;height:auto;padding-right:8px}
+.mx td{border:0;padding:0;text-align:center}
+.mx td div{padding:7px 4px;border-radius:3px;min-width:52px}
+.mx td.self div{background:var(--line);color:var(--faint)}
+.mx td.sib div{outline:2px solid var(--accent)}
+
+/* ---- misc ---- */
+.stats{display:flex;gap:26px;flex-wrap:wrap;margin-bottom:18px}
+.stat b{display:block;font-size:20px;font-weight:600}
+.stat span{font-family:var(--mono);font-size:10.5px;color:var(--faint);
+  text-transform:uppercase;letter-spacing:.05em}
+.segs{margin-top:6px;padding-left:0;list-style:none}
+.segs li{font-family:var(--mono);font-size:11px;color:var(--muted);padding:1px 0}
+.segs .f{font-family:var(--arabic);font-size:15px;direction:rtl;
+  display:inline-block;min-width:80px;text-align:right;margin-left:8px;color:var(--ink)}
+.chip{display:inline-block;padding:3px 9px;margin:0 5px 5px 0;border:1px solid var(--line-strong);
+  border-radius:12px;font-family:var(--mono);font-size:11px;cursor:pointer;background:var(--panel)}
+.chip:hover{border-color:var(--accent);color:var(--accent)}
+@media(max-width:820px){
+  .wrap{flex-direction:column} nav{width:auto;flex:none;height:auto;position:static;
+    display:flex;flex-direction:row;overflow-x:auto;padding:0}
+  .brand,.navnote{display:none} nav button{border-left:0;border-bottom:2px solid transparent;white-space:nowrap}
+  nav button[aria-current="true"]{border-bottom-color:var(--accent)}
+  main{padding:18px 16px 60px}
+  .rung{grid-template-columns:1fr;gap:2px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav>
+  <div class="brand"><h1>quranlab</h1><p id="brandsub">explorer</p></div>
+  <button data-view="ladder">Ladder</button>
+  <button data-view="apparatus">Apparatus</button>
+  <button data-view="skeleton">Skeleton</button>
+  <button data-view="search">Search</button>
+  <button data-view="roots">Roots</button>
+  <button data-view="tree">Riwāyah tree</button>
+  <button data-view="exceptions">Exceptions</button>
+  <div class="navnote" id="navnote"></div>
+</nav>
+<main id="main"></main>
+</div>
+
+<script>
+const $ = (s,r=document)=>r.querySelector(s);
+const esc = s => String(s??"").replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const api = async (n,p={}) => (await fetch(`/api/${n}?`+new URLSearchParams(p))).json();
+const num = n => Number(n).toLocaleString();
+
+let META = null, VIEW = "ladder";
+const state = { ref:"Q2:2", edition:"uthmani-hafs", ayah_id:9,
+                skeleton:"", search:"", level:"rasm", root:"" };
+
+const RUNG_NOTE = {
+  raw:"exactly the bytes upstream gave us",
+  nfc:"canonical combining order, so == means ==",
+  plain:"minus tajwid/waqf marks, invisible controls, tatweel",
+  unvocalized:"minus vowel marks; hamza and madda retained",
+  rasm:"dotted consonantal skeleton; hamza and madda dropped",
+  archigraphemic:"the undotted skeleton, position-sensitive",
+};
+
+/* ---------------- views ---------------- */
+
+async function viewLadder(){
+  const d = await api("ladder",{ref:state.ref,edition:state.edition});
+  if(d.error) return `<div class="card err">${esc(d.error)}</div>`;
+  let html = "";
+  for(const a of d.ayahs){
+    html += `<div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px">
+        <span class="ref">${esc(a.ref)}</span>
+        <span class="meta">${esc(a.surah_name)} · ${esc(a.revelation_place)} · juz ${a.juz} · page ${a.page} · ${a.token_count} words</span>
+      </div>`;
+    for(const lv of META.levels){
+      const floor = lv==="archigraphemic" ? " floor" : "";
+      const tokenised = ["plain","unvocalized","rasm","archigraphemic"].includes(lv);
+      const txt = tokenised
+        ? a.rungs[lv].split(" ").map((t,i)=>`<tok data-i="${i}">${esc(t)}</tok>`).join(" ")
+        : esc(a.rungs[lv]);
+      html += `<div class="rung${floor}">
+        <div class="rung-label"><b>${lv}</b>${RUNG_NOTE[lv]}</div>
+        <div class="ar">${txt}</div></div>`;
+    }
+    html += `<div style="margin-top:12px"><button class="go" data-words="${a.ayah_id}">Morphology</button>
+      <button class="go" data-app="${a.ayah_id}" style="background:none;color:var(--accent)">Variants</button></div>
+      <div id="w${a.ayah_id}"></div></div>`;
+  }
+  return html;
+}
+
+function ladderBar(){
+  return `<div class="bar">
+    <input id="ref" value="${esc(state.ref)}" size="12" placeholder="Q2:2">
+    <select id="ed">${META.editions.filter(e=>e.kind==="quran")
+      .map(e=>`<option ${e.slug===state.edition?"selected":""}>${esc(e.slug)}</option>`).join("")}</select>
+    <button class="go" id="goref">Show</button>
+    <span class="meta">try Q1:1 · Q2:255 · Q112 · Q2:2-4</span></div>`;
+}
+
+async function viewApparatus(){
+  const d = await api("apparatus",{ayah_id:state.ayah_id});
+  const rows = list => list.length ? `<table><thead><tr>
+      <th>edition</th><th>pos</th><th>reference</th><th>variant</th><th></th></tr></thead><tbody>`
+    + list.map(v=>`<tr><td><span class="tag">${esc(v.slug)}</span></td>
+        <td class="meta">w${v.ref_position}</td>
+        <td class="ar">${esc(v.ref_text)}</td><td class="ar">${esc(v.var_text)}</td>
+        <td>${v.same_archi?'<span class="tag ok">same undotted</span>':''}</td></tr>`).join("")
+    + `</tbody></table>` : `<p class="empty">none</p>`;
+  return `<div class="card">
+    <div class="sec" style="margin-top:0">Consonantal — different riwāyah, different skeleton</div>
+    <p class="meta" style="margin:-4px 0 8px">These are variant readings: a different qāriʾ transmits a different consonantal text.</p>
+    ${rows(d.consonantal)}
+
+    <div class="sec">Vocalization — different riwāyah, same skeleton</div>
+    ${rows(d.vocalic.slice(0,40))}
+    ${d.vocalic.length>40?`<p class="meta">showing 40 of ${d.vocalic.length}</p>`:""}
+
+    <div class="sec">Orthography — same Ḥafṣ reading, different spelling convention</div>
+    <p class="meta" style="margin:-4px 0 8px">Not variant readings. <b>imlaei-simple</b> and <b>indopak</b>
+      transmit the same text as the reference; they spell it differently. Kept in their own bucket so
+      they are never counted as evidence of a different reading.</p>
+    ${rows(d.orthographic)}
+    ${d.orthographic_vocalic_count?`<p class="meta">+ ${num(d.orthographic_vocalic_count)} vocalization-only spelling differences</p>`:""}
+  </div>`;
+}
+
+async function viewSkeleton(){
+  if(!state.skeleton){
+    const d = await api("ambiguous",{limit:36});
+    return `<div class="card"><div class="sec" style="margin-top:0">
+      Most underdetermined skeletons — pick one</div>
+      ${d.clusters.map(c=>`<span class="chip" data-skel="${esc(c.archigraphemic)}" dir="rtl">
+        ${esc(c.archigraphemic)} <b style="color:var(--accent)">${c.readings}</b></span>`).join("")}</div>`;
+  }
+  const d = await api("skeleton",{q:state.skeleton});
+  if(!d.readings.length) return `<div class="card"><p class="empty">No word in the corpus has that skeleton.</p></div>`;
+  return `<div class="card">
+    <div class="ar big" style="color:var(--accent);margin-bottom:4px">${esc(d.skeleton)}</div>
+    <p class="meta" style="margin:0 0 14px">${d.readings.length} distinct dotted reading${d.readings.length>1?"s":""} collapse into this skeleton</p>
+    <table><thead><tr><th>reading</th><th>words</th><th>occurrences</th></tr></thead><tbody>
+    ${d.readings.map(r=>`<tr>
+      <td class="ar" style="width:150px">${esc(r.rasm)}</td>
+      <td class="meta">${r.count}</td>
+      <td>${r.examples.map(e=>`<span class="meta">${esc(e.ref)}</span>
+          <span class="ar" style="font-size:17px">${esc(e.form)}</span>
+          ${e.root?`<span class="meta">√${esc(e.root)}</span>`:""}`).join("<br>")}</td>
+    </tr>`).join("")}</tbody></table></div>`;
+}
+
+async function viewSearch(){
+  if(!state.search) return `<div class="card"><p class="empty">Enter a term. It is projected onto the chosen rung before matching, using the same function the build used — so searching <code>الله</code> at <code>rasm</code> also finds <code>ٱللَّه</code>.</p></div>`;
+  const d = await api("search",{q:state.search,level:state.level,edition:state.edition});
+  if(d.error) return `<div class="card err">${esc(d.error)}</div>`;
+  return `<div class="card">
+    <p class="meta" style="margin:0 0 12px">${num(d.total)} ayahs match
+      <span class="ar" style="font-size:17px">${esc(d.needle)}</span> at rung <b>${esc(d.level)}</b>
+      ${d.total>d.hits.length?` — showing ${d.hits.length}`:""}</p>
+    <table><tbody>${d.hits.map(h=>`<tr>
+      <td style="width:78px"><a class="ref" href="#" data-ref="${esc(h.ref)}">${esc(h.ref)}</a></td>
+      <td class="ar">${esc(h.hit)}</td></tr>`).join("")}</tbody></table></div>`;
+}
+
+async function viewRoots(){
+  if(state.root){
+    const d = await api("root",{q:state.root});
+    if(!d.root) return `<div class="card"><p class="empty">No such root.</p></div>`;
+    return `<div class="card">
+      <div class="ar big" style="color:var(--accent)">${esc(d.root.text)}</div>
+      <div class="stats" style="margin-top:12px">
+        <div class="stat"><b>${num(d.root.word_count)}</b><span>words</span></div>
+        <div class="stat"><b>${num(d.root.lemma_count)}</b><span>lemmas</span></div>
+        <div class="stat"><b>${num(d.root.surah_count)}</b><span>surahs</span></div>
+        <div class="stat"><b dir="rtl" class="ar">${esc(d.root.archigraphemic)}</b><span>undotted</span></div>
+      </div>
+      <table><thead><tr><th>ref</th><th>form</th><th>lemma</th><th>pos</th></tr></thead><tbody>
+      ${d.occurrences.map(o=>`<tr><td><a class="ref" href="#" data-ref="${esc(o.ref.split(":").slice(0,2).join(":"))}">${esc(o.ref)}</a></td>
+        <td class="ar">${esc(o.form)}</td><td class="ar">${esc(o.lemma||"")}</td>
+        <td class="meta">${esc(o.pos||"")}</td></tr>`).join("")}</tbody></table></div>`;
+  }
+  const d = await api("roots",{q:state.search});
+  return `<div class="card"><table><thead><tr><th>root</th><th>words</th><th>lemmas</th><th>surahs</th></tr></thead><tbody>
+    ${d.roots.map(r=>`<tr><td><a class="ar" href="#" data-root="${esc(r.text)}" style="font-size:19px">${esc(r.text)}</a></td>
+      <td>${num(r.word_count)}</td><td class="meta">${r.lemma_count}</td>
+      <td class="meta">${r.surah_count}</td></tr>`).join("")}</tbody></table></div>`;
+}
+
+async function viewTree(){
+  const d = await api("tree");
+  const max = Math.max(...d.matrix.flat());
+  const sib = {};
+  for(const [a,n] of Object.entries(d.nearest))
+    if(d.qari[a] && d.nearest[n.slug]?.slug === a) sib[a+"|"+n.slug] = true;
+  const pairs = new Set(Object.entries(d.nearest).map(([a,n])=>[a,n.slug].sort().join(" ↔ ")));
+  return `<div class="card">
+    <p class="lede" style="margin-top:0">Number of ayahs whose consonantal skeleton differs, for every pair of
+    riwāyāt. Nobody needs this result — it has been known for a millennium. It is here as a
+    <b>tripwire</b>: if the rasm rung ever folds the wrong things together, this structure dissolves
+    into noise and a normalization bug announces itself before it can become a finding.</p>
+    <table class="mx"><thead><tr><th class="row"></th>
+      ${d.editions.map(e=>`<th>${esc(e)}</th>`).join("")}</tr></thead><tbody>
+      ${d.matrix.map((row,i)=>`<tr><th class="row">${esc(d.editions[i])}</th>
+        ${row.map((v,j)=>{
+          if(i===j) return `<td class="self"><div>—</div></td>`;
+          const t = 1 - (v/max);
+          const near = d.nearest[d.editions[i]].slug===d.editions[j];
+          return `<td class="${near?'sib':''}"><div style="background:color-mix(in srgb,var(--accent-soft) ${Math.round(t*100)}%,transparent);">${num(v)}</div></td>`;
+        }).join("")}</tr>`).join("")}</tbody></table>
+    <div class="sec">Nearest neighbour of each riwāyah</div>
+    <p>${[...pairs].map(p=>`<span class="tag ok" style="margin-right:6px">${esc(p)}</span>`).join("")}</p>
+    <p class="meta">Every one is its sibling from the same qāriʾ — Nāfiʿ, Ibn Kathīr, Abū ʿAmr, ʿĀṣim. Four for four.</p>
+  </div>`;
+}
+
+async function viewExceptions(){
+  const d = await api("exceptions");
+  return `<div class="card">
+    <p class="lede" style="margin-top:0">The ${d.exceptions.length} ayahs where the reference edition and the
+    morphology corpus genuinely disagree about where words begin. Recorded rather than smoothed over —
+    a silent 1-in-500 misalignment is how a corpus starts lying. The count is a tested invariant.</p>
+    <table><thead><tr><th>ref</th><th>text tokenization</th><th>corpus spine</th></tr></thead><tbody>
+    ${d.exceptions.map(e=>{
+      const t=e.detail.text, c=e.detail.corpus;
+      const diff=[]; for(let i=0;i<Math.max(t.length,c.length);i++) if(t[i]!==c[i]) diff.push(i);
+      const lo=Math.max(0,(diff[0]??0)-1), hi=Math.min(Math.max(t.length,c.length),(diff[0]??0)+3);
+      return `<tr><td><a class="ref" href="#" data-ref="${esc(e.ref)}">${esc(e.ref)}</a>
+          <div class="meta">${e.text_tokens} vs ${e.corpus_words}</div></td>
+        <td class="ar">${t.slice(lo,hi).map(esc).join(" <span style='color:var(--faint)'>|</span> ")}</td>
+        <td class="ar">${c.slice(lo,hi).map(esc).join(" <span style='color:var(--faint)'>|</span> ")}</td></tr>`;
+    }).join("")}</tbody></table></div>`;
+}
+
+/* ---------------- shell ---------------- */
+
+const HEADS = {
+  ladder:["The ladder","One ayah at all six rungs at once. Watch the apparatus, then the vowels, then the dots come off. The bottom rung is what a bare early codex shows a reader."],
+  apparatus:["Critical apparatus","Differences from the reference edition, in three buckets: variant readings that change the consonantal skeleton, variant readings that only change the voweling, and spellings of the same Ḥafṣ reading in another orthography. Conflating the third with the first is how orthography gets published as textual variance."],
+  skeleton:["Skeleton explorer","Which dotted readings collapse into one undotted form. This is the layer manuscript and variant research actually operates at."],
+  search:["Search","Full-text search at a chosen rung. The rung is part of the query, not a hidden default."],
+  roots:["Roots","Every root the morphology assigns, with its concordance."],
+  tree:["Riwāyah tree",""],
+  exceptions:["Spine exceptions",""],
+};
+
+const BARS = {
+  ladder: ladderBar,
+  apparatus: ()=>`<div class="bar"><input id="ref" value="${esc(state.ref)}" size="12">
+    <button class="go" id="goref">Show</button>
+    <span class="meta">variants for the first ayah of the reference</span></div>`,
+  skeleton: ()=>`<div class="bar"><input id="skel" value="${esc(state.skeleton)}" size="18"
+      placeholder="a word or a skeleton" dir="rtl" style="font-family:var(--arabic);font-size:17px">
+    <button class="go" id="goskel">Explore</button>
+    <button class="go" id="clrskel" style="background:none;color:var(--accent)">Clear</button></div>`,
+  search: ()=>`<div class="bar"><input id="q" value="${esc(state.search)}" size="18" dir="rtl"
+      style="font-family:var(--arabic);font-size:17px">
+    <select id="lv">${["unvocalized","rasm","archigraphemic"]
+      .map(l=>`<option ${l===state.level?"selected":""}>${l}</option>`).join("")}</select>
+    <button class="go" id="goq">Search</button></div>`,
+  roots: ()=>`<div class="bar"><input id="q" value="${esc(state.search)}" size="14" dir="rtl"
+      style="font-family:var(--arabic);font-size:17px" placeholder="filter roots">
+    <button class="go" id="goq">Filter</button>
+    ${state.root?`<button class="go" id="clrroot" style="background:none;color:var(--accent)">← all roots</button>`:""}</div>`,
+  tree: ()=>"", exceptions: ()=>"",
+};
+
+const VIEWS = {ladder:viewLadder,apparatus:viewApparatus,skeleton:viewSkeleton,
+               search:viewSearch,roots:viewRoots,tree:viewTree,exceptions:viewExceptions};
+
+async function render(){
+  const [h,l] = HEADS[VIEW];
+  $("#main").innerHTML = `<h2>${esc(h)}</h2>${l?`<p class="lede">${esc(l)}</p>`:""}
+    ${BARS[VIEW]()}<div id="body"><p class="empty">loading…</p></div>`;
+  document.querySelectorAll("nav button").forEach(b=>
+    b.setAttribute("aria-current", b.dataset.view===VIEW ? "true":"false"));
+  $("#body").innerHTML = await VIEWS[VIEW]();
+  wire();
+}
+
+function wire(){
+  const on=(sel,ev,fn)=>document.querySelectorAll(sel).forEach(e=>e.addEventListener(ev,fn));
+  const ref=$("#ref"), skel=$("#skel"), q=$("#q");
+  const goRef=async()=>{ state.ref=ref.value.trim()||"Q1:1";
+    const d=await api("ladder",{ref:state.ref,edition:state.edition});
+    if(d.ayahs&&d.ayahs[0]) state.ayah_id=d.ayahs[0].ayah_id; render(); };
+  if(ref){ $("#goref").onclick=goRef; ref.onkeydown=e=>e.key==="Enter"&&goRef(); }
+  if($("#ed")) $("#ed").onchange=e=>{ state.edition=e.target.value; render(); };
+  if(skel){ const g=()=>{state.skeleton=skel.value.trim();render();};
+    $("#goskel").onclick=g; skel.onkeydown=e=>e.key==="Enter"&&g();
+    $("#clrskel").onclick=()=>{state.skeleton="";render();}; }
+  if(q){ const g=()=>{state.search=q.value.trim(); state.root=""; render();};
+    $("#goq").onclick=g; q.onkeydown=e=>e.key==="Enter"&&g(); }
+  if($("#lv")) $("#lv").onchange=e=>{state.level=e.target.value;render();};
+  if($("#clrroot")) $("#clrroot").onclick=()=>{state.root="";render();};
+
+  on("[data-skel]","click",e=>{state.skeleton=e.currentTarget.dataset.skel;render();});
+  on("[data-root]","click",e=>{e.preventDefault();state.root=e.currentTarget.dataset.root;render();});
+  on("[data-ref]","click",async e=>{e.preventDefault();
+    state.ref=e.currentTarget.dataset.ref; VIEW="ladder"; await render();});
+  on("[data-app]","click",async e=>{state.ayah_id=+e.currentTarget.dataset.app;
+    VIEW="apparatus"; render();});
+  on("[data-words]","click",async e=>{
+    const id=+e.currentTarget.dataset.words, box=$("#w"+id);
+    if(box.dataset.open){ box.innerHTML=""; delete box.dataset.open; return; }
+    const d=await api("words",{ayah_id:id}); box.dataset.open="1";
+    box.innerHTML=`<div class="sec">Word by word</div><table><tbody>${d.words.map(w=>`
+      <tr><td style="width:70px"><span class="meta">w${w.position}</span></td>
+        <td class="ar" style="width:170px">${esc(w.text_form||w.form)}</td>
+        <td><span class="meta">${w.root?"√"+esc(w.root):"—"} · ${esc(w.lemma||"")} · ${esc(w.pos||"")}</span>
+          <ul class="segs">${w.segments.map(s=>`<li><span class="f">${esc(s.form)}</span>${esc(s.features)}</li>`).join("")}</ul></td>
+      </tr>`).join("")}</tbody></table>`;
+  });
+
+  /* hovering a token lights up the same word on every tokenised rung */
+  on("tok","mouseenter",e=>{const i=e.target.dataset.i;
+    e.target.closest(".card").querySelectorAll(`tok[data-i="${i}"]`).forEach(t=>t.classList.add("on"));});
+  on("tok","mouseleave",e=>{e.target.closest(".card")
+    .querySelectorAll("tok.on").forEach(t=>t.classList.remove("on"));});
+}
+
+(async()=>{
+  META = await api("meta");
+  $("#brandsub").textContent = META.build.digest.slice(0,12);
+  $("#navnote").innerHTML =
+    `${num(META.counts.words)} words<br>${num(META.counts.segments)} segments<br>
+     ${num(META.counts.roots)} roots<br>${num(META.counts.consonantal_variants)} variants<br><br>
+     read-only · localhost`;
+  document.querySelectorAll("nav button").forEach(b=>
+    b.onclick=()=>{VIEW=b.dataset.view; render();});
+  render();
+})();
+</script>
+</body>
+</html>
