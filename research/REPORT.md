@@ -11,8 +11,8 @@ Database content digest `b131e5e0a8014739`. Every figure below regenerates from
 
 ## Summary
 
-Fifteen hypotheses were tested. **Seven survive** multiple-comparison control
-(Benjamini–Hochberg, q < 0.05); eight do not, including several of the
+Twenty hypotheses were tested. **Nine survive** multiple-comparison control
+(Benjamini–Hochberg, q < 0.05); eleven do not, including several of the
 best-known proposals.
 
 The pattern in what survives is more interesting than any single result. The
@@ -190,6 +190,45 @@ Since `ا` + `ل` also spells the Arabic definite article *al-*, an orthographic
 explanation competes with a numerical one, and **this test cannot separate
 them**. Listed as a real regularity with an unresolved cause.
 
+### 8. The enrichment is stable within each surah — q = 0.045
+
+Split each surah at its midpoint and measure the enrichment in each half
+independently: the first half gives 61.3%, the second 59.6%, and the two
+correlate at **r = +0.388** (p = 0.019), with 21 of 29 surahs agreeing on
+direction. The effect is a property of the whole surah, not a few unusual
+verses.
+
+---
+
+## The enrichment is real — and semantically inert
+
+Three decompositions, which together are more informative than the headline
+effect.
+
+**It is not in the distinctive vocabulary.** For each surah I took the 40 roots
+most over-represented relative to the corpus, and asked how often they contain
+one of that surah's opening letters, against how often a randomly chosen opening
+would. Mean excess: **+0.0006. p = 0.9937.** A clean null. Whatever the letters
+track, it is not what the surah is *about*.
+
+**It is not in the function words either.** Content words give a mean percentile
+of 59.9%, function words 55.7% — both above chance, neither dominant.
+
+**It is not in the common words.** Stripping the thirty commonest word-forms
+moves the headline from 62.2% to 59.2%. The effect largely survives.
+
+**It is weakly predictive.** Ranking all 14 candidate openings by their density
+inside a surah puts the true opening first **17%** of the time (chance 7%) and in
+the top three **38%** of the time (chance 21%); mean rank 6.21 against 7.5, p =
+0.044. Better than chance, nowhere near reliable. The successes are mostly the
+single-letter surahs: Q50, Q68, Q45, and the alif-lām-mīm pair Q2/Q3.
+
+Taken together: the enrichment is **diffuse, stable, and semantically empty**. It
+is a broad statistical property of a surah's letter distribution rather than a
+relationship between the letters and the surah's content. That is a real
+constraint on interpretation — it argues against any reading in which the letters
+encode or summarise what the surah says.
+
 ---
 
 ## What does not survive
@@ -206,6 +245,8 @@ well-known proposals.
 | **Own-letter counts are divisible by 19** | 3/29, expects 1.5 | 0.25 |
 | **The Ḥawāmīm are unusually cohesive** | rank 27 of 108 consecutive windows | 0.24 |
 | **The openings nest beyond chance** | 4 prefix relations, expects 2.25 | 0.20 |
+| **The letters appear in the surah's own name** | overlap 0.459 vs 0.399 | 0.37 |
+| **The letters sit in the surah's distinctive roots** | excess +0.0006 | 0.99 |
 
 Three deserve comment.
 
@@ -224,21 +265,32 @@ rest of the surah (p = 0.86). Whatever the enrichment in §5 is, it is a
 whole-surah property, not an opening flourish — which argues against reading the
 letters as an attention-getter or a prelude.
 
+**The surah-name result is an eponymy artifact.** Opening letters overlap a
+surah's Arabic name at 0.534 against a null of 0.377 (p = 0.012) — until you
+notice that Q20 *Ṭā-Hā*, Q36 *Yā-Sīn*, Q38 *Ṣād* and Q50 *Qāf* are **named after
+their own letters**. Excluding those four: 0.459 vs 0.399, **p = 0.37**. Nothing
+there.
+
 ---
 
 ## Multiple comparisons
 
+Twenty tests; nine survive at q < 0.05.
+
 | test | p | q (BH-FDR) | |
 |---|---|---|---|
-| announces scripture | 0.00005 | 0.0008 | survives |
-| clusters in the muṣḥaf | 0.00080 | 0.0060 | survives |
+| announces scripture | 0.00005 | 0.0010 | survives |
+| clusters in the muṣḥaf | 0.00080 | 0.0053 | survives |
+| ascending abjad order | 0.00080 | 0.0053 | survives *(confounded)* |
 | cohesion beyond adjacency | 0.00520 | 0.0260 | survives |
-| letter selection biased | 0.00710 | 0.0266 | survives |
-| within-surah enrichment (rasm) | 0.00920 | 0.0276 | survives |
-| undotted ambiguity | 0.01320 | 0.0330 | survives |
-| within-surah enrichment (undotted) | 0.02040 | 0.0437 | survives |
-| mīm specifically | 0.02900 | 0.0544 | borderline |
-| *(seven further tests)* | ≥ 0.20 | ≥ 0.33 | — |
+| letter selection biased | 0.00710 | 0.0284 | survives |
+| within-surah enrichment (rasm) | 0.00920 | 0.0307 | survives |
+| undotted ambiguity | 0.01320 | 0.0377 | survives |
+| split-half stability | 0.01910 | 0.0453 | survives |
+| within-surah enrichment (undotted) | 0.02040 | 0.0453 | survives |
+| mīm specifically | 0.02900 | 0.0580 | borderline |
+| opening predictable from frequencies | 0.04450 | 0.0809 | borderline |
+| *(nine further tests)* | ≥ 0.20 | ≥ 0.34 | — |
 
 ---
 
@@ -287,11 +339,13 @@ codicological question, not a statistical one.
 ~1 point and uninterpreted. *What would settle it:* a mechanism. Is it driven by
 particular word classes? I did not decompose it.
 
-**4. The enrichment mechanism.** The effect is real (q = 0.028) but carried by a
-subset, flat across rungs, and globally distributed. *What would settle it:*
-testing whether the enriched letters concentrate in the surah's distinctive
-vocabulary rather than its function words — a decomposition I set up but did not
-finish.
+**4. The enrichment mechanism — now partly closed, and the answer is negative.**
+The effect is real, stable across split halves, and weakly predictive, but it is
+*not* located in the surah's distinctive vocabulary (p = 0.99), not in its
+function words, and not in its common words. It is diffuse. *What would settle
+it:* a positive account of what distribution the letters are actually tracking —
+possibly verse-length or morphological-template structure, neither of which I
+tested.
 
 ## What I would not pursue
 

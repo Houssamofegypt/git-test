@@ -49,6 +49,21 @@ TESTS = [
   "3/29 vs 1.5 expected", 0.2500, "NOT supported", "Approximate; the 19-based literature is not supported here."),
  ("riwayat", "Muqatta'at surahs are more textually stable across riwayat",
   "105 vs 151 consonantal variants per 1000 words", 0.2983, "NOT supported", "No detectable difference."),
+ ("abjad-order", "The letters within an opening run in ascending abjad order",
+  "7/11 multi-letter openings vs 2.6 expected", 0.0008, "supported but confounded",
+  "Entirely carried by the alif-lam family (4/4, p=0.0001); absent elsewhere (3/7, p=0.39). Since alif+lam spells the definite article, an orthographic explanation competes and this test cannot separate them."),
+ ("split-half", "The enrichment is a stable property of the surah, not a few verses",
+  "halves correlate r=+0.388; 21/29 agree in direction", 0.0191, "supported",
+  "Both halves independently show the effect (61.3% and 59.6%)."),
+ ("predict", "A surah's opening is predictable from its letter frequencies",
+  "top-1 17% vs 7% chance; mean rank 6.21 vs 7.5", 0.0445, "weakly supported",
+  "Above chance but unreliable. The correctly predicted cases are mostly the single-letter surahs."),
+ ("distinctive", "The enriched letters sit in the surah's distinctive vocabulary",
+  "mean excess +0.0006 over a random opening", 0.9937, "NOT supported",
+  "Clean null. The enrichment is semantically inert: diffuse across content and function words, not targeted at what the surah is about."),
+ ("surah-name", "The opening letters appear in the surah's own name",
+  "overlap 0.459 vs 0.399 once eponymous surahs are excluded", 0.3729, "NOT supported",
+  "The raw effect (p=0.012) is entirely an artifact of Q20 Ta-Ha, Q36 Ya-Sin, Q38 Sad and Q50 Qaf, which are NAMED after their letters."),
 ]
 
 def bh(ps):

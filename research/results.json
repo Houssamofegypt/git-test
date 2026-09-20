@@ -4,7 +4,7 @@
   "hypothesis": "A surah's own letters are unusually frequent within it (rasm rung)",
   "stat": "mean percentile 62.2% vs 52.9% permutation null",
   "p": 0.0092,
-  "q": 0.027600000000000003,
+  "q": 0.030666666666666665,
   "verdict": "supported",
   "note": "Primary pre-specified test. Effect is carried by a subset: dropping the 3 strongest surahs gives p=0.067."
  },
@@ -13,7 +13,7 @@
   "hypothesis": "Same, at the undotted rung",
   "stat": "60.8% vs 52.7%",
   "p": 0.0204,
-  "q": 0.04371428571428572,
+  "q": 0.04533333333333334,
   "verdict": "supported",
   "note": "Effect is near-flat across rungs; rasm marginally strongest."
  },
@@ -22,7 +22,7 @@
   "hypothesis": "Muqatta'at surahs announce scripture in their opening verses",
   "stat": "24/29 (83%) vs 7/29 expected among length-matched controls",
   "p": 5e-05,
-  "q": 0.00075,
+  "q": 0.001,
   "verdict": "strongly supported",
   "note": "Survives length matching. Pre-specified root set; a broader set would raise it to 29/29 but that is post-hoc."
  },
@@ -31,7 +31,7 @@
   "hypothesis": "Muqatta'at surahs cluster in mushaf order",
   "stat": "10 runs vs 16.6 expected under a length-matched null",
   "p": 0.0008,
-  "q": 0.006,
+  "q": 0.005333333333333333,
   "verdict": "strongly supported",
   "note": "Survives controlling for the mushaf's rough length ordering."
  },
@@ -49,7 +49,7 @@
   "hypothesis": "Muqatta'at surahs are more ambiguous when undotted",
   "stat": "27.3% vs 26.3% predicted from word length",
   "p": 0.0132,
-  "q": 0.033,
+  "q": 0.037714285714285714,
   "verdict": "weakly supported",
   "note": "Raw effect p=0.0001 shrinks to p=0.013 once word length is controlled. Interpretation unclear."
  },
@@ -58,7 +58,7 @@
   "hypothesis": "Mim specifically is enriched in the 17 surahs whose opening contains it",
   "stat": "64.0% vs 49.9%",
   "p": 0.029,
-  "q": 0.054375,
+  "q": 0.05800000000000001,
   "verdict": "weak",
   "note": "One of 6 letters tested; does not survive correction within that sub-family."
  },
@@ -67,7 +67,7 @@
   "hypothesis": "The seven consecutive ha-mim surahs are unusually cohesive",
   "stat": "cosine 0.680, rank 27 of 108 consecutive 7-surah windows",
   "p": 0.2407,
-  "q": 0.3409090909090909,
+  "q": 0.35714285714285715,
   "verdict": "NOT supported",
   "note": "An earlier run gave p=0.003 against a null of random non-adjacent surahs. That null was wrong."
  },
@@ -85,7 +85,7 @@
   "hypothesis": "A surah's opening letters match its dominant rhyme letter",
   "stat": "1/29 vs 1.6 expected",
   "p": 0.8961,
-  "q": 0.8961,
+  "q": 0.9432631578947369,
   "verdict": "NOT supported",
   "note": "Clean refutation. 18/29 of these surahs rhyme in nun regardless."
  },
@@ -94,7 +94,7 @@
   "hypothesis": "The 14 letters systematically cover the points of articulation",
   "stat": "9 of 12 places vs 9.2 for a random 14 letters",
   "p": 0.7657,
-  "q": 0.8835,
+  "q": 0.9008235294117647,
   "verdict": "NOT supported",
   "note": "Interdentals, labiodentals and laterals are entirely absent."
  },
@@ -103,7 +103,7 @@
   "hypothesis": "The letters are denser near the start of their surah",
   "stat": "density 0.2103 (ayahs 2-11) vs 0.2098 (rest)",
   "p": 0.8594,
-  "q": 0.8961,
+  "q": 0.9432631578947369,
   "verdict": "NOT supported",
   "note": "Argues against an attention-getter or phonetic-prelude reading."
  },
@@ -112,7 +112,7 @@
   "hypothesis": "The 14 letters are a biased sample of the alphabet",
   "stat": "mean frequency rank 10.9 vs 15.5 expected",
   "p": 0.0071,
-  "q": 0.026625000000000003,
+  "q": 0.0284,
   "verdict": "supported",
   "note": "They skew toward COMMON letters: 10 of the alphabet's 14 commonest are used. But ta (rank 28) and sad (24) are included."
  },
@@ -121,7 +121,7 @@
   "hypothesis": "Own-letter counts are divisible by 19 more often than chance",
   "stat": "3/29 vs 1.5 expected",
   "p": 0.25,
-  "q": 0.3409090909090909,
+  "q": 0.35714285714285715,
   "verdict": "NOT supported",
   "note": "Approximate; the 19-based literature is not supported here."
  },
@@ -130,8 +130,53 @@
   "hypothesis": "Muqatta'at surahs are more textually stable across riwayat",
   "stat": "105 vs 151 consonantal variants per 1000 words",
   "p": 0.2983,
-  "q": 0.372875,
+  "q": 0.3977333333333333,
   "verdict": "NOT supported",
   "note": "No detectable difference."
+ },
+ {
+  "id": "abjad-order",
+  "hypothesis": "The letters within an opening run in ascending abjad order",
+  "stat": "7/11 multi-letter openings vs 2.6 expected",
+  "p": 0.0008,
+  "q": 0.005333333333333333,
+  "verdict": "supported but confounded",
+  "note": "Entirely carried by the alif-lam family (4/4, p=0.0001); absent elsewhere (3/7, p=0.39). Since alif+lam spells the definite article, an orthographic explanation competes and this test cannot separate them."
+ },
+ {
+  "id": "split-half",
+  "hypothesis": "The enrichment is a stable property of the surah, not a few verses",
+  "stat": "halves correlate r=+0.388; 21/29 agree in direction",
+  "p": 0.0191,
+  "q": 0.04533333333333334,
+  "verdict": "supported",
+  "note": "Both halves independently show the effect (61.3% and 59.6%)."
+ },
+ {
+  "id": "predict",
+  "hypothesis": "A surah's opening is predictable from its letter frequencies",
+  "stat": "top-1 17% vs 7% chance; mean rank 6.21 vs 7.5",
+  "p": 0.0445,
+  "q": 0.0809090909090909,
+  "verdict": "weakly supported",
+  "note": "Above chance but unreliable. The correctly predicted cases are mostly the single-letter surahs."
+ },
+ {
+  "id": "distinctive",
+  "hypothesis": "The enriched letters sit in the surah's distinctive vocabulary",
+  "stat": "mean excess +0.0006 over a random opening",
+  "p": 0.9937,
+  "q": 0.9937000000000001,
+  "verdict": "NOT supported",
+  "note": "Clean null. The enrichment is semantically inert: diffuse across content and function words, not targeted at what the surah is about."
+ },
+ {
+  "id": "surah-name",
+  "hypothesis": "The opening letters appear in the surah's own name",
+  "stat": "overlap 0.459 vs 0.399 once eponymous surahs are excluded",
+  "p": 0.3729,
+  "q": 0.466125,
+  "verdict": "NOT supported",
+  "note": "The raw effect (p=0.012) is entirely an artifact of Q20 Ta-Ha, Q36 Ya-Sin, Q38 Sad and Q50 Qaf, which are NAMED after their letters."
  }
 ]
