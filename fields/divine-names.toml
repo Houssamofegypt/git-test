@@ -1,0 +1,95 @@
+[field]
+slug        = "divine-names"
+title       = "Names and attributes of God"
+description = "How the text names God: the proper names, the relational term rabb, and the attributive epithets."
+author      = "Claude (Opus 5), for quranlab"
+method      = "manual + positional rule"
+note        = """Built to answer how divine self-presentation shifts across the corpus, so
+the disambiguation matters more than the coverage.
+
+Three classes, handled differently:
+  * ALWAYS DIVINE — Allāh, al-Raḥmān. No disambiguation needed.
+  * RELATIONAL — rabb. Divine throughout except in Sūrat Yūsuf, where it means a human
+    master (Q12:41, 42, 50: the king and the cupbearer's lord). Surah 12 is excluded.
+  * EPITHETS — ʿazīz, ḥakīm, ghafūr and the rest are divine in the fawāṣil, the verse-final
+    formulae, and ambiguous elsewhere: al-ʿAzīz in Sūrat Yūsuf is the Egyptian official.
+    93% of epithet occurrences are verse-final, so `fawasil_only` recovers nearly all of
+    them while excluding the narrative uses by position rather than by a hand-written list.
+
+aḥad is deliberately absent. It is the divine name only at Q112:1 and is otherwise the
+ordinary word 'anyone' — 10 occurrences in Sūrat al-Kahf alone. One true positive is not
+worth the false ones; add it with an explicit reference restriction if you need it."""
+
+[[member]]
+kind = "lemma"
+value = "اللَّه"
+note = "Allāh"
+
+[[member]]
+kind = "lemma"
+value = "رَحْمٰن"
+note = "al-Raḥmān — functions close to a proper name"
+
+[[member]]
+kind = "lemma"
+value = "رَبّ"
+exclude_surahs = "12"
+note = "rabb — divine except in Sūrat Yūsuf, where it is a human master"
+
+[[member]]
+kind = "lemma"
+value = "رَحِيم"
+fawasil_only = true
+[[member]]
+kind = "lemma"
+value = "عَزِيز"
+fawasil_only = true
+note = "excludes the Egyptian official of Sūrat Yūsuf by position"
+[[member]]
+kind = "lemma"
+value = "حَكِيم"
+fawasil_only = true
+[[member]]
+kind = "lemma"
+value = "عَلِيم"
+fawasil_only = true
+[[member]]
+kind = "lemma"
+value = "غَفُور"
+fawasil_only = true
+[[member]]
+kind = "lemma"
+value = "سَمِيع"
+fawasil_only = true
+[[member]]
+kind = "lemma"
+value = "بَصِير"
+fawasil_only = true
+[[member]]
+kind = "lemma"
+value = "قَدِير"
+fawasil_only = true
+[[member]]
+kind = "lemma"
+value = "خَبِير"
+fawasil_only = true
+[[member]]
+kind = "lemma"
+value = "حَلِيم"
+fawasil_only = true
+[[member]]
+kind = "lemma"
+value = "شَكُور"
+fawasil_only = true
+[[member]]
+kind = "lemma"
+value = "رَءُوف"
+fawasil_only = true
+[[member]]
+kind = "lemma"
+value = "لَطِيف"
+fawasil_only = true
+[[member]]
+kind = "lemma"
+value = "وَدُود"
+fawasil_only = true

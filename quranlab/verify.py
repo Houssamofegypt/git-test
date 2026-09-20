@@ -229,6 +229,23 @@ def checks(conn: sqlite3.Connection) -> list[Check]:
     check("every report is exposed as an annotation", ann == n_reports,
           f"{ann} annotations for {n_reports} reports")
 
+    # --- canonical form ----------------------------------------------------
+    # A stored string that is not in NFC cannot be matched by someone typing it
+    # normally, and the failure is a silent empty result rather than an error.
+    import unicodedata as _ud
+    noncanon = {}
+    for table, column in [("word", "lemma"), ("word", "root"), ("word", "form"),
+                          ("segment", "lemma"), ("segment", "root"),
+                          ("segment", "form"), ("root", "text"), ("lemma", "text")]:
+        n = sum(1 for (v,) in conn.execute(
+            f"SELECT DISTINCT {column} FROM {table} WHERE {column} IS NOT NULL")
+            if _ud.normalize("NFC", v) != v)
+        if n:
+            noncanon[f"{table}.{column}"] = n
+    check("all stored lexical strings are in NFC", not noncanon,
+          ", ".join(f"{k}: {v}" for k, v in noncanon.items()) if noncanon
+          else "lemma, root and form columns are canonical")
+
     # --- referential integrity --------------------------------------------
     violations = conn.execute("PRAGMA foreign_key_check").fetchall()
     check("foreign keys intact", not violations, f"{len(violations)} violations")

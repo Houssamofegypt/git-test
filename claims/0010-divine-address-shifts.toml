@@ -1,0 +1,33 @@
+[claim]
+id        = "0010-divine-address-shifts"
+statement = "Divine self-presentation shifts between the two revelation periods: al-Raḥmān is 8.4× more frequent in Meccan surahs, while the verse-final epithet formulae are 2-3× more frequent in Medinan ones."
+level     = "n/a"
+author    = "quranlab"
+date      = "2026-09-20"
+note      = """A real result at the resolution the sources support, and no finer. The
+Meccan/Medinan split is a two-bucket chronology from the surah metadata; it is not a
+timeline, and this claim says nothing about development within either period. Finer
+chronology (Nöldeke, Cairo 1924) is not yet ingested because no pinned source for it was
+reachable.
+
+Normalized per 10,000 words, since the two corpora differ in size (47,439 Meccan words
+against 29,990 Medinan). The direction of both effects is well attested in the literature;
+recovering them from the text is a check that the lexical-field layer measures what it
+claims to, not a discovery.
+
+The epithet counts depend on the `fawasil_only` rule, which admits an epithet only in the
+final two words of its ayah. Relax that rule and the Medinan skew will change, because the
+narrative uses it excludes — al-ʿAzīz of Sūrat Yūsuf — are not evenly distributed."""
+query     = """
+SELECT ROUND(
+  (SELECT 10000.0 * COUNT(*) / 47439 FROM field_word fw
+     JOIN word w ON w.id = fw.word_id JOIN ayah a ON a.id = w.ayah_id
+     JOIN surah s ON s.number = a.surah
+    WHERE fw.via_value = 'رَحْمٰن' AND s.revelation_place = 'meccan')
+  /
+  (SELECT 10000.0 * COUNT(*) / 29990 FROM field_word fw
+     JOIN word w ON w.id = fw.word_id JOIN ayah a ON a.id = w.ayah_id
+     JOIN surah s ON s.number = a.surah
+    WHERE fw.via_value = 'رَحْمٰن' AND s.revelation_place = 'medinan'), 1)
+"""
+expect    = 8.4

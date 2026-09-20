@@ -264,6 +264,57 @@ most one entry per ayah, though 63 of its entries carry multiple narration chain
 (the `chains` column). Ingesting a second work — al-Suyūṭī's *Lubāb al-Nuqūl* is
 the obvious one — needs no schema change, which was the point.
 
+## Asking questions of it
+
+Three query shapes, three pieces of machinery.
+
+**Counting** (`quranlab.counting`). "How many times is night mentioned?" has no
+answer — it has about six, differing by a factor of five. So a count is a
+`CountSpec`, a named explicit rule, and a result that carries the spec that
+produced it. `compare()` refuses two counts whose rules differ, because
+comparing a root count to a lemma count is the mechanism behind most circulating
+numerical claims. The widely-repeated figure of 365 for *yawm* survives no rule
+here: 475 by root, 445 singular, 77 definite.
+
+Grammatical number is read off the **stem** segment only. An earlier version read
+it off any segment and scored *yawmihim*, "their day", as plural because its
+pronoun suffix is 3MP. The partition invariant caught it — singular + dual +
+plural must equal the total, for every root — and it is now a test.
+
+**Co-occurrence** (`quranlab.search`). Thematic questions are co-occurrence
+questions, and the unit dominates the answer. Patience + paradise returns 2 hits
+in the same ayah and 21 in the same rukūʿ. The first number is an artefact of the
+unit, not a fact about the text, so the unit is a parameter, it is named in every
+result, and it defaults to the passage rather than the ayah.
+
+**Lexical fields** (`quranlab.fields`, `fields/*.toml`). Root search cannot find
+paraphrase: Q13:24 promises the reward of endurance as *ʿuqbā al-dār*, "the
+excellent final home", and contains neither core root. Closing that gap means
+deciding which words belong to a concept, which is editorial — so fields are
+declared in `fields/*.toml` with an author and a method on every one, readable
+and arguable in a diff, and resolved against the corpus at build time.
+
+Two rules do the disambiguation. `fawasil_only` admits an epithet only in the
+verse-final formulae, where it is divine, and excludes the narrative uses where
+it is not — al-ʿAzīz of Sūrat Yūsuf is an Egyptian official. 93% of epithet
+occurrences are verse-final, so this recovers nearly all of them *by position*
+rather than by a hand-written blacklist. `exclude_surahs` handles what position
+cannot: *rabb* means a human master throughout Sūrat Yūsuf.
+
+Every member records how many words it matched, and `verify` fails on a member
+that matched none. That check paid for itself on the first build: four members
+were typos in Arabic diacritics, and a zero-match member is indistinguishable
+from a real zero.
+
+### A bug the field layer found
+
+Resolving those fields surfaced a defect in the build itself. 619 of the 4,763
+lemmas shipped by the morphology are in **non-canonical Unicode order** — lām +
+shadda + fatḥa, where NFC orders the marks fatḥa + shadda. The ayah text was
+normalized; the lemma and root columns never were. Anyone typing a lemma the
+ordinary way got zero rows and no error. Fixed at ingest, with an invariant
+asserting every stored lexical string is in NFC.
+
 ## What this deliberately does not do
 
 - **No interpretation, no tafsīr, no thematic tagging.** Those are annotations,

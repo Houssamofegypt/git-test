@@ -1,0 +1,32 @@
+[claim]
+id        = "0008-yawm-not-365"
+statement = "The root ي-و-م occurs 475 times: 445 singular, 27 plural, 3 dual. No counting rule yields the widely-repeated figure of 365."
+level     = "n/a"
+author    = "quranlab"
+date      = "2026-09-20"
+note      = """The claim that yawm appears 365 times, once per day of the solar year, is
+among the most widely circulated numerical claims about the Quran. It does not survive
+counting. Root occurrences are 475; restricting to the singular gives 445 (see `quranlab count --root يوم`); to the definite
+article, 77; to singular-and-indefinite, 357 — the nearest any natural rule comes, and it
+is not 365 either.
+
+The three grammatical numbers partition the total exactly, which is the check that the
+counting rule is sound: an earlier version read grammatical number off any segment of the
+word and scored yawmihim, 'their day', as plural because its pronoun suffix is 3MP.
+
+This claim is about arithmetic, not about the text's significance, and it is not an
+argument against the Quran. It is an argument against quoting a number without its
+counting rule."""
+note_on_query = """The grammatical-number breakdown is deliberately NOT re-implemented
+here. Number must be read off the stem segment only, and expressing that inline invites
+exactly the bug it guards against — a first attempt at this query returned 446 rather than
+445 because it checked only MP/MD and missed the bare P and D tags. The partition is
+asserted instead by tests/test_counting.py, against quranlab.counting, which is the single
+place that rule is written down. This query asserts the two figures that are unambiguous."""
+query     = """
+SELECT (SELECT COUNT(*) FROM word WHERE root = 'يوم'),
+       (SELECT COUNT(*) FROM word w WHERE w.root = 'يوم' AND EXISTS (
+          SELECT 1 FROM segment sg WHERE sg.word_id = w.id
+            AND ',' || REPLACE(sg.features,'|',',') || ',' LIKE '%,DET,%'))
+"""
+expect    = [475, 77]

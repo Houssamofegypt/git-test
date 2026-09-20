@@ -355,6 +355,64 @@ JOIN sabab_work w ON w.id = r.work_id
 JOIN ayah a ON a.id = r.anchor_ayah;
 
 -- ============================================================================
+-- Lexical fields — concepts as explicit sets of roots and lemmas.
+--
+-- A thematic query ("where is paradise promised to the patient?") cannot be
+-- answered by root search alone: Q13:24 promises the reward of endurance as
+-- "the excellent final home" and contains neither root. Closing that gap means
+-- deciding which words belong to a concept, and that decision is editorial.
+--
+-- So it lives here, in L2, with an author and a method on every field, and the
+-- definitions live in `fields/*.toml` where they can be read and argued with in
+-- a diff. Nothing about a field is inferred; membership is declared, resolved
+-- against the corpus at build time, and the resolution is recorded so a member
+-- that matches nothing shows up as a bug rather than as silence.
+-- ============================================================================
+
+CREATE TABLE lexical_field (
+    id          INTEGER PRIMARY KEY,
+    slug        TEXT NOT NULL UNIQUE,
+    title       TEXT NOT NULL,
+    description TEXT NOT NULL,
+    author      TEXT NOT NULL,
+    method      TEXT NOT NULL,
+    note        TEXT NOT NULL DEFAULT ''
+);
+
+CREATE TABLE lexical_field_member (
+    field_id       INTEGER NOT NULL REFERENCES lexical_field(id),
+    kind           TEXT NOT NULL CHECK (kind IN ('root', 'lemma')),
+    value          TEXT NOT NULL,
+    fawasil_only   INTEGER NOT NULL DEFAULT 0,  -- verse-final position only
+    exclude_surahs TEXT NOT NULL DEFAULT '',    -- comma-separated, with a reason
+    confidence     REAL NOT NULL DEFAULT 1.0,
+    note           TEXT NOT NULL DEFAULT '',
+    matched        INTEGER NOT NULL DEFAULT 0,  -- words this member resolved to
+    PRIMARY KEY (field_id, kind, value)
+) WITHOUT ROWID;
+
+-- Resolved membership. Materialized because every thematic query starts here.
+CREATE TABLE field_word (
+    field_id   INTEGER NOT NULL REFERENCES lexical_field(id),
+    word_id    INTEGER NOT NULL REFERENCES word(id),
+    via_kind   TEXT NOT NULL,
+    via_value  TEXT NOT NULL,
+    confidence REAL NOT NULL,
+    PRIMARY KEY (field_id, word_id)
+) WITHOUT ROWID;
+CREATE INDEX field_word_word_idx ON field_word (word_id);
+
+CREATE VIEW v_field_word AS
+SELECT f.slug AS field, fw.word_id, fw.via_kind, fw.via_value, fw.confidence,
+       'Q' || a.surah || ':' || a.number || ':' || w.position AS ref,
+       a.id AS ayah_id, a.surah, a.ruku, s.revelation_place, w.form, w.root, w.lemma
+FROM field_word fw
+JOIN lexical_field f ON f.id = fw.field_id
+JOIN word w ON w.id = fw.word_id
+JOIN ayah a ON a.id = w.ayah_id
+JOIN surah s ON s.number = a.surah;
+
+-- ============================================================================
 -- Convenience views. Research queries should be short enough to paste into a
 -- footnote; these carry the joins so they can be.
 -- ============================================================================

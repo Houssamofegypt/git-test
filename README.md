@@ -101,10 +101,14 @@ quranlab/
   verify.py           40 assertions about the data
   claims.py           the claim ledger
   cli.py              show / words / search / root / variants / sql
+  counting.py         counts that carry their own rule; refuses bad comparisons
+  search.py           co-occurrence at ayah / rukūʿ / window
+  fields.py           lexical fields — concepts as declared root and lemma sets
   asbab.py            asbāb al-nuzūl ingest: classify, deduplicate, record coverage
   serve.py            read-only JSON API for the explorer
   web/index.html      the explorer — vanilla, no build step, no CDN
 claims/*.toml         findings, each with the query that regenerates it
+fields/*.toml         concept definitions — editorial, authored, arguable in a diff
 docs/ARCHITECTURE.md  the design argument
 docs/SOURCES.md       provenance and licensing
 ```
@@ -156,6 +160,9 @@ quranlab show Q112 --level rasm
 quranlab words Q1:1                       # segment-level morphology
 quranlab search الله --level rasm
 quranlab root رحم                          # 339 words, 62 surahs, 9 lemmas
+quranlab count --root يوم                  # a count, with its rule attached
+quranlab cooccur --field patience --field paradise
+quranlab field divine-names                # membership, rules, distribution
 quranlab asbab Q2:158                      # reported occasion of revelation
 quranlab asbab --coverage                  # what the sources cover, and what they don't
 quranlab variants Q2:255                   # consonantal differences only

@@ -1,0 +1,22 @@
+[field]
+slug        = "patience"
+title       = "Patience and endurance"
+description = "Ṣabr: steadfastness under hardship, and the semantically adjacent vocabulary of forbearance."
+author      = "Claude (Opus 5), for quranlab"
+method      = "manual"
+note        = """Seed definition, deliberately narrow. ṣ-b-r is uncontroversially the core;
+ḥ-l-m (forbearance) is included at lower confidence because it shades toward clemency,
+which is a divine attribute more than a human discipline. Widen or narrow it in this file;
+the build records how many words each member matched, so a member that matches nothing
+is visible rather than silent."""
+
+[[member]]
+kind = "root"
+value = "صبر"
+note = "ṣabr — the core term"
+
+[[member]]
+kind = "root"
+value = "حلم"
+confidence = 0.6
+note = "ḥilm — forbearance; overlaps the divine attribute al-Ḥalīm"

@@ -18,7 +18,7 @@ import unicodedata
 from datetime import datetime, timezone
 from pathlib import Path
 
-from . import __version__, asbab, normalize
+from . import __version__, asbab, fields, normalize
 from .fetch import LOCK_PATH, ROOT, read_json, read_source
 
 DB_PATH = ROOT / "data" / "quran.db"
@@ -303,10 +303,19 @@ def _pick_stem(segments: list) -> tuple:
 
 
 def _feature(feats: str, key: str) -> str | None:
+    """Read a KEY:VALUE feature, normalized.
+
+    The morphology ships 619 of its 4,763 lemmas in non-canonical Unicode order —
+    lām + shadda + fatḥa, where NFC orders the marks fatḥa + shadda. Stored raw,
+    those lemmas cannot be matched by anyone who types them the ordinary way, and
+    the failure is silent: the query returns zero rows and looks like an answer.
+    Roots and surface forms happen to be unaffected; normalizing them anyway costs
+    nothing and stops this depending on a coincidence.
+    """
     prefix = key + ":"
     for tok in feats.split("|"):
         if tok.startswith(prefix):
-            return tok[len(prefix):]
+            return unicodedata.normalize("NFC", tok[len(prefix):])
     return None
 
 
@@ -439,6 +448,7 @@ def build(db_path: Path = DB_PATH) -> Path:
         build_lexicon(conn)
         build_variants(conn)
         asbab.load(conn, log)
+        fields.load(conn, log)
         build_fts(conn)
 
         digest = content_digest(conn)

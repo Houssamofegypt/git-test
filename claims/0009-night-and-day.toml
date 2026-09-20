@@ -1,0 +1,21 @@
+[claim]
+id        = "0009-night-and-day"
+statement = "Night and day are not equinumerous on any like-for-like reading: layl 92, nahār 113, yawm 475."
+level     = "n/a"
+author    = "quranlab"
+date      = "2026-09-20"
+note      = """A second widely-circulated equality that does not hold. Counted as roots over
+the whole corpus, ل-ي-ل gives 92 and ن-ه-ر gives 113 — close, but not equal, and the gap is
+not closed by any of the obvious restrictions. Comparing layl to yawm instead gives 92
+against 475, because yawm is the day as a unit of time and reckoning, not the daylight
+half of one.
+
+Which pairing is meant is the whole question, and it is a semantic decision the counting
+cannot make for you. That is why `quranlab.counting.compare` refuses to compare two counts
+whose rules differ."""
+query     = """
+SELECT (SELECT COUNT(*) FROM word WHERE root = 'ليل'),
+       (SELECT COUNT(*) FROM word WHERE root = 'نهر'),
+       (SELECT COUNT(*) FROM word WHERE root = 'يوم')
+"""
+expect    = [92, 113, 475]

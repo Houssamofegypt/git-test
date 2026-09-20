@@ -236,6 +236,128 @@ def cmd_asbab(args) -> int:
                       f" transcode; text shown as delivered")
     return 0
 
+def cmd_count(args) -> int:
+    """Count with the rule attached. There is no bare number."""
+    from .counting import CountSpec, count as do_count
+    conn = _conn()
+    unit = ("root" if args.root else "lemma" if args.lemma else "form")
+    value = args.root or args.lemma or args.form
+    spec = CountSpec(unit=unit, value=value,
+                     numbers=tuple(args.number or ()), definite=args.definite,
+                     pos=args.pos, scope=args.scope)
+    r = do_count(conn, spec, examples=args.examples)
+    print(f"\n  {r.words} words · {r.ayahs} ayahs · {r.surahs} surahs"
+          f" · {r.per_10k:.1f} per 10k words")
+    print(f"  rule: {spec.describe()}")
+    if not args.number and not args.definite and unit == "root":
+        parts = {n: do_count(conn, CountSpec(unit, value, numbers=(n,),
+                                             scope=args.scope)).words
+                 for n in ("singular", "dual", "plural")}
+        print("  by grammatical number: "
+              + ", ".join(f"{k} {v}" for k, v in parts.items() if v))
+    for e in r.examples:
+        print(f"    {e['ref']:14} {RLM}{e['form']}")
+    return 0
+
+
+def cmd_cooccur(args) -> int:
+    """Where do two or more terms appear together?"""
+    from .search import Scope, cooccur
+    conn = _conn()
+    terms = [("field", f) for f in (args.field or [])] + \
+            [("root", r) for r in (args.root or [])] + \
+            [("lemma", l) for l in (args.lemma or [])]
+    if len(terms) < 2:
+        raise SystemExit("give at least two terms (--root/--lemma/--field)")
+    scope = Scope(unit=args.unit, window=args.window, revelation=args.scope)
+    if any(k == "field" for k, _ in terms):
+        return _cooccur_fields(conn, terms, scope, args.limit)
+    d = cooccur(conn, terms, scope, limit=args.limit)
+    print(f"\n  {d['total']} {args.unit}s contain all of: {', '.join(d['terms'])}")
+    print(f"  scope: {d['scope']}\n")
+    for h in d["hits"]:
+        print(f"  {h['ref']:14} {h['ayahs']:>2} ayahs  {h['revelation_place']:8}"
+              f" {h['gloss'][:70]}")
+    return 0
+
+
+def _cooccur_fields(conn, terms, scope, limit):
+    """Co-occurrence where any term may be a lexical field rather than a word."""
+    key = {"ayah": "a.id", "ruku": "a.surah || '-' || a.ruku",
+           "surah": "a.surah"}[scope.unit if scope.unit != "window" else "ruku"]
+    wheres, params = [], []
+    for kind, value in terms:
+        if kind == "field":
+            wheres.append(f"""EXISTS (SELECT 1 FROM v_field_word v
+                JOIN ayah a2 ON a2.id = v.ayah_id
+                WHERE {key.replace('a.', 'a2.')} = g.k AND v.field = ?)""")
+        else:
+            wheres.append(f"""EXISTS (SELECT 1 FROM word w
+                JOIN ayah a2 ON a2.id = w.ayah_id
+                WHERE {key.replace('a.', 'a2.')} = g.k AND w.{kind} = ?)""")
+        params.append(value)
+    sql = f"""WITH g AS (SELECT {key} AS k, MIN(a.id) f, MAX(a.id) l FROM ayah a
+                         GROUP BY {key})
+              SELECT g.k, g.f, g.l FROM g WHERE {' AND '.join(wheres)} ORDER BY g.f"""
+    rows = conn.execute(sql, params).fetchall()
+    print(f"\n  {len(rows)} {scope.unit}s contain all of: "
+          f"{', '.join(v for _, v in terms)}")
+    print(f"  scope: {scope.describe()}\n")
+    for r in rows[:limit]:
+        a = conn.execute("SELECT * FROM v_ayah WHERE ayah_id = ?", (r["f"],)).fetchone()
+        last = conn.execute("SELECT number FROM ayah WHERE id = ?", (r["l"],)).fetchone()[0]
+        en = conn.execute(
+            "SELECT t.plain FROM ayah_text t JOIN edition e ON e.id = t.edition_id"
+            " WHERE t.ayah_id = ? AND e.kind = 'translation'", (r["f"],)).fetchone()
+        ref = a["ref"] if r["f"] == r["l"] else f"{a['ref']}-{last}"
+        print(f"  {ref:14} {a['revelation_place']:8} {(en[0] if en else '')[:72]}")
+    return 0
+
+
+def cmd_field(args) -> int:
+    """Inspect a lexical field: its members, what each matched, its distribution."""
+    conn = _conn()
+    if not args.slug:
+        print("  Lexical fields are editorial. Each one names its author and method.\n")
+        for f in conn.execute("SELECT * FROM lexical_field ORDER BY slug"):
+            n = conn.execute("SELECT COUNT(*) FROM field_word WHERE field_id = ?",
+                             (f["id"],)).fetchone()[0]
+            print(f"  {f['slug']:16} {n:>5} words   {f['title']}")
+            print(f"  {'':16} {f['author']} · {f['method']}")
+        return 0
+    f = conn.execute("SELECT * FROM lexical_field WHERE slug = ?", (args.slug,)).fetchone()
+    if f is None:
+        raise SystemExit(f"no such field: {args.slug}")
+    print(f"\n  {f['title']}  ({f['slug']})")
+    print(f"  {f['description']}")
+    print(f"  author: {f['author']} · method: {f['method']}\n")
+    print(f"  {'member':22} {'kind':6} {'matched':>8}  rule")
+    for m in conn.execute(
+            "SELECT * FROM lexical_field_member WHERE field_id = ? ORDER BY matched DESC",
+            (f["id"],)):
+        rule = []
+        if m["fawasil_only"]:
+            rule.append("verse-final only")
+        if m["exclude_surahs"]:
+            rule.append(f"excl. surah {m['exclude_surahs']}")
+        if m["confidence"] < 1:
+            rule.append(f"conf {m['confidence']}")
+        print(f"  {RLM}{m['value']:22} {m['kind']:6} {m['matched']:>8}  {', '.join(rule)}")
+    dist = conn.execute(
+        "SELECT s.revelation_place p, COUNT(*) n FROM field_word fw"
+        " JOIN word w ON w.id = fw.word_id JOIN ayah a ON a.id = w.ayah_id"
+        " JOIN surah s ON s.number = a.surah WHERE fw.field_id = ? GROUP BY p",
+        (f["id"],)).fetchall()
+    tot = dict(conn.execute(
+        "SELECT s.revelation_place, COUNT(*) FROM word w JOIN ayah a ON a.id = w.ayah_id"
+        " JOIN surah s ON s.number = a.surah GROUP BY s.revelation_place"))
+    print("\n  distribution (per 10,000 words):")
+    for d in dist:
+        print(f"    {d['p']:10} {d['n']:>5}   {10000 * d['n'] / tot[d['p']]:.1f}")
+    if f["note"]:
+        print(f"\n  {f['note']}")
+    return 0
+
 def cmd_stats(args) -> int:
     conn = _conn()
     meta = dict(conn.execute("SELECT key, value FROM build").fetchall())
@@ -319,6 +441,9 @@ def main(argv: list[str] | None = None) -> int:
               quranlab variants Q2:255
               quranlab asbab Q2:158
               quranlab asbab --coverage
+              quranlab count --root يوم
+              quranlab cooccur --field patience --field paradise
+              quranlab field divine-names
               quranlab sql "SELECT text, word_count FROM root ORDER BY word_count DESC LIMIT 10"
               quranlab serve
         """),
@@ -375,6 +500,32 @@ def main(argv: list[str] | None = None) -> int:
                    help="what each work covers — and what it does not")
     s.add_argument("--chars", type=int, default=420)
     s.set_defaults(func=cmd_asbab)
+
+    s = sub.add_parser("count", help="count with the rule attached")
+    g = s.add_mutually_exclusive_group(required=True)
+    g.add_argument("--root"); g.add_argument("--lemma"); g.add_argument("--form")
+    s.add_argument("--number", action="append",
+                   choices=["singular", "dual", "plural"])
+    s.add_argument("--definite", action="store_true", default=None)
+    s.add_argument("--indefinite", dest="definite", action="store_false")
+    s.add_argument("--pos", choices=["N", "V", "P"])
+    s.add_argument("--scope", default="all", choices=["all", "meccan", "medinan"])
+    s.add_argument("--examples", type=int, default=0)
+    s.set_defaults(func=cmd_count)
+
+    s = sub.add_parser("cooccur", help="where do terms appear together?")
+    s.add_argument("--root", action="append")
+    s.add_argument("--lemma", action="append")
+    s.add_argument("--field", action="append")
+    s.add_argument("--unit", default="ruku", choices=["ayah", "ruku", "surah", "window"])
+    s.add_argument("--window", type=int, default=30)
+    s.add_argument("--scope", default=None, choices=["meccan", "medinan"])
+    s.add_argument("--limit", type=int, default=25)
+    s.set_defaults(func=cmd_cooccur)
+
+    s = sub.add_parser("field", help="inspect a lexical field")
+    s.add_argument("slug", nargs="?")
+    s.set_defaults(func=cmd_field)
 
     s = sub.add_parser("sql", help="run a read-only query")
     s.add_argument("query")

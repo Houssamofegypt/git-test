@@ -1,0 +1,40 @@
+[field]
+slug        = "paradise"
+title       = "Paradise / the Garden"
+description = "The eschatological reward: the Garden, its names, and the standing periphrases for it."
+author      = "Claude (Opus 5), for quranlab"
+method      = "manual"
+note        = """Root search alone under-recovers this concept badly. Q13:24 promises the
+reward of endurance as ʿuqbā al-dār, 'the excellent final home', and contains neither
+j-n-n nor any other core term. The periphrastic members below exist to catch exactly that
+class, and they are the editorial part of this file: someone else would draw the line
+differently. j-n-n also means 'jinn', 'madness' and 'to conceal', so it is NOT included as
+a bare root — only the Garden lemmas are."""
+
+[[member]]
+kind = "lemma"
+value = "جَنَّة"
+note = "janna — the Garden. Lemma, not root: j-n-n also yields jinn, junūn, ijtanna."
+
+[[member]]
+kind = "lemma"
+value = "فِرْدَوْس"
+note = "firdaws — Paradise. A lemma: the corpus assigns no separate root for it."
+
+[[member]]
+kind = "root"
+value = "نعم"
+confidence = 0.5
+note = "naʿīm — bliss; the root also covers ordinary favour and cattle, so low confidence"
+
+[[member]]
+kind = "lemma"
+value = "عُقْبَى"
+confidence = 0.7
+note = "ʿuqbā — the final outcome; 'ʿuqbā al-dār' is a standing periphrasis for paradise"
+
+[[member]]
+kind = "root"
+value = "خلد"
+confidence = 0.5
+note = "khuld — eternity; frequently the epithet of the abode, but also used of punishment"
