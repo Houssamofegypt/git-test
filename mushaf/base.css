@@ -132,7 +132,7 @@ a { color: inherit; }
   display: inline-grid; place-items: center; width: 2.3em; height: 2.3em; margin-inline: .1em; vertical-align: -.25em;
   font-family: var(--quran); font-size: .6em; font-weight: 700; line-height: 1; color: var(--red); position: relative; white-space: nowrap;
 }
-.am3 { font-size: .5em; width: 2.75em; height: 2.75em; }
+.am3 { font-size: .55em; width: 2.75em; height: 2.75em; }
 .am::before {
   content: ""; position: absolute; inset: 0; background: var(--gold);
   -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cg fill='none' stroke='black' stroke-width='2'%3E%3Ccircle cx='20' cy='20' r='13'/%3E%3Cpath d='M20 1l4 6 7-2-1 7 6 4-6 4 1 7-7-2-4 6-4-6-7 2 1-7-6-4 6-4-1-7 7 2z'/%3E%3C/g%3E%3C/svg%3E") center/contain no-repeat;

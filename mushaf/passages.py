@@ -33,3 +33,7 @@ PASSAGES = [
   "A note on method: our divine-names field counts epithets only at verse endings, so it under-counts this passage. When I asked the field for its densest windows, it returned legal passages in al-Baqara, where a name closes each ruling. The instrument decides what you find.",
  ]),
 ]
+
+# themes of the hand-picked passages, keyed by (surah, first verse)
+THEMES = {(2, 183): ["names", "mercy"], (13, 19): ["reward"], (28, 70): ["mercy", "names"], (39, 53): ["mercy"],
+          (55, 1): ["mercy", "names"], (57, 1): ["names"], (59, 20): ["names", "reward"]}

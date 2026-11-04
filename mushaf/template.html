@@ -6,6 +6,17 @@
 <style>
 {{BASE_CSS}}
 
+/* theme colours for the three themes */
+:root { --t-mercy: #2f7a64; --t-reward: #b07a1e; --t-names: #2a4a8f; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --t-mercy: #6cc3a6; --t-reward: #e3b45c; --t-names: #8fb0ee; } }
+:root[data-theme="dark"] { --t-mercy: #6cc3a6; --t-reward: #e3b45c; --t-names: #8fb0ee; }
+
+/* verse rosette: centre the numerals optically (Amiri's digits sit low) */
+.am > i { font-style: normal; display: block; line-height: 1; transform: translateY(-.18em); position: relative; }
+.am3 > i { font-size: .84em; letter-spacing: -.04em; }
+
+.wide { max-width: 78rem; margin: 0 auto; display: grid; gap: 1.6rem; }
+
 /* ---------- tabs ---------- */
 .tabs { display: inline-flex; gap: 0; border: 1px solid var(--gold); border-radius: 999px; overflow: hidden; }
 .tabs button { border: 0; border-radius: 0; min-height: 2.2rem; }
@@ -15,16 +26,53 @@
 
 .panel-head { text-align: center; display: grid; gap: .5rem; justify-items: center; }
 .panel-head h2 { margin: 0; font-family: var(--kufi); font-weight: 600; font-size: clamp(1.6rem, 5vw, 2.2rem); color: var(--gold); }
-.panel-head p { margin: 0; color: var(--muted); max-width: 34rem; text-wrap: balance; }
+.panel-head p { margin: 0; color: var(--muted); max-width: 40rem; text-wrap: balance; }
 .actions { display: flex; flex-wrap: wrap; gap: .5rem; justify-content: center; margin-top: .3rem; }
 .btn { font: inherit; font-size: .92rem; border-radius: 999px; padding: .4rem 1rem; cursor: pointer; min-height: 2.3rem; border: 1px solid var(--gold); background: var(--page); color: var(--ink); }
 .btn.primary { background: var(--lapis); color: var(--lapis-ink); border-color: var(--lapis); font-weight: 700; }
-.btn:hover { border-color: var(--gold); filter: brightness(1.05); }
+.btn:hover { filter: brightness(1.05); }
 .btn:disabled { opacity: .55; cursor: not-allowed; }
+
+/* ---------- navigator: index beside a one-passage reader ---------- */
+.navigator { display: grid; grid-template-columns: minmax(0, 21rem) minmax(0, 1fr); gap: 1.6rem; align-items: start; }
+@media (max-width: 62rem) { .navigator { grid-template-columns: minmax(0, 1fr); } }
+.index { background: var(--page); border: 1px solid var(--gold-soft); border-radius: 8px; display: grid; grid-template-rows: auto minmax(0, 1fr); overflow: hidden;
+  position: sticky; top: calc(env(safe-area-inset-top, 0px) + 3.8rem); max-height: calc(100vh - env(safe-area-inset-top, 0px) - 4.6rem); }
+@media (max-width: 62rem) { .index { position: static; max-height: none; } .index.collapsed .index-list { display: none; } }
+.index-head { display: grid; gap: .55rem; padding: .8rem; border-bottom: 1px solid var(--gold-soft); }
+.index-title { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
+.index-title h3 { margin: 0; font-family: var(--kufi); font-weight: 600; color: var(--gold); font-size: 1.15rem; }
+.index-title .n { font-size: .82rem; color: var(--muted); }
+.index-toggle { display: none; font: inherit; font-size: .85rem; border: 1px solid var(--gold-soft); background: none; color: var(--ink); border-radius: 999px; padding: .2rem .7rem; cursor: pointer; }
+@media (max-width: 62rem) { .index-toggle { display: inline-block; } }
+.index-head input[type="search"] { font: inherit; font-size: .95rem; width: 100%; min-width: 0; padding: .45rem .6rem; border: 1px solid var(--gold-soft); border-radius: 6px; background: var(--paper); color: var(--ink); }
+.chips { display: flex; flex-wrap: wrap; gap: .3rem; }
+.chip { font: inherit; font-size: .8rem; border: 1px solid var(--gold-soft); background: none; color: var(--ink); border-radius: 999px; padding: .15rem .6rem; cursor: pointer; display: inline-flex; align-items: center; gap: .3rem; }
+.chip[aria-pressed="true"] { background: var(--lapis); color: var(--lapis-ink); border-color: var(--lapis); }
+.dot { width: .55rem; height: .55rem; border-radius: 50%; display: inline-block; flex: none; }
+.dot.mercy { background: var(--t-mercy); } .dot.reward { background: var(--t-reward); } .dot.names { background: var(--t-names); }
+.index-list { overflow-y: auto; overscroll-behavior: contain; padding: .3rem 0 .6rem; }
+@media (max-width: 62rem) { .index-list { max-height: 60vh; } }
+.grp-h { position: sticky; top: 0; z-index: 1; background: var(--page); display: flex; justify-content: space-between; align-items: baseline; gap: .5rem; padding: .45rem .8rem .25rem; border-bottom: 1px solid color-mix(in srgb, var(--gold-soft) 60%, transparent); font-size: .8rem; color: var(--muted); }
+.grp-h b { color: var(--ink); font-weight: 700; }
+.grp-h span[lang="ar"] { font-family: var(--kufi); font-size: .95rem; color: var(--gold); }
+.row { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: .2rem .55rem; align-items: center; width: 100%; text-align: start; font: inherit; color: inherit; background: none; border: 0; border-inline-start: 3px solid transparent; padding: .45rem .8rem; cursor: pointer; }
+.row:hover { background: var(--heart); }
+.row[aria-current="true"] { background: var(--heart); border-inline-start-color: var(--gold); }
+.row .rref { font-family: var(--kufi); font-size: .8rem; color: var(--red); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.row .rt { font-size: .88rem; line-height: 1.35; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.row .rm-meta { display: inline-flex; gap: .2rem; align-items: center; }
+.stars { color: var(--gold); font-size: .72rem; letter-spacing: -.05em; white-space: nowrap; }
+.index-empty { padding: 1rem .8rem; color: var(--muted); font-size: .9rem; }
+
+.reader { display: grid; gap: 1rem; min-width: 0; }
+.pager { display: flex; align-items: center; justify-content: space-between; gap: .6rem; flex-wrap: wrap; }
+.pager .pos { font-size: .88rem; color: var(--muted); text-align: center; flex: 1 1 auto; }
+.pager .pos b { color: var(--ink); }
 
 /* strip above each page: keep (selections) or remove (repository) */
 .keepbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .6rem; margin: 0 7px -.6rem; padding: .55rem .9rem; background: var(--lapis); color: var(--lapis-ink); border: 1px solid var(--gold); border-radius: 6px 6px 0 0; position: relative; z-index: 1; }
-.keepbar .ref { font-size: .88rem; letter-spacing: .03em; opacity: .9; }
+.keepbar .ref { font-size: .88rem; letter-spacing: .03em; opacity: .9; display: inline-flex; gap: .5rem; align-items: center; flex-wrap: wrap; }
 .keep { display: inline-flex; align-items: center; gap: .55rem; cursor: pointer; font-weight: 700; }
 .keep input { width: 1.25rem; height: 1.25rem; accent-color: var(--gold); cursor: pointer; margin: 0; }
 .keep input:disabled { cursor: progress; }
@@ -34,24 +82,28 @@
 .rm:hover { background: color-mix(in srgb, var(--lapis-ink) 14%, transparent); }
 .rm.armed { background: var(--red); border-color: var(--red); color: #fff; font-weight: 700; }
 .rm:disabled { opacity: .5; cursor: progress; }
-.hashiya h3 .src { font-family: var(--latin); color: var(--muted); font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; border: 1px solid var(--gold-soft); border-radius: 999px; padding: .05rem .5rem; color: var(--muted); margin-inline-start: .4rem; vertical-align: .1em; }
+.hashiya h3 .src { font-family: var(--latin); color: var(--muted); font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; border: 1px solid var(--gold-soft); border-radius: 999px; padding: .05rem .5rem; margin-inline-start: .4rem; vertical-align: .1em; }
+.themes { display: inline-flex; gap: .35rem; flex-wrap: wrap; }
+.theme { display: inline-flex; align-items: center; gap: .3rem; font-size: .78rem; }
 
 .merged-tag { font-size: .8rem; color: var(--muted); text-align: center; margin: -.4rem 0 0; }
 .hashiya .member + .member { margin-top: 1rem; padding-top: .9rem; border-top: 1px dashed var(--gold-soft); }
 .hashiya .empty { color: var(--muted); font-style: italic; }
+.hashiya .why { margin: 0 0 .45rem; }
+.hashiya .why .k { font-weight: 700; }
+.hashiya .why span[lang="ar"] { font-family: var(--quran); font-size: 1.15em; }
 
 /* ---------- add-a-passage form ---------- */
-.addcard { background: var(--page); border: 3px double var(--gold); outline: 1px solid var(--gold-soft); outline-offset: 5px; margin: 6px; padding: 1.3rem clamp(1rem, 4vw, 2rem); display: grid; gap: 1rem; }
+.addcard { background: var(--page); border: 3px double var(--gold); outline: 1px solid var(--gold-soft); outline-offset: 5px; margin: 6px auto; padding: 1.3rem clamp(1rem, 4vw, 2rem); display: grid; gap: 1rem; max-width: 50rem; width: calc(100% - 12px); }
 .addcard h3 { margin: 0; font-family: var(--kufi); font-weight: 600; color: var(--gold); font-size: 1.3rem; text-align: center; }
 .fields { display: grid; grid-template-columns: minmax(0, 2.2fr) minmax(0, 1fr) minmax(0, 1fr); gap: .8rem; }
-.fields .wide { grid-column: 1 / -1; }
+.fields .wide-f { grid-column: 1 / -1; }
 @media (max-width: 34rem) { .fields { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } .fields .surah-f { grid-column: 1 / -1; } }
 .field { display: grid; gap: .3rem; min-width: 0; }
 .field label { font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+.field label small { text-transform: none; letter-spacing: 0; font-weight: 400; font-size: inherit; }
 .field input, .field select, .field textarea { font: inherit; font-size: 1rem; color: var(--ink); background: var(--paper); border: 1px solid var(--gold-soft); border-radius: 6px; padding: .5rem .6rem; min-width: 0; width: 100%; }
 .field textarea { min-height: 4.5rem; resize: vertical; }
-.field input:focus, .field select:focus, .field textarea:focus { outline: 2px solid var(--gold); outline-offset: 1px; }
-.field .hint { font-size: .8rem; color: var(--muted); }
 .preview { border-top: 1px solid var(--gold-soft); padding-top: .9rem; display: grid; gap: .5rem; }
 .preview .pv-ref { text-align: center; font-size: .85rem; color: var(--muted); letter-spacing: .03em; }
 .preview .mushaf { font-size: calc(var(--qsize) * .85); }
@@ -67,6 +119,7 @@
 .toast a { color: inherit; font-weight: 700; }
 .savedin { text-align: center; font-size: .85rem; color: var(--muted); margin: 0; }
 .savedin b { color: var(--ink); }
+.kbd { font-size: .78rem; color: var(--muted); text-align: center; margin: 0; }
 
 body.no-heart .heart { background: none !important; }
 [hidden] { display: none !important; }
@@ -84,7 +137,7 @@ body.no-heart .heart { background: none !important; }
     </svg>
     <h1 lang="ar">مُصْحَفِي</h1>
     <p class="sub">Selections and your verse repository</p>
-    <p class="lede">Passages I propose arrive under Selections. Keep the ones you want and they move into your repository, placed where they sit in the Book. You can also add any passage yourself. Neighbouring passages from the same surah join into one continuous reading.</p>
+    <p class="lede">Every passage the scan found on God's mercy, the reward of the faithful, and His names and qualities, each with its surrounding verses. Keep the ones you want and they move into your repository, in their place in the Book.</p>
     <p class="savedin" id="savedin">Opening…</p>
   </header>
 </div>
@@ -102,13 +155,14 @@ body.no-heart .heart { background: none !important; }
   <button type="button" id="t-heart" aria-pressed="true">Highlight</button>
 </div>
 
-<main class="wrap" style="margin-top:2rem">
-  <section id="panel-selections" role="tabpanel" aria-labelledby="tab-selections" class="wrap">
-    <div class="panel-head"><h2 lang="ar">المُخْتَارَات</h2><p>Passages chosen for you, in muṣḥaf order. Tick <b>Keep</b> to move one into your repository.</p></div>
-    <div id="sel-body"><div class="state"><span class="glyph" lang="ar">۞</span><strong>Opening your passages…</strong></div></div>
+<main class="wide" style="margin-top:2rem">
+  <section id="panel-selections" role="tabpanel" aria-labelledby="tab-selections" class="wide">
+    <div class="panel-head"><h2 lang="ar">المُخْتَارَات</h2>
+      <p>Seven passages I chose by hand, plus everything the scan found, in muṣḥaf order. Stars show how strongly a passage carries its themes. Tick <b>Keep</b> to move one into your repository.</p></div>
+    <div class="navigator" id="sel-nav"></div>
   </section>
 
-  <section id="panel-repository" role="tabpanel" aria-labelledby="tab-repository" class="wrap" hidden>
+  <section id="panel-repository" role="tabpanel" aria-labelledby="tab-repository" class="wide" hidden>
     <div class="panel-head">
       <h2 lang="ar">مُسْتَوْدَعِي</h2>
       <p id="rep-summary">Your permanent record, arranged in the order of the Book.</p>
@@ -126,8 +180,8 @@ body.no-heart .heart { background: none !important; }
         <div class="field surah-f"><label for="f-surah">Surah</label><select id="f-surah"></select></div>
         <div class="field"><label for="f-from">From verse</label><input id="f-from" type="number" inputmode="numeric" min="1" value="1"></div>
         <div class="field"><label for="f-to">To verse</label><input id="f-to" type="number" inputmode="numeric" min="1" value="1"></div>
-        <div class="field wide"><label for="f-title">Title <span style="text-transform:none;letter-spacing:0;font-weight:400">(optional)</span></label><input id="f-title" type="text" maxlength="120" placeholder="e.g. The light verse"></div>
-        <div class="field wide"><label for="f-note">Note <span style="text-transform:none;letter-spacing:0;font-weight:400">(optional)</span></label><textarea id="f-note" maxlength="2000" placeholder="Why you're keeping it, where you came across it…"></textarea></div>
+        <div class="field wide-f"><label for="f-title">Title <small>(optional)</small></label><input id="f-title" type="text" maxlength="120" placeholder="e.g. The light verse"></div>
+        <div class="field wide-f"><label for="f-note">Note <small>(optional)</small></label><textarea id="f-note" maxlength="2000" placeholder="Why you're keeping it, where you came across it…"></textarea></div>
       </div>
       <div class="preview" id="preview" aria-live="polite"></div>
       <p class="form-err" id="form-err" role="alert"></p>
@@ -137,10 +191,10 @@ body.no-heart .heart { background: none !important; }
       </div>
     </form>
 
-    <nav class="fihris" aria-labelledby="rep-fihris-h" id="rep-fihris" hidden><h2 id="rep-fihris-h" lang="ar">الفِهْرِس</h2><ol id="rep-toc"></ol></nav>
-    <div id="rep-body"><div class="state"><span class="glyph" lang="ar">۞</span><strong>Opening your repository…</strong></div></div>
+    <div class="navigator" id="rep-nav"></div>
   </section>
-  <p class="colophon">Arabic: Ḥafṣ ʿan ʿĀṣim, Uthmani script, Kufan verse numbering. Translation: ʿAbdullah Yūsuf ʿAlī (1934). Both come from the project's pinned, hash-verified database and are carried inside this page in full. Typeset in Amiri Quran by Khaled Hosny and Reem Kufi by Khaled Hosny and Santiago Orozco (SIL OFL).</p>
+  <p class="kbd">Keyboard: ← and → move between passages.</p>
+  <p class="colophon">Arabic: Ḥafṣ ʿan ʿĀṣim, Uthmani script, Kufan verse numbering. Translation: ʿAbdullah Yūsuf ʿAlī (1934). Both come from the project's pinned, hash-verified database and are carried inside this page in full. Passages marked “found by the scan” were picked by mushaf/scan.py from the morphology; it reads words, not meaning, so weaker picks (one star) deserve a sceptical eye. Typeset in Amiri Quran by Khaled Hosny and Reem Kufi by Khaled Hosny and Santiago Orozco (SIL OFL).</p>
 </main>
 <div class="toast" id="toast" role="status" hidden></div>
 
@@ -152,6 +206,7 @@ body.no-heart .heart { background: none !important; }
   const Q = JSON.parse($("quran-data").textContent);       // {s: [[nameAr, translit, english, place, count]], v: [[[ar, en, juz, page]]]}
   const SEEDS = JSON.parse($("seed-data").textContent);    // proposals, used only when the page runs without the Claude store
   const BASMALA = Q.v[0][0][0];
+  const THEMES = { mercy: "Mercy", reward: "Reward", names: "Names & qualities" };
   const root = document.documentElement, body = document.body;
   const prefs = { get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
                   set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} } };
@@ -172,8 +227,10 @@ body.no-heart .heart { background: none !important; }
 
   /* ---- tabs, routed on the hash ---- */
   const TABS = ["selections", "repository"];
+  let activeTab = "selections";
   function showTab(name) {
     if (!TABS.includes(name)) name = "selections";
+    activeTab = name;
     for (const t of TABS) { $("tab-" + t).setAttribute("aria-selected", t === name); $("panel-" + t).hidden = t !== name; }
   }
   const goTab = t => { if (location.hash !== "#" + t) location.hash = t; else showTab(t); };
@@ -190,31 +247,34 @@ body.no-heart .heart { background: none !important; }
   const ref = (s, a, b) => a === b ? `${s}:${a}` : `${s}:${a}–${b}`;
   const idOf = (s, a, b) => `q${pad(s)}-${pad(a)}-${pad(b)}`;
   const smooth = () => matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
+  const stars = t => t ? `<span class="stars" title="${["", "weaker", "good", "strong"][t]} match">${"★".repeat(t)}</span>` : "";
+  const dots = ths => ths.map(t => `<span class="dot ${t}" title="${THEMES[t]}"></span>`).join("");
   let toastTimer;
   function toast(html) { const t = $("toast"); t.innerHTML = html; t.hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(() => t.hidden = true, 5000); }
 
   /* Every passage is rebuilt from the embedded text: a stored or imported
-     document contributes only its range and its own words (title, notes). */
+     document contributes only its range and its own words. */
   function buildDoc(d) {
     const s = +d.surah, a = +d.from, b = +d.to;
     if (!Number.isInteger(s) || s < 1 || s > 114) return null;
     const meta = Q.s[s - 1], count = meta[4];
     if (!Number.isInteger(a) || !Number.isInteger(b) || a < 1 || b < a || b > count) return null;
-    const vs = Q.v[s - 1];
     const str = (x, max) => typeof x === "string" ? x.slice(0, max) : "";
+    const pairs = x => Array.isArray(x) ? x.filter(p => Array.isArray(p) && typeof p[0] === "string" && Number.isInteger(p[1])).slice(0, 8) : [];
+    const hits = d.hits && typeof d.hits === "object" ? { mercy: pairs(d.hits.mercy), reward: pairs(d.hits.reward), names: pairs(d.hits.names) } : null;
     return {
       _id: idOf(s, a, b), surah: s, from: a, to: b,
       heart: Number.isInteger(d.heart) && d.heart >= a && d.heart <= b ? d.heart : 0,
       title: str(d.title, 120) || `${meta[1]} ${ref(s, a, b)}`,
       notes: Array.isArray(d.notes) ? d.notes.filter(x => typeof x === "string").map(x => x.slice(0, 4000)).slice(0, 12) : [],
-      surahAr: meta[0], surahTr: meta[1], surahEn: meta[2], place: meta[3], ayahCount: count,
-      juz: vs[a - 1][2], page: vs[a - 1][3],
-      verses: Array.from({ length: b - a + 1 }, (_, i) => ({ n: a + i, ar: vs[a + i - 1][0], en: vs[a + i - 1][1] })),
+      themes: Array.isArray(d.themes) ? d.themes.filter(t => t in THEMES) : [],
+      tier: [1, 2, 3].includes(d.tier) ? d.tier : 0,
+      hits, formulas: Array.isArray(d.formulas) ? d.formulas.filter(x => typeof x === "string").slice(0, 8) : [],
       kept: d.kept === true, keptAt: str(d.keptAt, 40) || undefined,
-      source: d.source === "you" ? "you" : "claude", addedAt: str(d.addedAt, 40) || undefined,
+      source: ["you", "scan"].includes(d.source) ? d.source : "claude", addedAt: str(d.addedAt, 40) || undefined,
     };
   }
-  const forStore = d => { const o = Object.assign({}, d); delete o._id; for (const k in o) if (o[k] === undefined) delete o[k]; return o; };
+  const forStore = d => { const o = Object.assign({}, d); delete o._id; for (const k in o) if (o[k] === undefined || o[k] === null) delete o[k]; return o; };
 
   /* A unit is one continuous reading: a single passage, or several kept
      passages of one surah whose ranges overlap or touch. */
@@ -227,43 +287,161 @@ body.no-heart .heart { background: none !important; }
       else units.push({ surah: d.surah, from: d.from, to: d.to, members: [d] });
     }
     for (const u of units) {
-      const vs = Q.v[u.surah - 1], hearts = new Set(u.members.map(m => m.heart).filter(Boolean));
+      const vs = Q.v[u.surah - 1];
+      u.hearts = new Set(u.members.map(m => m.heart).filter(Boolean));
       u.verses = Array.from({ length: u.to - u.from + 1 }, (_, i) => ({ n: u.from + i, ar: vs[u.from + i - 1][0], en: vs[u.from + i - 1][1] }));
-      u.hearts = hearts; u.head = u.members[0]; u.id = `u${u.surah}-${u.from}`;
+      u.head = u.members[0]; u.id = u.members.length === 1 ? u.head._id : `u${u.surah}-${u.from}`;
       u.juz = vs[u.from - 1][2]; u.page = vs[u.from - 1][3];
+      u.themes = [...new Set(u.members.flatMap(m => m.themes))].sort((a, b) => Object.keys(THEMES).indexOf(a) - Object.keys(THEMES).indexOf(b));
+      u.tier = Math.max(...u.members.map(m => m.tier));
+      u.title = u.members.map(m => m.title).join(" · ");
     }
     return units;
   }
 
-  function mushafHTML(surah, verses, hearts) {
-    return verses.map(v => `<span${hearts.has(v.n) ? ' class="heart"' : ""}>${esc(v.ar)}</span><span class="am${v.n > 99 ? " am3" : ""}" aria-label="verse ${v.n}">${ar(v.n)}</span>`).join("");
+  function mushafHTML(verses, hearts) {
+    return verses.map(v => `<span${hearts.has(v.n) ? ' class="heart"' : ""}>${esc(v.ar)}</span><span class="am${v.n > 99 ? " am3" : ""}" aria-label="verse ${v.n}"><i>${ar(v.n)}</i></span>`).join("");
+  }
+
+  function whyHTML(m) {
+    if (m.source !== "scan") return m.notes.length ? m.notes.map(p => `<p>${rich(p)}</p>`).join("") : '<p class="empty">No note.</p>';
+    const line = (k, label) => m.hits && m.hits[k] && m.hits[k].length
+      ? `<p class="why"><span class="dot ${k}"></span> <span class="k">${label}:</span> ${m.hits[k].map(([l, n]) => `<span lang="ar">${esc(l)}</span>${n > 1 ? " ×" + n : ""}`).join(", ")}</p>` : "";
+    return `<p class="why">The scan picked this for its vocabulary. The strongest verse is ${m.surah}:${m.heart}.</p>`
+      + line("mercy", "Mercy") + line("reward", "Reward") + line("names", "Divine attributes")
+      + (m.formulas.length ? `<p class="why"><span class="dot names"></span> <span class="k">Self-description:</span> <i>${m.formulas.map(esc).join("</i>, <i>")}</i></p>` : "");
   }
 
   function pageHTML(u, mode) {
-    const h = u.head, rng = ref(u.surah, u.from, u.to), meta = Q.s[u.surah - 1];
+    const rng = ref(u.surah, u.from, u.to), meta = Q.s[u.surah - 1];
     const place = meta[3] === "meccan" ? "مَكِّيَّة" : "مَدَنِيَّة";
     const bas = u.from === 1 && u.surah !== 1 && u.surah !== 9 ? `<p class="basmala" lang="ar">${esc(BASMALA)}</p>` : "";
     const trans = u.verses.map(v => `<li${u.hearts.has(v.n) ? ' class="heart"' : ""}><span class="vn">${u.surah}:${v.n}</span> ${esc(v.en)}</li>`).join("");
-    const notes = u.members.map(m => `<div class="member"><h3><span lang="ar">حاشية</span> ${esc(m.title)} · ${ref(m.surah, m.from, m.to)}${m.source === "you" ? '<span class="src">added by you</span>' : ""}</h3>${m.notes.length ? m.notes.map(p => `<p>${rich(p)}</p>`).join("") : '<p class="empty">No note.</p>'}</div>`).join("");
-    const merged = u.members.length > 1 ? `<p class="merged-tag">Joined from ${u.members.length} kept passages: ${u.members.map(m => esc(m.title)).join(" · ")}</p>` : "";
+    const srcLabel = { you: "added by you", scan: "found by the scan", claude: "hand-picked" };
+    const notes = u.members.map(m => `<div class="member"><h3><span lang="ar">حاشية</span> ${esc(m.title)} · ${ref(m.surah, m.from, m.to)}<span class="src">${srcLabel[m.source]}</span></h3>${whyHTML(m)}</div>`).join("");
+    const merged = u.members.length > 1 ? `<p class="merged-tag">Joined from ${u.members.length} kept passages</p>` : "";
+    const themes = `<span class="themes">${u.themes.map(t => `<span class="theme"><span class="dot ${t}"></span>${THEMES[t]}</span>`).join("")}</span>`;
     const ro = !canWrite;
-    let top = "";
+    let top;
     if (mode === "sel") {
-      top = `<div class="keepbar"><span class="ref">${esc(meta[1])} · ${rng}</span>
-        <label class="keep${ro ? " readonly" : ""}"><input type="checkbox" data-keep="${h._id}"${ro ? " disabled" : ""}> Keep in my repository</label></div>`;
+      top = `<div class="keepbar"><span class="ref">${esc(meta[1])} · ${rng} ${stars(u.tier)} ${themes}</span>
+        <label class="keep${ro ? " readonly" : ""}"><input type="checkbox" data-keep="${u.head._id}"${ro ? " disabled" : ""}> Keep in my repository</label></div>`;
     } else {
-      const btns = ro ? "" : u.members.map(m => `<button type="button" class="rm" data-remove="${m._id}" data-label="Remove${u.members.length > 1 ? " " + esc(ref(m.surah, m.from, m.to)) : ""} from repository">Remove${u.members.length > 1 ? " " + esc(ref(m.surah, m.from, m.to)) : ""} from repository</button>`).join("");
-      top = `<div class="keepbar"><span class="ref">${esc(meta[1])} · ${rng}</span><span class="rm-group">${btns}</span></div>`;
+      const label = m => `Remove${u.members.length > 1 ? " " + ref(m.surah, m.from, m.to) : ""} from repository`;
+      const btns = ro ? "" : u.members.map(m => `<button type="button" class="rm" data-remove="${m._id}" data-label="${esc(label(m))}">${esc(label(m))}</button>`).join("");
+      top = `<div class="keepbar"><span class="ref">${esc(meta[1])} · ${rng} ${themes}</span><span class="rm-group">${btns}</span></div>`;
     }
     return `<article class="page" id="${mode}-${u.id}" aria-label="${esc(meta[1])} ${rng}">${top}
       <div class="frame">
         <header class="sarlawh"><span class="sw-side" lang="ar">آياتها&nbsp;${ar(meta[4])}</span><h3 lang="ar" style="margin:0;font-family:var(--kufi);font-weight:600;font-size:clamp(1.25rem,4.2vw,1.75rem);padding:.1rem 1.4rem;text-align:center;border-inline:1px solid color-mix(in srgb, var(--lapis-ink) 45%, transparent);white-space:nowrap">${esc(meta[0])}</h3><span class="sw-side" lang="ar">${place}</span></header>
         <p class="loc"><span>${esc(meta[1])}</span><span>${esc(meta[2])}</span><span>Q${rng}</span><span>juz ${u.juz} · page ${u.page}</span></p>
         ${merged}${bas}
-        <div class="mushaf" lang="ar" dir="rtl">${mushafHTML(u.surah, u.verses, u.hearts)}</div>
+        <div class="mushaf" lang="ar" dir="rtl">${mushafHTML(u.verses, u.hearts)}</div>
         <div class="below"><ol class="trans" aria-label="English translation">${trans}</ol><aside class="hashiya" aria-label="Notes">${notes}</aside></div>
         <p class="folio"><a href="#top">↑ top</a><span lang="ar">${ar(u.surah)}</span></p>
       </div></article>`;
+  }
+
+  /* ---- navigator: index (search, theme and strength filters) + one-passage reader ---- */
+  function Navigator(key, mode) {
+    const el = $(key + "-nav");
+    const st = Object.assign({ themes: [], minTier: 0, q: "", current: null }, prefs.get("nav-" + key, {}));
+    st.q = "";
+    el.innerHTML = `
+      <aside class="index${window.innerWidth <= 992 ? " collapsed" : ""}" aria-label="Index">
+        <div class="index-head">
+          <div class="index-title"><h3 lang="ar">الفِهْرِس</h3><span class="n" id="${key}-n"></span>
+            <button type="button" class="index-toggle" id="${key}-toggle" aria-expanded="false">Show index</button></div>
+          <input type="search" id="${key}-q" placeholder="Surah, 39:53, or a word" aria-label="Search the index">
+          <div class="chips" role="group" aria-label="Themes">${Object.entries(THEMES).map(([k, v]) => `<button type="button" class="chip" data-theme-chip="${k}" aria-pressed="${st.themes.includes(k)}"><span class="dot ${k}"></span>${v}</button>`).join("")}</div>
+          ${mode === "sel" ? `<div class="chips" role="group" aria-label="Strength">${[[0, "All"], [2, "★★ and up"], [3, "★★★ only"]].map(([t, l]) => `<button type="button" class="chip" data-tier-chip="${t}" aria-pressed="${st.minTier === t}">${l}</button>`).join("")}</div>` : ""}
+        </div>
+        <div class="index-list" id="${key}-list" role="list"></div>
+      </aside>
+      <div class="reader" id="${key}-reader"></div>`;
+    const aside = el.querySelector(".index");
+    const tog = $(key + "-toggle");
+    tog.onclick = () => { const c = aside.classList.toggle("collapsed"); tog.setAttribute("aria-expanded", !c); tog.textContent = c ? "Show index" : "Hide index"; };
+    let units = [], shown = [];
+    const save = () => prefs.set("nav-" + key, { themes: st.themes, minTier: st.minTier, current: st.current });
+    function matches(u) {
+      if (st.themes.length && !st.themes.some(t => u.themes.includes(t))) return false;
+      if (st.minTier && u.tier < st.minTier) return false;
+      const q = st.q.trim().toLowerCase();
+      if (!q) return true;
+      const meta = Q.s[u.surah - 1];
+      const m = q.match(/^(\d{1,3})(?::(\d{1,3}))?$/);
+      if (m) return +m[1] === u.surah && (!m[2] || (+m[2] >= u.from && +m[2] <= u.to));
+      return (meta[1] + " " + meta[2] + " " + meta[0] + " " + u.title).toLowerCase().includes(q)
+        || u.verses.some(v => v.en.toLowerCase().includes(q));
+    }
+    function list() {
+      shown = units.filter(matches);
+      $(key + "-n").textContent = shown.length === units.length ? `${units.length} passages` : `${shown.length} of ${units.length}`;
+      if (!shown.length) { $(key + "-list").innerHTML = `<p class="index-empty">${units.length ? "Nothing matches these filters." : mode === "sel" ? "No passages waiting." : "Nothing kept yet."}</p>`; return; }
+      let html = "", last = 0;
+      for (const u of shown) {
+        if (u.surah !== last) {
+          const meta = Q.s[u.surah - 1], n = shown.filter(x => x.surah === u.surah).length;
+          html += `<div class="grp-h"><span><b>${u.surah}. ${esc(meta[1])}</b> · ${n}</span><span lang="ar">${esc(meta[0].replace(/^سورة /, ""))}</span></div>`;
+          last = u.surah;
+        }
+        html += `<button type="button" class="row" role="listitem" data-go="${u.id}" aria-current="${u.id === st.current}"><span class="rref">${ref(u.surah, u.from, u.to)}</span><span class="rt">${esc(u.title)}</span><span class="rm-meta">${dots(u.themes)}${mode === "sel" ? stars(u.tier) : ""}</span></button>`;
+      }
+      $(key + "-list").innerHTML = html;
+    }
+    function read(scroll) {
+      const r = $(key + "-reader");
+      if (!units.length) {
+        r.innerHTML = mode === "sel"
+          ? `<div class="state"><span class="glyph" lang="ar">۞</span><strong>No new selections</strong><span>Everything proposed so far is in your repository. Ask Claude for more passages and they will appear here.</span><a href="#repository">Open My Repository</a></div>`
+          : `<div class="state"><span class="glyph" lang="ar">۞</span><strong>Your repository is empty</strong><span>Tick <b>Keep</b> on a passage under Selections, or use <b>Add a passage</b> above for any surah and range.</span><a href="#selections">Go to Selections</a></div>`;
+        return;
+      }
+      const pool = shown.length ? shown : units;
+      let i = pool.findIndex(u => u.id === st.current);
+      if (i < 0) i = 0;
+      const u = pool[i]; st.current = u.id; save();
+      const pager = `<div class="pager"><button type="button" class="btn" data-step="-1"${i === 0 ? " disabled" : ""}>‹ Previous</button>
+        <span class="pos"><b>${i + 1}</b> of ${pool.length}${shown.length && shown.length < units.length ? " (filtered)" : ""}</span>
+        <button type="button" class="btn" data-step="1"${i === pool.length - 1 ? " disabled" : ""}>Next ›</button></div>`;
+      r.innerHTML = pager + pageHTML(u, mode) + pager;
+      el.querySelectorAll(".row").forEach(b => b.setAttribute("aria-current", b.dataset.go === u.id));
+      const row = el.querySelector(`.row[aria-current="true"]`);
+      if (row) { const L = $(key + "-list"), lr = L.getBoundingClientRect(), rr = row.getBoundingClientRect(); if (rr.top < lr.top + 30 || rr.bottom > lr.bottom) L.scrollTop += rr.top - lr.top - L.clientHeight / 3; }
+      if (scroll) { const t = r.getBoundingClientRect().top; if (t < 0 || t > window.innerHeight * .6) r.scrollIntoView({ behavior: smooth(), block: "start" }); }
+    }
+    function step(d) {
+      const pool = shown.length ? shown : units;
+      const i = pool.findIndex(u => u.id === st.current);
+      const j = Math.min(pool.length - 1, Math.max(0, i + d));
+      if (j !== i) { st.current = pool[j].id; read(true); }
+    }
+    el.addEventListener("click", e => {
+      const g = e.target.closest("[data-go]");
+      if (g) { st.current = g.dataset.go; read(true); if (window.innerWidth <= 992 && !aside.classList.contains("collapsed")) tog.click(); return; }
+      const s = e.target.closest("[data-step]"); if (s) { step(+s.dataset.step); return; }
+      const tc = e.target.closest("[data-theme-chip]");
+      if (tc) { const k = tc.dataset.themeChip; st.themes = st.themes.includes(k) ? st.themes.filter(x => x !== k) : [...st.themes, k]; tc.setAttribute("aria-pressed", st.themes.includes(k)); list(); read(false); save(); return; }
+      const tr = e.target.closest("[data-tier-chip]");
+      if (tr) { st.minTier = +tr.dataset.tierChip; el.querySelectorAll("[data-tier-chip]").forEach(b => b.setAttribute("aria-pressed", +b.dataset.tierChip === st.minTier)); list(); read(false); save(); }
+    });
+    $(key + "-q").addEventListener("input", e => { st.q = e.target.value; list(); read(false); });
+    return {
+      set(next) {
+        // when the current passage leaves this list (kept or removed), stay at the same position
+        const pool = shown.length ? shown : units;
+        const at = pool.findIndex(u => u.id === st.current);
+        units = next;
+        if (st.current && !units.some(u => u.id === st.current)) {
+          const after = pool.slice(at + 1).find(u => units.some(x => x.id === u.id)) || pool.slice(0, Math.max(at, 0)).reverse().find(u => units.some(x => x.id === u.id));
+          st.current = after ? after.id : null;
+        }
+        list(); read(false);
+      },
+      show(id) { st.current = id; if (!units.some(u => u.id === id)) return; if (!shown.some(u => u.id === id)) { st.themes = []; st.minTier = 0; st.q = ""; $(key + "-q").value = ""; el.querySelectorAll("[data-theme-chip]").forEach(b => b.setAttribute("aria-pressed", false)); el.querySelectorAll("[data-tier-chip]").forEach(b => b.setAttribute("aria-pressed", +b.dataset.tierChip === 0)); list(); } read(true); },
+      step,
+    };
   }
 
   /* ---- stores: the Claude store when the page runs on claude.ai, else this browser ---- */
@@ -291,7 +469,7 @@ body.no-heart .heart { background: none !important; }
       mode: "cloud",
       subscribe(cb, onFail) {
         const timer = setTimeout(() => onFail("Still waiting for your passages. The page will fill in as soon as the store answers."), 10000);
-        db.collection("passages").onSnapshot(snap => {
+        db.collection("passages").limit(1000).onSnapshot(snap => {
           if (!snap.metadata.fromCache) clearTimeout(timer);
           cb(snap.docs.map(s => Object.assign({ _id: s.id }, s.data())));
         }, () => { clearTimeout(timer); onFail("Your passages couldn't be loaded. Reload the page to try again."); });
@@ -305,30 +483,24 @@ body.no-heart .heart { background: none !important; }
   /* ---- state ---- */
   let store = null, docs = [], canWrite = false, loaded = false, downloads = null;
   const busy = new Set();
+  const NAV = { sel: Navigator("sel", "sel"), rep: Navigator("rep", "rep") };
 
   function render() {
     const sel = docs.filter(d => !d.kept), rep = docs.filter(d => d.kept);
     $("n-sel").textContent = loaded ? sel.length : ""; $("n-rep").textContent = loaded ? rep.length : "";
     $("open-add").disabled = $("import").disabled = !canWrite;
     if (!loaded) return;
-    $("sel-body").innerHTML = sel.length
-      ? `<div class="wrap">${unitsOf(sel, false).map(u => pageHTML(u, "sel")).join("")}</div>`
-      : `<div class="state"><span class="glyph" lang="ar">۞</span><strong>No new selections</strong><span>Everything proposed so far is in your repository. Ask Claude for more passages and they will appear here.</span><a href="#repository">Open My Repository</a></div>`;
+    NAV.sel.set(unitsOf(sel, false));
     const units = unitsOf(rep, true);
+    NAV.rep.set(units);
     const verses = units.reduce((s, u) => s + u.verses.length, 0);
     $("rep-summary").textContent = rep.length
       ? `${rep.length} passage${rep.length > 1 ? "s" : ""} kept, ${verses} verse${verses > 1 ? "s" : ""}, arranged in the order of the Book.`
       : "Your permanent record, arranged in the order of the Book.";
-    $("rep-fihris").hidden = !units.length;
-    $("rep-toc").innerHTML = units.map(u => `<li><a href="#" data-jump="rep-${u.id}"><span class="toc-ar" lang="ar">${esc(Q.s[u.surah - 1][0])}</span><span class="toc-en">${u.members.map(m => esc(m.title)).join(" · ")}</span><span class="toc-ref">${esc(Q.s[u.surah - 1][1])} · ${ref(u.surah, u.from, u.to)}</span></a></li>`).join("");
-    $("rep-body").innerHTML = units.length
-      ? `<div class="wrap">${units.map(u => pageHTML(u, "rep")).join("")}</div>`
-      : `<div class="state"><span class="glyph" lang="ar">۞</span><strong>Your repository is empty</strong><span>Tick <b>Keep</b> on a passage under Selections, or use <b>Add a passage</b> above for any surah and range.</span></div>`;
   }
 
   function fail(msg) {
-    const box = `<div class="state"><span class="glyph" lang="ar">۞</span><strong>${esc(msg)}</strong></div>`;
-    $("sel-body").innerHTML = box; $("rep-body").innerHTML = box;
+    for (const k of ["sel", "rep"]) $(k + "-reader").innerHTML = `<div class="state"><span class="glyph" lang="ar">۞</span><strong>${esc(msg)}</strong></div>`;
   }
 
   async function write(id, fn, control, okMsg) {
@@ -347,13 +519,11 @@ body.no-heart .heart { background: none !important; }
     const c = e.target.closest("input[data-keep]"); if (!c || !c.checked) return;
     const d = docs.find(x => x._id === c.dataset.keep); if (!d) return;
     write(d._id, () => store.update(d._id, { kept: true, keptAt: new Date().toISOString() }), c,
-      `“${esc(d.title)}” is now in <a href="#repository">My Repository</a>.`);
+      `“${esc(d.title)}” is now in <a href="#repository">My Repository</a>. Showing the next selection.`);
   });
 
   /* remove: two taps, so a stray tap never loses anything */
   document.addEventListener("click", e => {
-    const j = e.target.closest("[data-jump]");
-    if (j) { e.preventDefault(); const el = $(j.dataset.jump); if (el) el.scrollIntoView({ behavior: smooth() }); return; }
     const b = e.target.closest("[data-remove]"); if (!b) return;
     if (!b.classList.contains("armed")) {
       b.classList.add("armed"); b.textContent = "Tap again to remove";
@@ -363,6 +533,13 @@ body.no-heart .heart { background: none !important; }
     const d = docs.find(x => x._id === b.dataset.remove); if (!d) return;
     if (d.source === "you") write(d._id, () => store.remove(d._id), b, `Removed “${esc(d.title)}” from your repository.`);
     else write(d._id, () => store.update(d._id, { kept: false }), b, `Removed “${esc(d.title)}”. It's back under <a href="#selections">Selections</a> if you change your mind.`);
+  });
+
+  /* keyboard: arrows move through the visible tab's list */
+  document.addEventListener("keydown", e => {
+    if (e.altKey || e.ctrlKey || e.metaKey || /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
+    if (e.key === "ArrowRight") NAV[activeTab === "selections" ? "sel" : "rep"].step(1);
+    if (e.key === "ArrowLeft") NAV[activeTab === "selections" ? "sel" : "rep"].step(-1);
   });
 
   /* ---- add a passage ---- */
@@ -386,7 +563,7 @@ body.no-heart .heart { background: none !important; }
     const verses = Array.from({ length: show }, (_, i) => ({ n: a + i, ar: vs[a + i - 1][0] }));
     const exists = docs.find(d => d._id === idOf(s, a, b));
     $("preview").innerHTML = `<p class="pv-ref">${esc(Q.s[s - 1][1])} · ${ref(s, a, b)} · ${b - a + 1} verse${b > a ? "s" : ""}${exists && exists.kept ? " · already in your repository" : ""}</p>
-      <div class="mushaf" lang="ar" dir="rtl">${mushafHTML(s, verses, new Set())}</div>
+      <div class="mushaf" lang="ar" dir="rtl">${mushafHTML(verses, new Set())}</div>
       ${b - a + 1 > show ? `<p class="more">and ${b - a + 1 - show} more verse${b - a + 1 - show > 1 ? "s" : ""}</p>` : ""}`;
   }
   fS.onchange = () => { fA.value = 1; fB.value = Math.min(Q.s[+fS.value - 1][4], 5); preview(); };
@@ -402,23 +579,25 @@ body.no-heart .heart { background: none !important; }
     const now = new Date().toISOString();
     let ok;
     if (existing && existing.kept) { toast("That passage is already in your repository."); return; }
-    if (existing) ok = await write(id, () => store.update(id, { kept: true, keptAt: now }), $("f-add"), `Added ${esc(Q.s[s - 1][1])} ${ref(s, a, b)} to your repository.`);
+    const msg = `Added ${esc(Q.s[s - 1][1])} ${ref(s, a, b)} to your repository.`;
+    if (existing) ok = await write(id, () => store.update(id, { kept: true, keptAt: now }), $("f-add"), msg);
     else {
       const note = $("f-note").value.trim();
       const doc = buildDoc({ surah: s, from: a, to: b, title: $("f-title").value.trim(), notes: note ? [note] : [], kept: true, keptAt: now, source: "you", addedAt: now });
-      ok = await write(id, () => store.set(id, forStore(doc)), $("f-add"), `Added ${esc(Q.s[s - 1][1])} ${ref(s, a, b)} to your repository.`);
+      ok = await write(id, () => store.set(id, forStore(doc)), $("f-add"), msg);
     }
     $("f-add").disabled = false;
     if (ok) {
       $("addform").hidden = true; $("f-title").value = ""; $("f-note").value = "";
-      requestAnimationFrame(() => { const u = unitsOf(docs.filter(d => d.kept), true).find(u => u.surah === s && u.from <= a && u.to >= b); const el = u && $("rep-" + u.id); if (el) el.scrollIntoView({ behavior: smooth() }); });
+      const u = unitsOf(docs.filter(d => d.kept), true).find(u => u.surah === s && u.from <= a && u.to >= b);
+      if (u) NAV.rep.show(u.id);
     }
   };
 
   /* ---- export / import ---- */
   $("export").onclick = async () => {
     const payload = JSON.stringify({ format: "mushaf-repository", version: 1, exportedAt: new Date().toISOString(),
-      passages: docs.map(d => ({ id: d._id, surah: d.surah, from: d.from, to: d.to, heart: d.heart, title: d.title, notes: d.notes, kept: d.kept, keptAt: d.keptAt, source: d.source, addedAt: d.addedAt })) }, null, 1);
+      passages: docs.filter(d => d.kept || d.source === "you").map(d => forStore(Object.assign({ id: d._id }, d))) }, null, 1);
     const filename = `my-mushaf-${new Date().toISOString().slice(0, 10)}.json`;
     try {
       if (downloads) { const r = await downloads.save({ filename, data: payload }); if (r && r.status === "saved") toast("Backup saved."); return; }
@@ -436,7 +615,12 @@ body.no-heart .heart { background: none !important; }
     let n = 0, bad = 0;
     for (const it of items.slice(0, 2000)) {
       const doc = buildDoc(it); if (!doc) { bad++; continue; }
-      try { await store.set(doc._id, forStore(doc)); n++; } catch (err) { bad++; }
+      const existing = docs.find(d => d._id === doc._id);
+      try {
+        if (existing) await store.update(doc._id, { kept: doc.kept, ...(doc.keptAt ? { keptAt: doc.keptAt } : {}) });
+        else await store.set(doc._id, forStore(doc));
+        n++;
+      } catch (err) { bad++; }
     }
     toast(`Imported ${n} passage${n === 1 ? "" : "s"}${bad ? `, skipped ${bad} that didn't fit the Book` : ""}.`);
   };
@@ -456,13 +640,11 @@ body.no-heart .heart { background: none !important; }
       $("savedin").innerHTML = "Saved in <b>this browser only</b>. Use Export backup to keep a copy.";
     }
     store.subscribe(list => {
-      docs = list.map(buildDoc_keep).filter(Boolean);
+      docs = list.map(d => { const b = buildDoc(d); if (b) b._id = d._id; return b; }).filter(Boolean);
       loaded = true; render();
       if (!$("addform").hidden) preview();
     }, fail);
   }
-  /* rebuild text from the embedded Book; keep the stored id */
-  function buildDoc_keep(d) { const b = buildDoc(d); if (!b) return null; b._id = d._id; return b; }
   render();
   start();
 })();

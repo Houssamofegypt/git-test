@@ -14,7 +14,8 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parent
 sys.path.insert(0, str(HERE))
-from passages import PASSAGES  # noqa: E402
+from passages import PASSAGES, THEMES  # noqa: E402
+from scan import scan, LABEL  # noqa: E402
 
 OUT = HERE / "out"
 DB = REPO / "data" / "quran.db"
@@ -32,6 +33,16 @@ def bare(s):
     """Unvocalized form for the Kufic surah headband."""
     s = "".join(ch for ch in unicodedata.normalize("NFD", s) if not unicodedata.combining(ch))
     return s.replace("ٱ", "ا")
+
+
+def title_from(en):
+    """A title for a scanned passage: the opening clause of its strongest verse."""
+    en = clean(en).strip(' "\'')
+    m = re.match(r"(.{18,90}?)[.;:!?,](\s|$)", en)
+    t = (m.group(1) if m else en)
+    if len(t) > 90:
+        t = t[:88].rsplit(" ", 1)[0] + "…"
+    return t.strip(' "\'(')
 
 
 def doc_id(s, a, b):
@@ -60,10 +71,24 @@ def main():
             "ayahCount": count, "juz": juz, "page": page,
             "verses": [{"n": n, "ar": clean(text(s, n, "uthmani-hafs")), "en": clean(text(s, n, "en-yusufali"))}
                        for n in range(a, b + 1)],
-            "kept": False, "source": "claude",
+            "kept": False, "source": "claude", "themes": THEMES[(s, a)], "tier": 3,
         }
         (OUT / "seed" / f"{doc_id(s, a, b)}.json").write_text(json.dumps(doc, ensure_ascii=False, indent=1))
         seeds.append(dict(doc, _id=doc_id(s, a, b)))
+
+    # Everything else the whole-text scan finds (mushaf/scan.py), proposed beside the hand-picked seven.
+    found = scan(c, [(s, a, b) for s, a, b, *_ in PASSAGES])
+    ranked = sorted(found, key=lambda p: -p["score"])
+    tier = {id(p): 3 if i < len(ranked) * .25 else 2 if i < len(ranked) * .65 else 1 for i, p in enumerate(ranked)}
+    for p in found:
+        s, a, b, h = p["surah"], p["frm"], p["to"], p["heart"]
+        doc = {"surah": s, "from": a, "to": b, "heart": h, "title": title_from(text(s, h, "en-yusufali")),
+               "notes": [], "themes": p["themes"], "tier": tier[id(p)], "score": p["score"],
+               "hits": {k: v for k, v in p["hits"].items() if v}, "formulas": p["formulas"],
+               "kept": False, "source": "scan"}
+        (OUT / "seed" / f"{doc_id(s, a, b)}.json").write_text(json.dumps(doc, ensure_ascii=False, indent=1))
+        seeds.append(dict(doc, _id=doc_id(s, a, b)))
+    seeds.sort(key=lambda d: (d["surah"], d["from"]))
 
     # The whole Book, so the page can show any range (Add a passage) and rebuild
     # every stored passage from canonical text rather than trusting stored copies.
@@ -88,7 +113,7 @@ def main():
             .replace("{{QURAN}}", embed({"s": surahs, "v": verses}))
             .replace("{{SEEDS}}", embed(seeds)))
     (OUT / "mushaf.html").write_text(page)
-    print(f"wrote {OUT/'mushaf.html'} ({len(page)//1024} KB) and {len(PASSAGES)} seed documents")
+    print(f"wrote {OUT/'mushaf.html'} ({len(page)//1024} KB) and {len(seeds)} seed documents ({len(PASSAGES)} hand-picked, {len(found)} from the scan)")
 
 
 if __name__ == "__main__":
