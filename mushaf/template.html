@@ -13,26 +13,51 @@
 .tabs button[aria-selected="true"] { background: var(--lapis); color: var(--lapis-ink); }
 .tabs .count { font-family: var(--kufi); font-size: .78rem; margin-inline-start: .35rem; opacity: .85; }
 
-.panel-head { text-align: center; display: grid; gap: .35rem; justify-items: center; }
+.panel-head { text-align: center; display: grid; gap: .5rem; justify-items: center; }
 .panel-head h2 { margin: 0; font-family: var(--kufi); font-weight: 600; font-size: clamp(1.6rem, 5vw, 2.2rem); color: var(--gold); }
 .panel-head p { margin: 0; color: var(--muted); max-width: 34rem; text-wrap: balance; }
+.actions { display: flex; flex-wrap: wrap; gap: .5rem; justify-content: center; margin-top: .3rem; }
+.btn { font: inherit; font-size: .92rem; border-radius: 999px; padding: .4rem 1rem; cursor: pointer; min-height: 2.3rem; border: 1px solid var(--gold); background: var(--page); color: var(--ink); }
+.btn.primary { background: var(--lapis); color: var(--lapis-ink); border-color: var(--lapis); font-weight: 700; }
+.btn:hover { border-color: var(--gold); filter: brightness(1.05); }
+.btn:disabled { opacity: .55; cursor: not-allowed; }
 
-/* keep strip above each candidate page */
+/* strip above each page: keep (selections) or remove (repository) */
 .keepbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .6rem; margin: 0 7px -.6rem; padding: .55rem .9rem; background: var(--lapis); color: var(--lapis-ink); border: 1px solid var(--gold); border-radius: 6px 6px 0 0; position: relative; z-index: 1; }
 .keepbar .ref { font-size: .88rem; letter-spacing: .03em; opacity: .9; }
 .keep { display: inline-flex; align-items: center; gap: .55rem; cursor: pointer; font-weight: 700; }
 .keep input { width: 1.25rem; height: 1.25rem; accent-color: var(--gold); cursor: pointer; margin: 0; }
 .keep input:disabled { cursor: progress; }
 .keep.readonly { font-weight: 400; opacity: .8; cursor: default; }
+.rm-group { display: flex; flex-wrap: wrap; gap: .4rem; justify-content: flex-end; }
+.rm { font: inherit; font-size: .85rem; color: var(--lapis-ink); background: transparent; border: 1px solid color-mix(in srgb, var(--lapis-ink) 55%, transparent); border-radius: 999px; padding: .25rem .8rem; cursor: pointer; }
+.rm:hover { background: color-mix(in srgb, var(--lapis-ink) 14%, transparent); }
+.rm.armed { background: var(--red); border-color: var(--red); color: #fff; font-weight: 700; }
+.rm:disabled { opacity: .5; cursor: progress; }
+.hashiya h3 .src { font-family: var(--latin); color: var(--muted); font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; border: 1px solid var(--gold-soft); border-radius: 999px; padding: .05rem .5rem; color: var(--muted); margin-inline-start: .4rem; vertical-align: .1em; }
 
-/* repository extras */
-.members { display: flex; flex-wrap: wrap; gap: .5rem; justify-content: flex-end; }
-.ghost { font: inherit; font-size: .82rem; color: var(--muted); background: none; border: 1px solid var(--gold-soft); border-radius: 999px; padding: .25rem .8rem; cursor: pointer; }
-.ghost:hover { color: var(--ink); border-color: var(--gold); }
-.ghost:disabled { opacity: .5; cursor: progress; }
 .merged-tag { font-size: .8rem; color: var(--muted); text-align: center; margin: -.4rem 0 0; }
-.hashiya h3 + p { margin-top: 0; }
 .hashiya .member + .member { margin-top: 1rem; padding-top: .9rem; border-top: 1px dashed var(--gold-soft); }
+.hashiya .empty { color: var(--muted); font-style: italic; }
+
+/* ---------- add-a-passage form ---------- */
+.addcard { background: var(--page); border: 3px double var(--gold); outline: 1px solid var(--gold-soft); outline-offset: 5px; margin: 6px; padding: 1.3rem clamp(1rem, 4vw, 2rem); display: grid; gap: 1rem; }
+.addcard h3 { margin: 0; font-family: var(--kufi); font-weight: 600; color: var(--gold); font-size: 1.3rem; text-align: center; }
+.fields { display: grid; grid-template-columns: minmax(0, 2.2fr) minmax(0, 1fr) minmax(0, 1fr); gap: .8rem; }
+.fields .wide { grid-column: 1 / -1; }
+@media (max-width: 34rem) { .fields { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } .fields .surah-f { grid-column: 1 / -1; } }
+.field { display: grid; gap: .3rem; min-width: 0; }
+.field label { font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+.field input, .field select, .field textarea { font: inherit; font-size: 1rem; color: var(--ink); background: var(--paper); border: 1px solid var(--gold-soft); border-radius: 6px; padding: .5rem .6rem; min-width: 0; width: 100%; }
+.field textarea { min-height: 4.5rem; resize: vertical; }
+.field input:focus, .field select:focus, .field textarea:focus { outline: 2px solid var(--gold); outline-offset: 1px; }
+.field .hint { font-size: .8rem; color: var(--muted); }
+.preview { border-top: 1px solid var(--gold-soft); padding-top: .9rem; display: grid; gap: .5rem; }
+.preview .pv-ref { text-align: center; font-size: .85rem; color: var(--muted); letter-spacing: .03em; }
+.preview .mushaf { font-size: calc(var(--qsize) * .85); }
+.preview .more { text-align: center; color: var(--muted); font-size: .88rem; margin: 0; }
+.form-err { color: var(--red); font-weight: 700; margin: 0; text-align: center; min-height: 1.2em; }
+.form-actions { display: flex; flex-wrap: wrap; gap: .6rem; justify-content: center; }
 
 .state { text-align: center; padding: 2.4rem 1rem; color: var(--muted); border: 1px dashed var(--gold-soft); border-radius: 8px; display: grid; gap: .5rem; justify-items: center; }
 .state strong { color: var(--ink); font-size: 1.05rem; }
@@ -40,7 +65,8 @@
 
 .toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(1rem + env(safe-area-inset-bottom, 0px)); background: var(--lapis); color: var(--lapis-ink); border: 1px solid var(--gold); padding: .6rem 1rem; border-radius: 8px; max-width: min(28rem, calc(100vw - 32px)); font-size: .92rem; z-index: 20; box-shadow: 0 6px 24px rgba(0,0,0,.25); }
 .toast a { color: inherit; font-weight: 700; }
-.notice { text-align: center; font-size: .88rem; color: var(--muted); margin: 0; }
+.savedin { text-align: center; font-size: .85rem; color: var(--muted); margin: 0; }
+.savedin b { color: var(--ink); }
 
 body.no-heart .heart { background: none !important; }
 [hidden] { display: none !important; }
@@ -58,7 +84,8 @@ body.no-heart .heart { background: none !important; }
     </svg>
     <h1 lang="ar">مُصْحَفِي</h1>
     <p class="sub">Selections and your verse repository</p>
-    <p class="lede">New passages arrive under Selections. Tick the ones you want to keep and they move into your repository, placed where they sit in the Book. Neighbouring passages from the same surah join into one continuous reading.</p>
+    <p class="lede">Passages I propose arrive under Selections. Keep the ones you want and they move into your repository, placed where they sit in the Book. You can also add any passage yourself. Neighbouring passages from the same surah join into one continuous reading.</p>
+    <p class="savedin" id="savedin">Opening…</p>
   </header>
 </div>
 
@@ -78,35 +105,67 @@ body.no-heart .heart { background: none !important; }
 <main class="wrap" style="margin-top:2rem">
   <section id="panel-selections" role="tabpanel" aria-labelledby="tab-selections" class="wrap">
     <div class="panel-head"><h2 lang="ar">المُخْتَارَات</h2><p>Passages chosen for you, in muṣḥaf order. Tick <b>Keep</b> to move one into your repository.</p></div>
-    <div id="sel-body"><div class="state"><span class="glyph" lang="ar">۞</span><strong>Opening your passages…</strong><span>They're stored with this page in your Claude account.</span></div></div>
+    <div id="sel-body"><div class="state"><span class="glyph" lang="ar">۞</span><strong>Opening your passages…</strong></div></div>
   </section>
+
   <section id="panel-repository" role="tabpanel" aria-labelledby="tab-repository" class="wrap" hidden>
-    <div class="panel-head"><h2 lang="ar">مُسْتَوْدَعِي</h2><p id="rep-summary">Your permanent record, arranged in the order of the Book.</p></div>
+    <div class="panel-head">
+      <h2 lang="ar">مُسْتَوْدَعِي</h2>
+      <p id="rep-summary">Your permanent record, arranged in the order of the Book.</p>
+      <div class="actions">
+        <button type="button" class="btn primary" id="open-add">+ Add a passage</button>
+        <button type="button" class="btn" id="export">Export backup</button>
+        <button type="button" class="btn" id="import">Import backup</button>
+        <input type="file" id="import-file" accept="application/json,.json" hidden>
+      </div>
+    </div>
+
+    <form class="addcard" id="addform" hidden novalidate>
+      <h3 lang="ar">إِضَافَةُ آيَات</h3>
+      <div class="fields">
+        <div class="field surah-f"><label for="f-surah">Surah</label><select id="f-surah"></select></div>
+        <div class="field"><label for="f-from">From verse</label><input id="f-from" type="number" inputmode="numeric" min="1" value="1"></div>
+        <div class="field"><label for="f-to">To verse</label><input id="f-to" type="number" inputmode="numeric" min="1" value="1"></div>
+        <div class="field wide"><label for="f-title">Title <span style="text-transform:none;letter-spacing:0;font-weight:400">(optional)</span></label><input id="f-title" type="text" maxlength="120" placeholder="e.g. The light verse"></div>
+        <div class="field wide"><label for="f-note">Note <span style="text-transform:none;letter-spacing:0;font-weight:400">(optional)</span></label><textarea id="f-note" maxlength="2000" placeholder="Why you're keeping it, where you came across it…"></textarea></div>
+      </div>
+      <div class="preview" id="preview" aria-live="polite"></div>
+      <p class="form-err" id="form-err" role="alert"></p>
+      <div class="form-actions">
+        <button type="submit" class="btn primary" id="f-add">Add to my repository</button>
+        <button type="button" class="btn" id="f-cancel">Cancel</button>
+      </div>
+    </form>
+
     <nav class="fihris" aria-labelledby="rep-fihris-h" id="rep-fihris" hidden><h2 id="rep-fihris-h" lang="ar">الفِهْرِس</h2><ol id="rep-toc"></ol></nav>
     <div id="rep-body"><div class="state"><span class="glyph" lang="ar">۞</span><strong>Opening your repository…</strong></div></div>
   </section>
-  <p class="colophon">Arabic: Ḥafṣ ʿan ʿĀṣim, Uthmani script, Kufan verse numbering. Translation: ʿAbdullah Yūsuf ʿAlī (1934). Both come from the project's pinned, hash-verified database. Typeset in Amiri Quran by Khaled Hosny and Reem Kufi by Khaled Hosny and Santiago Orozco (SIL OFL).</p>
+  <p class="colophon">Arabic: Ḥafṣ ʿan ʿĀṣim, Uthmani script, Kufan verse numbering. Translation: ʿAbdullah Yūsuf ʿAlī (1934). Both come from the project's pinned, hash-verified database and are carried inside this page in full. Typeset in Amiri Quran by Khaled Hosny and Reem Kufi by Khaled Hosny and Santiago Orozco (SIL OFL).</p>
 </main>
 <div class="toast" id="toast" role="status" hidden></div>
 
+<script type="application/json" id="quran-data">{{QURAN}}</script>
+<script type="application/json" id="seed-data">{{SEEDS}}</script>
 <script>
 (function () {
-  const BASMALA = {{BASMALA}};
-  const root = document.documentElement, body = document.body;
   const $ = id => document.getElementById(id);
-  const store = { get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+  const Q = JSON.parse($("quran-data").textContent);       // {s: [[nameAr, translit, english, place, count]], v: [[[ar, en, juz, page]]]}
+  const SEEDS = JSON.parse($("seed-data").textContent);    // proposals, used only when the page runs without the Claude store
+  const BASMALA = Q.v[0][0][0];
+  const root = document.documentElement, body = document.body;
+  const prefs = { get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
                   set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} } };
 
   /* ---- reading preferences (per viewer) ---- */
-  let size = store.get("qsize", window.innerWidth < 520 ? 1.6 : 1.9);
+  let size = prefs.get("qsize", window.innerWidth < 520 ? 1.6 : 1.9);
   const applySize = () => root.style.setProperty("--qsize", size + "rem");
   applySize();
-  $("smaller").onclick = () => { size = Math.max(1.3, +(size - .15).toFixed(2)); applySize(); store.set("qsize", size); };
-  $("larger").onclick = () => { size = Math.min(3.4, +(size + .15).toFixed(2)); applySize(); store.set("qsize", size); };
+  $("smaller").onclick = () => { size = Math.max(1.3, +(size - .15).toFixed(2)); applySize(); prefs.set("qsize", size); };
+  $("larger").onclick = () => { size = Math.min(3.4, +(size + .15).toFixed(2)); applySize(); prefs.set("qsize", size); };
   function toggle(id, cls, key) {
     const b = $(id);
-    const set = on => { b.setAttribute("aria-pressed", on); body.classList.toggle(cls, !on); store.set(key, on); };
-    set(store.get(key, true));
+    const set = on => { b.setAttribute("aria-pressed", on); body.classList.toggle(cls, !on); prefs.set(key, on); };
+    set(prefs.get(key, true));
     b.onclick = () => set(b.getAttribute("aria-pressed") !== "true");
   }
   toggle("t-trans", "no-trans", "trans"); toggle("t-notes", "no-notes", "notes"); toggle("t-heart", "no-heart", "heart");
@@ -115,12 +174,10 @@ body.no-heart .heart { background: none !important; }
   const TABS = ["selections", "repository"];
   function showTab(name) {
     if (!TABS.includes(name)) name = "selections";
-    for (const t of TABS) {
-      $("tab-" + t).setAttribute("aria-selected", t === name);
-      $("panel-" + t).hidden = t !== name;
-    }
+    for (const t of TABS) { $("tab-" + t).setAttribute("aria-selected", t === name); $("panel-" + t).hidden = t !== name; }
   }
-  for (const t of TABS) $("tab-" + t).onclick = () => { if (location.hash !== "#" + t) location.hash = t; else showTab(t); };
+  const goTab = t => { if (location.hash !== "#" + t) location.hash = t; else showTab(t); };
+  for (const t of TABS) $("tab-" + t).onclick = () => goTab(t);
   window.addEventListener("hashchange", () => { const h = location.hash.slice(1); if (TABS.includes(h)) { showTab(h); window.scrollTo({ top: 0 }); } });
   showTab(location.hash.slice(1));
 
@@ -129,9 +186,35 @@ body.no-heart .heart { background: none !important; }
   const ar = n => String(n).replace(/\d/g, d => AR[d]);
   const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const rich = s => esc(s).replace(/&lt;(\/?)(i|b)&gt;/g, "<$1$2>");   // notes may carry <i>/<b> only
+  const pad = n => String(n).padStart(3, "0");
+  const ref = (s, a, b) => a === b ? `${s}:${a}` : `${s}:${a}–${b}`;
+  const idOf = (s, a, b) => `q${pad(s)}-${pad(a)}-${pad(b)}`;
+  const smooth = () => matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
   let toastTimer;
   function toast(html) { const t = $("toast"); t.innerHTML = html; t.hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(() => t.hidden = true, 5000); }
-  const valid = d => d && Number.isInteger(d.surah) && Number.isInteger(d.from) && Number.isInteger(d.to) && Array.isArray(d.verses);
+
+  /* Every passage is rebuilt from the embedded text: a stored or imported
+     document contributes only its range and its own words (title, notes). */
+  function buildDoc(d) {
+    const s = +d.surah, a = +d.from, b = +d.to;
+    if (!Number.isInteger(s) || s < 1 || s > 114) return null;
+    const meta = Q.s[s - 1], count = meta[4];
+    if (!Number.isInteger(a) || !Number.isInteger(b) || a < 1 || b < a || b > count) return null;
+    const vs = Q.v[s - 1];
+    const str = (x, max) => typeof x === "string" ? x.slice(0, max) : "";
+    return {
+      _id: idOf(s, a, b), surah: s, from: a, to: b,
+      heart: Number.isInteger(d.heart) && d.heart >= a && d.heart <= b ? d.heart : 0,
+      title: str(d.title, 120) || `${meta[1]} ${ref(s, a, b)}`,
+      notes: Array.isArray(d.notes) ? d.notes.filter(x => typeof x === "string").map(x => x.slice(0, 4000)).slice(0, 12) : [],
+      surahAr: meta[0], surahTr: meta[1], surahEn: meta[2], place: meta[3], ayahCount: count,
+      juz: vs[a - 1][2], page: vs[a - 1][3],
+      verses: Array.from({ length: b - a + 1 }, (_, i) => ({ n: a + i, ar: vs[a + i - 1][0], en: vs[a + i - 1][1] })),
+      kept: d.kept === true, keptAt: str(d.keptAt, 40) || undefined,
+      source: d.source === "you" ? "you" : "claude", addedAt: str(d.addedAt, 40) || undefined,
+    };
+  }
+  const forStore = d => { const o = Object.assign({}, d); delete o._id; for (const k in o) if (o[k] === undefined) delete o[k]; return o; };
 
   /* A unit is one continuous reading: a single passage, or several kept
      passages of one surah whose ranges overlap or touch. */
@@ -140,108 +223,247 @@ body.no-heart .heart { background: none !important; }
     const units = [];
     for (const d of sorted) {
       const last = units[units.length - 1];
-      if (merge && last && last.surah === d.surah && d.from <= last.to + 1) {
-        last.to = Math.max(last.to, d.to); last.members.push(d);
-      } else units.push({ surah: d.surah, from: d.from, to: d.to, members: [d] });
+      if (merge && last && last.surah === d.surah && d.from <= last.to + 1) { last.to = Math.max(last.to, d.to); last.members.push(d); }
+      else units.push({ surah: d.surah, from: d.from, to: d.to, members: [d] });
     }
     for (const u of units) {
-      const vs = new Map(), hearts = new Set();
-      for (const m of u.members) { for (const v of m.verses) vs.set(v.n, v); if (m.heart) hearts.add(m.heart); }
-      u.verses = [...vs.values()].sort((a, b) => a.n - b.n);
-      u.hearts = hearts; u.head = u.members[0];
-      u.id = `u${u.surah}-${u.from}`;
+      const vs = Q.v[u.surah - 1], hearts = new Set(u.members.map(m => m.heart).filter(Boolean));
+      u.verses = Array.from({ length: u.to - u.from + 1 }, (_, i) => ({ n: u.from + i, ar: vs[u.from + i - 1][0], en: vs[u.from + i - 1][1] }));
+      u.hearts = hearts; u.head = u.members[0]; u.id = `u${u.surah}-${u.from}`;
+      u.juz = vs[u.from - 1][2]; u.page = vs[u.from - 1][3];
     }
     return units;
   }
 
+  function mushafHTML(surah, verses, hearts) {
+    return verses.map(v => `<span${hearts.has(v.n) ? ' class="heart"' : ""}>${esc(v.ar)}</span><span class="am${v.n > 99 ? " am3" : ""}" aria-label="verse ${v.n}">${ar(v.n)}</span>`).join("");
+  }
+
   function pageHTML(u, mode) {
-    const h = u.head, rng = `${u.surah}:${u.from}–${u.to}`;
-    const place = h.place === "meccan" ? "مَكِّيَّة" : "مَدَنِيَّة";
+    const h = u.head, rng = ref(u.surah, u.from, u.to), meta = Q.s[u.surah - 1];
+    const place = meta[3] === "meccan" ? "مَكِّيَّة" : "مَدَنِيَّة";
     const bas = u.from === 1 && u.surah !== 1 && u.surah !== 9 ? `<p class="basmala" lang="ar">${esc(BASMALA)}</p>` : "";
-    const arabic = u.verses.map(v => `<span${u.hearts.has(v.n) ? ' class="heart"' : ""}>${esc(v.ar)}</span><span class="am${v.n > 99 ? " am3" : ""}" aria-label="verse ${v.n}">${ar(v.n)}</span>`).join("");
     const trans = u.verses.map(v => `<li${u.hearts.has(v.n) ? ' class="heart"' : ""}><span class="vn">${u.surah}:${v.n}</span> ${esc(v.en)}</li>`).join("");
-    const notes = u.members.map(m => `<div class="member"><h3><span lang="ar">حاشية</span> ${esc(m.title)} · ${m.surah}:${m.from}–${m.to}</h3>${(m.notes || []).map(p => `<p>${rich(p)}</p>`).join("")}</div>`).join("");
+    const notes = u.members.map(m => `<div class="member"><h3><span lang="ar">حاشية</span> ${esc(m.title)} · ${ref(m.surah, m.from, m.to)}${m.source === "you" ? '<span class="src">added by you</span>' : ""}</h3>${m.notes.length ? m.notes.map(p => `<p>${rich(p)}</p>`).join("") : '<p class="empty">No note.</p>'}</div>`).join("");
     const merged = u.members.length > 1 ? `<p class="merged-tag">Joined from ${u.members.length} kept passages: ${u.members.map(m => esc(m.title)).join(" · ")}</p>` : "";
-    let top = "", foot = "";
+    const ro = !canWrite;
+    let top = "";
     if (mode === "sel") {
-      const ro = canWrite === false;
-      top = `<div class="keepbar"><span class="ref">${esc(h.surahTr)} · ${rng}</span>
-        <label class="keep${ro ? " readonly" : ""}"><input type="checkbox" id="keep-${esc(h._id)}" data-id="${esc(h._id)}"${ro ? " disabled" : ""}> Keep in my repository</label></div>`;
-    } else if (canWrite !== false) {
-      foot = `<div class="members">${u.members.map(m => `<button type="button" class="ghost" data-return="${esc(m._id)}">Return “${esc(m.title)}” to Selections</button>`).join("")}</div>`;
+      top = `<div class="keepbar"><span class="ref">${esc(meta[1])} · ${rng}</span>
+        <label class="keep${ro ? " readonly" : ""}"><input type="checkbox" data-keep="${h._id}"${ro ? " disabled" : ""}> Keep in my repository</label></div>`;
+    } else {
+      const btns = ro ? "" : u.members.map(m => `<button type="button" class="rm" data-remove="${m._id}" data-label="Remove${u.members.length > 1 ? " " + esc(ref(m.surah, m.from, m.to)) : ""} from repository">Remove${u.members.length > 1 ? " " + esc(ref(m.surah, m.from, m.to)) : ""} from repository</button>`).join("");
+      top = `<div class="keepbar"><span class="ref">${esc(meta[1])} · ${rng}</span><span class="rm-group">${btns}</span></div>`;
     }
-    return `<article class="page" id="${mode}-${u.id}" aria-label="${esc(h.surahTr)} ${rng}">${top}
+    return `<article class="page" id="${mode}-${u.id}" aria-label="${esc(meta[1])} ${rng}">${top}
       <div class="frame">
-        <header class="sarlawh"><span class="sw-side" lang="ar">آياتها&nbsp;${ar(h.ayahCount)}</span><h3 lang="ar" style="margin:0;font-family:var(--kufi);font-weight:600;font-size:clamp(1.25rem,4.2vw,1.75rem);padding:.1rem 1.4rem;text-align:center;border-inline:1px solid color-mix(in srgb, var(--lapis-ink) 45%, transparent);white-space:nowrap">${esc(h.surahAr)}</h3><span class="sw-side" lang="ar">${place}</span></header>
-        <p class="loc"><span>${esc(h.surahTr)}</span><span>${esc(h.surahEn)}</span><span>Q${rng}</span><span>juz ${h.juz} · page ${h.page}</span></p>
+        <header class="sarlawh"><span class="sw-side" lang="ar">آياتها&nbsp;${ar(meta[4])}</span><h3 lang="ar" style="margin:0;font-family:var(--kufi);font-weight:600;font-size:clamp(1.25rem,4.2vw,1.75rem);padding:.1rem 1.4rem;text-align:center;border-inline:1px solid color-mix(in srgb, var(--lapis-ink) 45%, transparent);white-space:nowrap">${esc(meta[0])}</h3><span class="sw-side" lang="ar">${place}</span></header>
+        <p class="loc"><span>${esc(meta[1])}</span><span>${esc(meta[2])}</span><span>Q${rng}</span><span>juz ${u.juz} · page ${u.page}</span></p>
         ${merged}${bas}
-        <div class="mushaf" lang="ar" dir="rtl">${arabic}</div>
+        <div class="mushaf" lang="ar" dir="rtl">${mushafHTML(u.surah, u.verses, u.hearts)}</div>
         <div class="below"><ol class="trans" aria-label="English translation">${trans}</ol><aside class="hashiya" aria-label="Notes">${notes}</aside></div>
-        ${foot}
         <p class="folio"><a href="#top">↑ top</a><span lang="ar">${ar(u.surah)}</span></p>
       </div></article>`;
   }
 
-  /* ---- state from the store ---- */
-  let docs = [], canWrite = null, loaded = false;
+  /* ---- stores: the Claude store when the page runs on claude.ai, else this browser ---- */
+  function localStore() {
+    const KEY = "mushaf.passages.v1";
+    let state = null, warned = false;
+    try { state = JSON.parse(localStorage.getItem(KEY)); } catch (e) {}
+    if (!state || typeof state !== "object") state = {};
+    for (const s of SEEDS) if (!(s._id in state)) state[s._id] = forStore(s);   // new proposals in a newer file
+    const listeners = [];
+    const list = () => Object.entries(state).map(([id, d]) => Object.assign({ _id: id }, d));
+    const save = () => { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) { if (!warned) { warned = true; toast("This browser won't let the page save. Use <b>Export backup</b> to keep your repository."); } } };
+    const emit = () => listeners.forEach(f => f(list()));
+    save();
+    return {
+      mode: "local",
+      subscribe(cb) { listeners.push(cb); cb(list()); },
+      async update(id, patch) { state[id] = Object.assign({}, state[id], patch); save(); emit(); },
+      async set(id, doc) { state[id] = doc; save(); emit(); },
+      async remove(id) { delete state[id]; save(); emit(); },
+    };
+  }
+  function cloudStore(db) {
+    return {
+      mode: "cloud",
+      subscribe(cb, onFail) {
+        const timer = setTimeout(() => onFail("Still waiting for your passages. The page will fill in as soon as the store answers."), 10000);
+        db.collection("passages").onSnapshot(snap => {
+          if (!snap.metadata.fromCache) clearTimeout(timer);
+          cb(snap.docs.map(s => Object.assign({ _id: s.id }, s.data())));
+        }, () => { clearTimeout(timer); onFail("Your passages couldn't be loaded. Reload the page to try again."); });
+      },
+      update: (id, patch) => db.doc("passages/" + id).update(patch),
+      set: (id, doc) => db.doc("passages/" + id).set(doc),
+      remove: id => db.doc("passages/" + id).delete(),
+    };
+  }
+
+  /* ---- state ---- */
+  let store = null, docs = [], canWrite = false, loaded = false, downloads = null;
   const busy = new Set();
 
   function render() {
     const sel = docs.filter(d => !d.kept), rep = docs.filter(d => d.kept);
     $("n-sel").textContent = loaded ? sel.length : ""; $("n-rep").textContent = loaded ? rep.length : "";
+    $("open-add").disabled = $("import").disabled = !canWrite;
     if (!loaded) return;
     $("sel-body").innerHTML = sel.length
       ? `<div class="wrap">${unitsOf(sel, false).map(u => pageHTML(u, "sel")).join("")}</div>`
-      : `<div class="state"><span class="glyph" lang="ar">۞</span><strong>No new selections</strong><span>Everything here is in your repository. Ask Claude for more passages and they will appear in this tab.</span><a href="#repository">Open My Repository</a></div>`;
+      : `<div class="state"><span class="glyph" lang="ar">۞</span><strong>No new selections</strong><span>Everything proposed so far is in your repository. Ask Claude for more passages and they will appear here.</span><a href="#repository">Open My Repository</a></div>`;
     const units = unitsOf(rep, true);
     const verses = units.reduce((s, u) => s + u.verses.length, 0);
     $("rep-summary").textContent = rep.length
-      ? `${rep.length} passage${rep.length > 1 ? "s" : ""} kept, ${verses} verses, arranged in the order of the Book.`
+      ? `${rep.length} passage${rep.length > 1 ? "s" : ""} kept, ${verses} verse${verses > 1 ? "s" : ""}, arranged in the order of the Book.`
       : "Your permanent record, arranged in the order of the Book.";
     $("rep-fihris").hidden = !units.length;
-    $("rep-toc").innerHTML = units.map(u => `<li><a href="#" data-jump="rep-${u.id}"><span class="toc-ar" lang="ar">${esc(u.head.surahAr)}</span><span class="toc-en">${u.members.map(m => esc(m.title)).join(" · ")}</span><span class="toc-ref">${esc(u.head.surahTr)} · ${u.surah}:${u.from}–${u.to}</span></a></li>`).join("");
+    $("rep-toc").innerHTML = units.map(u => `<li><a href="#" data-jump="rep-${u.id}"><span class="toc-ar" lang="ar">${esc(Q.s[u.surah - 1][0])}</span><span class="toc-en">${u.members.map(m => esc(m.title)).join(" · ")}</span><span class="toc-ref">${esc(Q.s[u.surah - 1][1])} · ${ref(u.surah, u.from, u.to)}</span></a></li>`).join("");
     $("rep-body").innerHTML = units.length
       ? `<div class="wrap">${units.map(u => pageHTML(u, "rep")).join("")}</div>`
-      : `<div class="state"><span class="glyph" lang="ar">۞</span><strong>Your repository is empty</strong><span>Tick <b>Keep</b> on a passage under Selections and it lands here in its place in the Book.</span><a href="#selections">Go to Selections</a></div>`;
+      : `<div class="state"><span class="glyph" lang="ar">۞</span><strong>Your repository is empty</strong><span>Tick <b>Keep</b> on a passage under Selections, or use <b>Add a passage</b> above for any surah and range.</span></div>`;
   }
 
-  document.addEventListener("click", e => {
-    const j = e.target.closest("[data-jump]");
-    if (j) { e.preventDefault(); const el = $(j.dataset.jump); if (el) el.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" }); }
-  });
-
-  function fail(msg, html) {
-    const box = `<div class="state"><span class="glyph" lang="ar">۞</span><strong>${msg}</strong><span>${html}</span></div>`;
+  function fail(msg) {
+    const box = `<div class="state"><span class="glyph" lang="ar">۞</span><strong>${esc(msg)}</strong></div>`;
     $("sel-body").innerHTML = box; $("rep-body").innerHTML = box;
   }
 
-  async function start() {
-    const db = window.claude && window.claude.use ? await window.claude.use("db") : null;
-    if (!db) { fail("Your passages can't be reached from here", "They're saved with this page in your Claude account. Open the page on claude.ai while signed in."); return; }
-    try { const user = await window.claude.use("user"); if (user) canWrite = await user.isOwner(); } catch (e) {}
-
-    async function setKept(id, kept, control) {
-      if (busy.has(id)) return;
-      busy.add(id); if (control) control.disabled = true;
-      const d = docs.find(x => x._id === id);
-      try {
-        await db.doc("passages/" + id).update(kept ? { kept: true, keptAt: new Date().toISOString() } : { kept: false });
-        toast(kept ? `“${esc(d ? d.title : "Passage")}” is now in <a href="#repository">My Repository</a>.` : `“${esc(d ? d.title : "Passage")}” is back under <a href="#selections">Selections</a>.`);
-      } catch (err) {
-        if (control) { control.disabled = false; if (control.type === "checkbox") control.checked = !kept; }
-        toast(err && err.code === "invalid_argument" ? "Only the owner of this page can change the repository." : "That change didn't save. Check your connection and try again.");
-      } finally { busy.delete(id); }
-    }
-    document.addEventListener("change", e => { const c = e.target.closest("input[data-id]"); if (c && c.checked) setKept(c.dataset.id, true, c); });
-    document.addEventListener("click", e => { const b = e.target.closest("[data-return]"); if (b) setKept(b.dataset.return, false, b); });
-
-    const timer = setTimeout(() => { if (!loaded) fail("Still waiting for your passages", "The store isn't answering yet. Check your connection; the page will fill in as soon as it does."); }, 10000);
-    db.collection("passages").onSnapshot(snap => {
-      docs = snap.docs.map(s => Object.assign({ _id: s.id }, s.data())).filter(valid);
-      if (!snap.metadata.fromCache) { clearTimeout(timer); }
-      loaded = true; render();
-    }, err => { clearTimeout(timer); fail("Your passages couldn't be loaded", "Reload the page to try again."); });
+  async function write(id, fn, control, okMsg) {
+    if (busy.has(id)) return false;
+    busy.add(id); if (control) control.disabled = true;
+    try { await fn(); if (okMsg) toast(okMsg); return true; }
+    catch (err) {
+      if (control) { control.disabled = false; if (control.type === "checkbox") control.checked = false; }
+      toast(err && err.code === "invalid_argument" ? "Only the owner of this page can change the repository." : "That change didn't save. Check your connection and try again.");
+      return false;
+    } finally { busy.delete(id); }
   }
+
+  /* keep */
+  document.addEventListener("change", e => {
+    const c = e.target.closest("input[data-keep]"); if (!c || !c.checked) return;
+    const d = docs.find(x => x._id === c.dataset.keep); if (!d) return;
+    write(d._id, () => store.update(d._id, { kept: true, keptAt: new Date().toISOString() }), c,
+      `“${esc(d.title)}” is now in <a href="#repository">My Repository</a>.`);
+  });
+
+  /* remove: two taps, so a stray tap never loses anything */
+  document.addEventListener("click", e => {
+    const j = e.target.closest("[data-jump]");
+    if (j) { e.preventDefault(); const el = $(j.dataset.jump); if (el) el.scrollIntoView({ behavior: smooth() }); return; }
+    const b = e.target.closest("[data-remove]"); if (!b) return;
+    if (!b.classList.contains("armed")) {
+      b.classList.add("armed"); b.textContent = "Tap again to remove";
+      setTimeout(() => { if (b.isConnected) { b.classList.remove("armed"); b.textContent = b.dataset.label; } }, 4000);
+      return;
+    }
+    const d = docs.find(x => x._id === b.dataset.remove); if (!d) return;
+    if (d.source === "you") write(d._id, () => store.remove(d._id), b, `Removed “${esc(d.title)}” from your repository.`);
+    else write(d._id, () => store.update(d._id, { kept: false }), b, `Removed “${esc(d.title)}”. It's back under <a href="#selections">Selections</a> if you change your mind.`);
+  });
+
+  /* ---- add a passage ---- */
+  const fS = $("f-surah"), fA = $("f-from"), fB = $("f-to");
+  fS.innerHTML = Q.s.map((m, i) => `<option value="${i + 1}">${i + 1}. ${esc(m[1])} · ${esc(m[2])} (${m[4]} verses)</option>`).join("");
+  function range() { return { s: +fS.value, a: parseInt(fA.value, 10), b: parseInt(fB.value, 10) }; }
+  function checkRange() {
+    const { s, a, b } = range(), count = Q.s[s - 1][4];
+    fA.max = fB.max = count;
+    if (!Number.isInteger(a) || !Number.isInteger(b)) return "Enter both verse numbers.";
+    if (a < 1 || b < 1) return "Verse numbers start at 1.";
+    if (a > count || b > count) return `${Q.s[s - 1][1]} has ${count} verses.`;
+    if (b < a) return "The last verse must come after the first.";
+    return "";
+  }
+  function preview() {
+    const err = checkRange(); $("form-err").textContent = err;
+    $("f-add").disabled = !!err || !canWrite;
+    if (err) { $("preview").innerHTML = ""; return; }
+    const { s, a, b } = range(), vs = Q.v[s - 1], show = Math.min(b - a + 1, 4);
+    const verses = Array.from({ length: show }, (_, i) => ({ n: a + i, ar: vs[a + i - 1][0] }));
+    const exists = docs.find(d => d._id === idOf(s, a, b));
+    $("preview").innerHTML = `<p class="pv-ref">${esc(Q.s[s - 1][1])} · ${ref(s, a, b)} · ${b - a + 1} verse${b > a ? "s" : ""}${exists && exists.kept ? " · already in your repository" : ""}</p>
+      <div class="mushaf" lang="ar" dir="rtl">${mushafHTML(s, verses, new Set())}</div>
+      ${b - a + 1 > show ? `<p class="more">and ${b - a + 1 - show} more verse${b - a + 1 - show > 1 ? "s" : ""}</p>` : ""}`;
+  }
+  fS.onchange = () => { fA.value = 1; fB.value = Math.min(Q.s[+fS.value - 1][4], 5); preview(); };
+  fA.oninput = () => { const a = parseInt(fA.value, 10), b = parseInt(fB.value, 10); if (Number.isInteger(a) && (!Number.isInteger(b) || b < a)) fB.value = a; preview(); };
+  fB.oninput = preview;
+  $("open-add").onclick = () => { const f = $("addform"); f.hidden = !f.hidden; if (!f.hidden) { preview(); fS.focus(); } };
+  $("f-cancel").onclick = () => { $("addform").hidden = true; };
+  $("addform").onsubmit = async e => {
+    e.preventDefault();
+    if (checkRange()) return preview();
+    const { s, a, b } = range(), id = idOf(s, a, b);
+    const existing = docs.find(d => d._id === id);
+    const now = new Date().toISOString();
+    let ok;
+    if (existing && existing.kept) { toast("That passage is already in your repository."); return; }
+    if (existing) ok = await write(id, () => store.update(id, { kept: true, keptAt: now }), $("f-add"), `Added ${esc(Q.s[s - 1][1])} ${ref(s, a, b)} to your repository.`);
+    else {
+      const note = $("f-note").value.trim();
+      const doc = buildDoc({ surah: s, from: a, to: b, title: $("f-title").value.trim(), notes: note ? [note] : [], kept: true, keptAt: now, source: "you", addedAt: now });
+      ok = await write(id, () => store.set(id, forStore(doc)), $("f-add"), `Added ${esc(Q.s[s - 1][1])} ${ref(s, a, b)} to your repository.`);
+    }
+    $("f-add").disabled = false;
+    if (ok) {
+      $("addform").hidden = true; $("f-title").value = ""; $("f-note").value = "";
+      requestAnimationFrame(() => { const u = unitsOf(docs.filter(d => d.kept), true).find(u => u.surah === s && u.from <= a && u.to >= b); const el = u && $("rep-" + u.id); if (el) el.scrollIntoView({ behavior: smooth() }); });
+    }
+  };
+
+  /* ---- export / import ---- */
+  $("export").onclick = async () => {
+    const payload = JSON.stringify({ format: "mushaf-repository", version: 1, exportedAt: new Date().toISOString(),
+      passages: docs.map(d => ({ id: d._id, surah: d.surah, from: d.from, to: d.to, heart: d.heart, title: d.title, notes: d.notes, kept: d.kept, keptAt: d.keptAt, source: d.source, addedAt: d.addedAt })) }, null, 1);
+    const filename = `my-mushaf-${new Date().toISOString().slice(0, 10)}.json`;
+    try {
+      if (downloads) { const r = await downloads.save({ filename, data: payload }); if (r && r.status === "saved") toast("Backup saved."); return; }
+      const url = URL.createObjectURL(new Blob([payload], { type: "application/json" }));
+      const a = Object.assign(document.createElement("a"), { href: url, download: filename }); document.body.append(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 2000); toast("Backup saved to your downloads.");
+    } catch (err) { if (!err || err.code !== "cancelled") toast("The backup wasn't saved."); }
+  };
+  $("import").onclick = () => $("import-file").click();
+  $("import-file").onchange = async e => {
+    const file = e.target.files[0]; e.target.value = ""; if (!file) return;
+    let data; try { data = JSON.parse(await file.text()); } catch (err) { toast("That file isn't a muṣḥaf backup."); return; }
+    const items = data && data.format === "mushaf-repository" && Array.isArray(data.passages) ? data.passages : null;
+    if (!items) { toast("That file isn't a muṣḥaf backup."); return; }
+    let n = 0, bad = 0;
+    for (const it of items.slice(0, 2000)) {
+      const doc = buildDoc(it); if (!doc) { bad++; continue; }
+      try { await store.set(doc._id, forStore(doc)); n++; } catch (err) { bad++; }
+    }
+    toast(`Imported ${n} passage${n === 1 ? "" : "s"}${bad ? `, skipped ${bad} that didn't fit the Book` : ""}.`);
+  };
+
+  /* ---- start ---- */
+  async function start() {
+    let db = null;
+    if (window.claude && window.claude.use) { try { db = await window.claude.use("db"); } catch (e) {} }
+    if (db) {
+      store = cloudStore(db);
+      try { const user = await window.claude.use("user"); canWrite = user ? await user.isOwner() : true; } catch (e) { canWrite = true; }
+      try { downloads = await window.claude.use("downloads"); } catch (e) {}
+      if (!downloads) $("export").hidden = true;
+      $("savedin").innerHTML = canWrite ? "Saved in <b>your Claude account</b>." : "Read-only: only the owner can change this repository.";
+    } else {
+      store = localStore(); canWrite = true;
+      $("savedin").innerHTML = "Saved in <b>this browser only</b>. Use Export backup to keep a copy.";
+    }
+    store.subscribe(list => {
+      docs = list.map(buildDoc_keep).filter(Boolean);
+      loaded = true; render();
+      if (!$("addform").hidden) preview();
+    }, fail);
+  }
+  /* rebuild text from the embedded Book; keep the stored id */
+  function buildDoc_keep(d) { const b = buildDoc(d); if (!b) return null; b._id = d._id; return b; }
+  render();
   start();
 })();
 </script>
