@@ -1,0 +1,247 @@
+<title>Seven Passages Muṣḥaf</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gentium+Book+Plus:ital,wght@0,400;0,700;1,400&display=swap">
+<style>
+{{BASE_CSS}}
+
+/* ---------- tabs ---------- */
+.tabs { display: inline-flex; gap: 0; border: 1px solid var(--gold); border-radius: 999px; overflow: hidden; }
+.tabs button { border: 0; border-radius: 0; min-height: 2.2rem; }
+.tabs button + button { border-inline-start: 1px solid var(--gold); }
+.tabs button[aria-selected="true"] { background: var(--lapis); color: var(--lapis-ink); }
+.tabs .count { font-family: var(--kufi); font-size: .78rem; margin-inline-start: .35rem; opacity: .85; }
+
+.panel-head { text-align: center; display: grid; gap: .35rem; justify-items: center; }
+.panel-head h2 { margin: 0; font-family: var(--kufi); font-weight: 600; font-size: clamp(1.6rem, 5vw, 2.2rem); color: var(--gold); }
+.panel-head p { margin: 0; color: var(--muted); max-width: 34rem; text-wrap: balance; }
+
+/* keep strip above each candidate page */
+.keepbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .6rem; margin: 0 7px -.6rem; padding: .55rem .9rem; background: var(--lapis); color: var(--lapis-ink); border: 1px solid var(--gold); border-radius: 6px 6px 0 0; position: relative; z-index: 1; }
+.keepbar .ref { font-size: .88rem; letter-spacing: .03em; opacity: .9; }
+.keep { display: inline-flex; align-items: center; gap: .55rem; cursor: pointer; font-weight: 700; }
+.keep input { width: 1.25rem; height: 1.25rem; accent-color: var(--gold); cursor: pointer; margin: 0; }
+.keep input:disabled { cursor: progress; }
+.keep.readonly { font-weight: 400; opacity: .8; cursor: default; }
+
+/* repository extras */
+.members { display: flex; flex-wrap: wrap; gap: .5rem; justify-content: flex-end; }
+.ghost { font: inherit; font-size: .82rem; color: var(--muted); background: none; border: 1px solid var(--gold-soft); border-radius: 999px; padding: .25rem .8rem; cursor: pointer; }
+.ghost:hover { color: var(--ink); border-color: var(--gold); }
+.ghost:disabled { opacity: .5; cursor: progress; }
+.merged-tag { font-size: .8rem; color: var(--muted); text-align: center; margin: -.4rem 0 0; }
+.hashiya h3 + p { margin-top: 0; }
+.hashiya .member + .member { margin-top: 1rem; padding-top: .9rem; border-top: 1px dashed var(--gold-soft); }
+
+.state { text-align: center; padding: 2.4rem 1rem; color: var(--muted); border: 1px dashed var(--gold-soft); border-radius: 8px; display: grid; gap: .5rem; justify-items: center; }
+.state strong { color: var(--ink); font-size: 1.05rem; }
+.state .glyph { font-family: var(--kufi); font-size: 2rem; color: var(--gold); }
+
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(1rem + env(safe-area-inset-bottom, 0px)); background: var(--lapis); color: var(--lapis-ink); border: 1px solid var(--gold); padding: .6rem 1rem; border-radius: 8px; max-width: min(28rem, calc(100vw - 32px)); font-size: .92rem; z-index: 20; box-shadow: 0 6px 24px rgba(0,0,0,.25); }
+.toast a { color: inherit; font-weight: 700; }
+.notice { text-align: center; font-size: .88rem; color: var(--muted); margin: 0; }
+
+body.no-heart .heart { background: none !important; }
+[hidden] { display: none !important; }
+</style>
+
+<div class="wrap" id="top">
+  <header class="opening">
+    <svg class="medallion" viewBox="0 0 100 100" aria-hidden="true">
+      <g fill="none" stroke="currentColor" stroke-width="1.6">
+        <circle cx="50" cy="50" r="46"/><circle cx="50" cy="50" r="40"/>
+        <rect x="22" y="22" width="56" height="56"/><rect x="22" y="22" width="56" height="56" transform="rotate(45 50 50)"/>
+        <circle cx="50" cy="50" r="15"/>
+      </g>
+      <circle cx="50" cy="50" r="5" fill="currentColor"/>
+    </svg>
+    <h1 lang="ar">مُصْحَفِي</h1>
+    <p class="sub">Selections and your verse repository</p>
+    <p class="lede">New passages arrive under Selections. Tick the ones you want to keep and they move into your repository, placed where they sit in the Book. Neighbouring passages from the same surah join into one continuous reading.</p>
+  </header>
+</div>
+
+<div class="bar" role="toolbar" aria-label="Reading options">
+  <div class="tabs" role="tablist" aria-label="Views">
+    <button type="button" role="tab" id="tab-selections" aria-controls="panel-selections" aria-selected="true">Selections<span class="count" id="n-sel"></span></button>
+    <button type="button" role="tab" id="tab-repository" aria-controls="panel-repository" aria-selected="false">My Repository<span class="count" id="n-rep"></span></button>
+  </div>
+  <span class="grp"><span class="lbl">Text</span>
+    <button type="button" id="smaller" aria-label="Smaller Arabic text">A−</button>
+    <button type="button" id="larger" aria-label="Larger Arabic text">A+</button></span>
+  <button type="button" id="t-trans" aria-pressed="true">Translation</button>
+  <button type="button" id="t-notes" aria-pressed="true">Notes</button>
+  <button type="button" id="t-heart" aria-pressed="true">Highlight</button>
+</div>
+
+<main class="wrap" style="margin-top:2rem">
+  <section id="panel-selections" role="tabpanel" aria-labelledby="tab-selections" class="wrap">
+    <div class="panel-head"><h2 lang="ar">المُخْتَارَات</h2><p>Passages chosen for you, in muṣḥaf order. Tick <b>Keep</b> to move one into your repository.</p></div>
+    <div id="sel-body"><div class="state"><span class="glyph" lang="ar">۞</span><strong>Opening your passages…</strong><span>They're stored with this page in your Claude account.</span></div></div>
+  </section>
+  <section id="panel-repository" role="tabpanel" aria-labelledby="tab-repository" class="wrap" hidden>
+    <div class="panel-head"><h2 lang="ar">مُسْتَوْدَعِي</h2><p id="rep-summary">Your permanent record, arranged in the order of the Book.</p></div>
+    <nav class="fihris" aria-labelledby="rep-fihris-h" id="rep-fihris" hidden><h2 id="rep-fihris-h" lang="ar">الفِهْرِس</h2><ol id="rep-toc"></ol></nav>
+    <div id="rep-body"><div class="state"><span class="glyph" lang="ar">۞</span><strong>Opening your repository…</strong></div></div>
+  </section>
+  <p class="colophon">Arabic: Ḥafṣ ʿan ʿĀṣim, Uthmani script, Kufan verse numbering. Translation: ʿAbdullah Yūsuf ʿAlī (1934). Both come from the project's pinned, hash-verified database. Typeset in Amiri Quran by Khaled Hosny and Reem Kufi by Khaled Hosny and Santiago Orozco (SIL OFL).</p>
+</main>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script>
+(function () {
+  const BASMALA = {{BASMALA}};
+  const root = document.documentElement, body = document.body;
+  const $ = id => document.getElementById(id);
+  const store = { get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+                  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} } };
+
+  /* ---- reading preferences (per viewer) ---- */
+  let size = store.get("qsize", window.innerWidth < 520 ? 1.6 : 1.9);
+  const applySize = () => root.style.setProperty("--qsize", size + "rem");
+  applySize();
+  $("smaller").onclick = () => { size = Math.max(1.3, +(size - .15).toFixed(2)); applySize(); store.set("qsize", size); };
+  $("larger").onclick = () => { size = Math.min(3.4, +(size + .15).toFixed(2)); applySize(); store.set("qsize", size); };
+  function toggle(id, cls, key) {
+    const b = $(id);
+    const set = on => { b.setAttribute("aria-pressed", on); body.classList.toggle(cls, !on); store.set(key, on); };
+    set(store.get(key, true));
+    b.onclick = () => set(b.getAttribute("aria-pressed") !== "true");
+  }
+  toggle("t-trans", "no-trans", "trans"); toggle("t-notes", "no-notes", "notes"); toggle("t-heart", "no-heart", "heart");
+
+  /* ---- tabs, routed on the hash ---- */
+  const TABS = ["selections", "repository"];
+  function showTab(name) {
+    if (!TABS.includes(name)) name = "selections";
+    for (const t of TABS) {
+      $("tab-" + t).setAttribute("aria-selected", t === name);
+      $("panel-" + t).hidden = t !== name;
+    }
+  }
+  for (const t of TABS) $("tab-" + t).onclick = () => { if (location.hash !== "#" + t) location.hash = t; else showTab(t); };
+  window.addEventListener("hashchange", () => { const h = location.hash.slice(1); if (TABS.includes(h)) { showTab(h); window.scrollTo({ top: 0 }); } });
+  showTab(location.hash.slice(1));
+
+  /* ---- helpers ---- */
+  const AR = "٠١٢٣٤٥٦٧٨٩";
+  const ar = n => String(n).replace(/\d/g, d => AR[d]);
+  const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const rich = s => esc(s).replace(/&lt;(\/?)(i|b)&gt;/g, "<$1$2>");   // notes may carry <i>/<b> only
+  let toastTimer;
+  function toast(html) { const t = $("toast"); t.innerHTML = html; t.hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(() => t.hidden = true, 5000); }
+  const valid = d => d && Number.isInteger(d.surah) && Number.isInteger(d.from) && Number.isInteger(d.to) && Array.isArray(d.verses);
+
+  /* A unit is one continuous reading: a single passage, or several kept
+     passages of one surah whose ranges overlap or touch. */
+  function unitsOf(docs, merge) {
+    const sorted = docs.slice().sort((a, b) => a.surah - b.surah || a.from - b.from || a.to - b.to);
+    const units = [];
+    for (const d of sorted) {
+      const last = units[units.length - 1];
+      if (merge && last && last.surah === d.surah && d.from <= last.to + 1) {
+        last.to = Math.max(last.to, d.to); last.members.push(d);
+      } else units.push({ surah: d.surah, from: d.from, to: d.to, members: [d] });
+    }
+    for (const u of units) {
+      const vs = new Map(), hearts = new Set();
+      for (const m of u.members) { for (const v of m.verses) vs.set(v.n, v); if (m.heart) hearts.add(m.heart); }
+      u.verses = [...vs.values()].sort((a, b) => a.n - b.n);
+      u.hearts = hearts; u.head = u.members[0];
+      u.id = `u${u.surah}-${u.from}`;
+    }
+    return units;
+  }
+
+  function pageHTML(u, mode) {
+    const h = u.head, rng = `${u.surah}:${u.from}–${u.to}`;
+    const place = h.place === "meccan" ? "مَكِّيَّة" : "مَدَنِيَّة";
+    const bas = u.from === 1 && u.surah !== 1 && u.surah !== 9 ? `<p class="basmala" lang="ar">${esc(BASMALA)}</p>` : "";
+    const arabic = u.verses.map(v => `<span${u.hearts.has(v.n) ? ' class="heart"' : ""}>${esc(v.ar)}</span><span class="am${v.n > 99 ? " am3" : ""}" aria-label="verse ${v.n}">${ar(v.n)}</span>`).join("");
+    const trans = u.verses.map(v => `<li${u.hearts.has(v.n) ? ' class="heart"' : ""}><span class="vn">${u.surah}:${v.n}</span> ${esc(v.en)}</li>`).join("");
+    const notes = u.members.map(m => `<div class="member"><h3><span lang="ar">حاشية</span> ${esc(m.title)} · ${m.surah}:${m.from}–${m.to}</h3>${(m.notes || []).map(p => `<p>${rich(p)}</p>`).join("")}</div>`).join("");
+    const merged = u.members.length > 1 ? `<p class="merged-tag">Joined from ${u.members.length} kept passages: ${u.members.map(m => esc(m.title)).join(" · ")}</p>` : "";
+    let top = "", foot = "";
+    if (mode === "sel") {
+      const ro = canWrite === false;
+      top = `<div class="keepbar"><span class="ref">${esc(h.surahTr)} · ${rng}</span>
+        <label class="keep${ro ? " readonly" : ""}"><input type="checkbox" id="keep-${esc(h._id)}" data-id="${esc(h._id)}"${ro ? " disabled" : ""}> Keep in my repository</label></div>`;
+    } else if (canWrite !== false) {
+      foot = `<div class="members">${u.members.map(m => `<button type="button" class="ghost" data-return="${esc(m._id)}">Return “${esc(m.title)}” to Selections</button>`).join("")}</div>`;
+    }
+    return `<article class="page" id="${mode}-${u.id}" aria-label="${esc(h.surahTr)} ${rng}">${top}
+      <div class="frame">
+        <header class="sarlawh"><span class="sw-side" lang="ar">آياتها&nbsp;${ar(h.ayahCount)}</span><h3 lang="ar" style="margin:0;font-family:var(--kufi);font-weight:600;font-size:clamp(1.25rem,4.2vw,1.75rem);padding:.1rem 1.4rem;text-align:center;border-inline:1px solid color-mix(in srgb, var(--lapis-ink) 45%, transparent);white-space:nowrap">${esc(h.surahAr)}</h3><span class="sw-side" lang="ar">${place}</span></header>
+        <p class="loc"><span>${esc(h.surahTr)}</span><span>${esc(h.surahEn)}</span><span>Q${rng}</span><span>juz ${h.juz} · page ${h.page}</span></p>
+        ${merged}${bas}
+        <div class="mushaf" lang="ar" dir="rtl">${arabic}</div>
+        <div class="below"><ol class="trans" aria-label="English translation">${trans}</ol><aside class="hashiya" aria-label="Notes">${notes}</aside></div>
+        ${foot}
+        <p class="folio"><a href="#top">↑ top</a><span lang="ar">${ar(u.surah)}</span></p>
+      </div></article>`;
+  }
+
+  /* ---- state from the store ---- */
+  let docs = [], canWrite = null, loaded = false;
+  const busy = new Set();
+
+  function render() {
+    const sel = docs.filter(d => !d.kept), rep = docs.filter(d => d.kept);
+    $("n-sel").textContent = loaded ? sel.length : ""; $("n-rep").textContent = loaded ? rep.length : "";
+    if (!loaded) return;
+    $("sel-body").innerHTML = sel.length
+      ? `<div class="wrap">${unitsOf(sel, false).map(u => pageHTML(u, "sel")).join("")}</div>`
+      : `<div class="state"><span class="glyph" lang="ar">۞</span><strong>No new selections</strong><span>Everything here is in your repository. Ask Claude for more passages and they will appear in this tab.</span><a href="#repository">Open My Repository</a></div>`;
+    const units = unitsOf(rep, true);
+    const verses = units.reduce((s, u) => s + u.verses.length, 0);
+    $("rep-summary").textContent = rep.length
+      ? `${rep.length} passage${rep.length > 1 ? "s" : ""} kept, ${verses} verses, arranged in the order of the Book.`
+      : "Your permanent record, arranged in the order of the Book.";
+    $("rep-fihris").hidden = !units.length;
+    $("rep-toc").innerHTML = units.map(u => `<li><a href="#" data-jump="rep-${u.id}"><span class="toc-ar" lang="ar">${esc(u.head.surahAr)}</span><span class="toc-en">${u.members.map(m => esc(m.title)).join(" · ")}</span><span class="toc-ref">${esc(u.head.surahTr)} · ${u.surah}:${u.from}–${u.to}</span></a></li>`).join("");
+    $("rep-body").innerHTML = units.length
+      ? `<div class="wrap">${units.map(u => pageHTML(u, "rep")).join("")}</div>`
+      : `<div class="state"><span class="glyph" lang="ar">۞</span><strong>Your repository is empty</strong><span>Tick <b>Keep</b> on a passage under Selections and it lands here in its place in the Book.</span><a href="#selections">Go to Selections</a></div>`;
+  }
+
+  document.addEventListener("click", e => {
+    const j = e.target.closest("[data-jump]");
+    if (j) { e.preventDefault(); const el = $(j.dataset.jump); if (el) el.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" }); }
+  });
+
+  function fail(msg, html) {
+    const box = `<div class="state"><span class="glyph" lang="ar">۞</span><strong>${msg}</strong><span>${html}</span></div>`;
+    $("sel-body").innerHTML = box; $("rep-body").innerHTML = box;
+  }
+
+  async function start() {
+    const db = window.claude && window.claude.use ? await window.claude.use("db") : null;
+    if (!db) { fail("Your passages can't be reached from here", "They're saved with this page in your Claude account. Open the page on claude.ai while signed in."); return; }
+    try { const user = await window.claude.use("user"); if (user) canWrite = await user.isOwner(); } catch (e) {}
+
+    async function setKept(id, kept, control) {
+      if (busy.has(id)) return;
+      busy.add(id); if (control) control.disabled = true;
+      const d = docs.find(x => x._id === id);
+      try {
+        await db.doc("passages/" + id).update(kept ? { kept: true, keptAt: new Date().toISOString() } : { kept: false });
+        toast(kept ? `“${esc(d ? d.title : "Passage")}” is now in <a href="#repository">My Repository</a>.` : `“${esc(d ? d.title : "Passage")}” is back under <a href="#selections">Selections</a>.`);
+      } catch (err) {
+        if (control) { control.disabled = false; if (control.type === "checkbox") control.checked = !kept; }
+        toast(err && err.code === "invalid_argument" ? "Only the owner of this page can change the repository." : "That change didn't save. Check your connection and try again.");
+      } finally { busy.delete(id); }
+    }
+    document.addEventListener("change", e => { const c = e.target.closest("input[data-id]"); if (c && c.checked) setKept(c.dataset.id, true, c); });
+    document.addEventListener("click", e => { const b = e.target.closest("[data-return]"); if (b) setKept(b.dataset.return, false, b); });
+
+    const timer = setTimeout(() => { if (!loaded) fail("Still waiting for your passages", "The store isn't answering yet. Check your connection; the page will fill in as soon as it does."); }, 10000);
+    db.collection("passages").onSnapshot(snap => {
+      docs = snap.docs.map(s => Object.assign({ _id: s.id }, s.data())).filter(valid);
+      if (!snap.metadata.fromCache) { clearTimeout(timer); }
+      loaded = true; render();
+    }, err => { clearTimeout(timer); fail("Your passages couldn't be loaded", "Reload the page to try again."); });
+  }
+  start();
+})();
+</script>

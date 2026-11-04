@@ -21,7 +21,7 @@ SRC := $(wildcard quranlab/*.py) quranlab/schema.sql sources.lock.json \
 $(DB): $(SRC) | fetch
 	$(PY) -m quranlab build
 
-.PHONY: all fetch build verify claims test check clean distclean serve site portable stats help
+.PHONY: all fetch build verify claims test check clean distclean serve site portable mushaf stats help
 
 all: check
 
@@ -51,6 +51,9 @@ site: build           ## export the static showcase into site/
 
 portable: build       ## export the uploadable bundle into dist/
 	$(PY) -m quranlab.export_portable
+
+mushaf: build         ## build the muṣḥaf viewer page and its passage seed documents
+	python3 mushaf/build.py
 
 stats: build          ## summarize the database
 	$(PY) -m quranlab stats
