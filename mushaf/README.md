@@ -1,11 +1,13 @@
 # Muṣḥaf viewer
 
-A small illuminated muṣḥaf with two tabs. Each tab has an index (search by surah, by reference such as `39:53`, or by any word in the translation; filter by theme and, under Selections, by strength) and a reader that shows one passage at a time with Previous/Next and the ← → keys.
+A small illuminated muṣḥaf with four tabs: Selections, My Repository, Archive and Suggest. Each tab has an index (search by surah, by reference such as `39:53`, or by any word in the translation; filter by theme and, under Selections, by strength) and a reader that shows one passage at a time with Previous/Next and the ← → keys.
 
 - **Selections**: seven hand-picked passages plus every passage the whole-text scan found (`scan.py`), in the order of the Book. Tick **Keep** to move one into your repository.
 - **My Repository**: your kept passages, placed by their position in the Book. Kept passages from the same surah whose ranges overlap or touch are joined into one continuous reading.
   - **Remove from repository** (tap twice to confirm): a proposed passage goes back to Selections, and one you added yourself is deleted.
-  - **Add a passage**: pick any surah and verse range, with an optional title and note.
+- **Archive**: selections you set aside. Restore one to Selections, or keep it after all.
+- **Suggest**: look up a passage by reference (`24:35-38`, `an-nur 35`, `baqarah 255`) or by words in English or Arabic. Check the text, adjust the range, then add it to the repository or put it under Selections.
+- **Range** controls on every passage add or drop a verse at either end.
   - **Export backup / Import backup**: a JSON file of everything, which moves your repository between copies.
 
 The page carries the whole Qur'an (Arabic and Yusuf Ali), about 2 MB. Every passage is rebuilt from that canonical text, so stored and imported data only contribute ranges, titles and notes.
